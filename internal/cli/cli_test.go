@@ -2,6 +2,9 @@ package cli_test
 
 import (
 	"bytes"
+	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"strings"
 	"testing"
 
@@ -47,6 +50,12 @@ func TestUsageErrors(t *testing.T) {
 		{name: "empty URL", args: []string{""}, want: "URL must not be empty"},
 		{name: "version with URL", args: []string{"--version", "https://example.com"}, want: "--version does not accept a URL"},
 		{name: "option after URL", args: []string{"https://example.com", "--version"}, want: "place options before the URL"},
+		{name: "missing scheme", args: []string{"example.com"}, want: "include an http:// or https:// scheme"},
+		{name: "unsupported scheme", args: []string{"file:///etc/hosts"}, want: "include an http:// or https:// scheme"},
+		{name: "zero timeout", args: []string{"--timeout=0", "https://example.com"}, want: "timeout must be positive"},
+		{name: "bad timeout", args: []string{"--timeout=soon", "https://example.com"}, want: "invalid value"},
+		{name: "negative redirects", args: []string{"--max-redirects=-1", "https://example.com"}, want: "max-redirects must not be negative"},
+		{name: "zero body limit", args: []string{"--max-body=0", "https://example.com"}, want: "max-body must be positive"},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			var stdout, stderr bytes.Buffer
@@ -64,16 +73,38 @@ func TestUsageErrors(t *testing.T) {
 	}
 }
 
-func TestScanningIsExplicitlyUnavailable(t *testing.T) {
+func TestFetchSummary(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+		fmt.Fprint(w, "page")
+	}))
+	defer server.Close()
 	var stdout, stderr bytes.Buffer
-	code := cli.Run([]string{"https://example.com"}, &stdout, &stderr, "dev")
+	code := cli.Run([]string{server.URL}, &stdout, &stderr, "dev")
+	if code != 0 || stderr.Len() != 0 {
+		t.Fatalf("code=%d, stderr=%q; want a successful fetch", code, stderr.String())
+	}
+	for _, want := range []string{server.URL, "HTTP status: 404", "Body: 4 bytes", "Technology detection is not yet available."} {
+		if !strings.Contains(stdout.String(), want) {
+			t.Errorf("stdout=%q, want to contain %q", stdout.String(), want)
+		}
+	}
+}
+
+func TestFetchFailure(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, "too large")
+	}))
+	defer server.Close()
+	var stdout, stderr bytes.Buffer
+	code := cli.Run([]string{"--max-body=1", server.URL}, &stdout, &stderr, "dev")
 	if code != 1 {
 		t.Errorf("exit code = %d, want 1", code)
 	}
 	if stdout.Len() != 0 {
 		t.Errorf("stdout = %q, want empty", stdout.String())
 	}
-	if !strings.Contains(stderr.String(), "scanning is not implemented yet") {
-		t.Errorf("stderr = %q, want an explicit unavailable message", stderr.String())
+	if !strings.Contains(stderr.String(), "response body limit exceeded") {
+		t.Errorf("stderr = %q, want a body limit error", stderr.String())
 	}
 }
