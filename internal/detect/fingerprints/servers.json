@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "technologies": [
+    {
+      "id": "apache",
+      "name": "Apache HTTP Server",
+      "category": "web_server",
+      "rules": [{
+        "id": "server-header",
+        "state": "detected",
+        "description": "Server header reports Apache; this may be an intermediary",
+        "all": [{"source": "header", "name": "Server", "pattern": "(?i)^[ \\t]*Apache(?:/[0-9][0-9A-Za-z.+_~-]*)?(?:[ \\t]+[^\\r\\n]*)?$"}]
+      }]
+    },
+    {
+      "id": "iis",
+      "name": "Microsoft IIS",
+      "category": "web_server",
+      "rules": [{
+        "id": "server-header",
+        "state": "detected",
+        "description": "Server header reports Microsoft-IIS; this may be an intermediary",
+        "all": [{"source": "header", "name": "Server", "pattern": "(?i)^[ \\t]*Microsoft-IIS(?:/[0-9]+(?:[.][0-9]+)*)?[ \\t]*$"}]
+      }]
+    },
+    {
+      "id": "nginx",
+      "name": "nginx",
+      "category": "web_server",
+      "rules": [{
+        "id": "server-header",
+        "state": "detected",
+        "description": "Server header reports nginx; this may be an intermediary",
+        "all": [{"source": "header", "name": "Server", "pattern": "(?i)^[ \\t]*nginx(?:/[0-9][0-9A-Za-z.+_~-]*)?(?:[ \\t]+[^\\r\\n]*)?$"}]
+      }]
+    }
+  ]
+}

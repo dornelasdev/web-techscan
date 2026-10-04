@@ -1,18 +1,34 @@
 # webscan
 
 A small Go CLI for identifying the likely web stack behind a single URL.
-Planned coverage starts with web frameworks, web servers, and supported
+Coverage starts with web frameworks, web servers, and supported
 programming-language inferences, with evidence attached to every finding.
 
 ## Current status
 
-The detection-core checkpoint retrieves a single page and runs an offline
-fingerprint engine against the captured signals. The bundled catalog is
-currently empty; the CLI reports that explicitly alongside fetch metadata.
-Curated technology coverage arrives in the next section. `v0.1.0` is a planned
-release.
+The CLI retrieves a single page and matches its captured signals against a
+small bundled fingerprint catalog. It prints findings, evidence, and
+detected/inferred states. `v0.1.0` is a planned release; styled terminal output
+and JSON reporting are still upcoming.
 
 Requires Go 1.27 or newer. There are currently no external dependencies.
+
+## Initial coverage
+
+| Category | Technologies | Signals |
+| --- | --- | --- |
+| Web servers | nginx, Apache HTTP Server, Microsoft IIS | Identifying Server header |
+| Frameworks | Express, Next.js | Identifying X-Powered-By header; paired Next.js HTML markers also support an inference |
+| Frameworks | Laravel | Paired default cookie names support an inference |
+| Languages | PHP | Identifying X-Powered-By header or inference from Laravel |
+
+This is a limited starting set. Missing or customized signals can produce no
+findings even when a supported technology is present. Header matches are
+direct evidence, not proof; cookie and HTML heuristics stay inferred. The
+initial catalog does not guess source languages from frontend assets or infer
+languages from web-server implementations. See the
+[coverage notes and official sources](internal/detect/fingerprints/SOURCES.md)
+for each rule's rationale and limits.
 
 ## Build and use
 
@@ -87,7 +103,9 @@ against local HTTP servers. Fetch checks cover redirects, response isolation,
 body/header limits, timeouts, cancellation, incomplete bodies, and untrusted
 TLS certificates. Detection checks use synthetic rules for positive and near-miss
 signals, required signal combinations, inference chains, stable evidence,
-and catalog validation. No live third-party websites are needed:
+and catalog validation. Bundled rules have positive and near-miss cases;
+CLI fixtures cover mixed stacks, HTML filtering, error pages, and redirect
+isolation. No live third-party websites are needed:
 
 ```sh
 go test ./...

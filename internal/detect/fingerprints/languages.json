@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "technologies": [
+    {
+      "id": "php",
+      "name": "PHP",
+      "category": "language",
+      "rules": [{
+        "id": "powered-by-header",
+        "state": "detected",
+        "description": "X-Powered-By header reports PHP",
+        "all": [{"source": "header", "name": "X-Powered-By", "pattern": "(?i)^[ \\t]*PHP(?:/[0-9][0-9A-Za-z.+_~-]*)?[ \\t]*$"}]
+      }]
+    }
+  ]
+}

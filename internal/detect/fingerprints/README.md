@@ -4,9 +4,10 @@ JSON files in this directory are embedded at build time. Each file contains
 `schema_version: 1` and a `technologies` array. Files are loaded together, so
 inference relationships may reference technology IDs in another file.
 
-The bundled catalog is intentionally empty in section 3. Synthetic examples
-live under `../testdata/` and are never embedded. Curated coverage arrives in
-section 4.
+The initial catalog is split across `servers.json`, `frameworks.json`, and
+`languages.json`. See [coverage and sources](SOURCES.md) for the supported
+technologies, rule rationale, and limitations. Synthetic examples live under
+`../testdata/` and are never embedded.
 
 ## Example
 

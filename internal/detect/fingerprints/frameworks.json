@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "technologies": [
+    {
+      "id": "express",
+      "name": "Express",
+      "category": "framework",
+      "rules": [{
+        "id": "powered-by-header",
+        "state": "detected",
+        "description": "X-Powered-By header reports Express",
+        "all": [{"source": "header", "name": "X-Powered-By", "pattern": "(?i)^[ \\t]*Express[ \\t]*$"}]
+      }]
+    },
+    {
+      "id": "laravel",
+      "name": "Laravel",
+      "category": "framework",
+      "rules": [{
+        "id": "default-cookie-pair",
+        "state": "inferred",
+        "description": "laravel_session and XSRF-TOKEN cookie names suggest Laravel",
+        "all": [
+          {"source": "cookie", "pattern": "^laravel_session$"},
+          {"source": "cookie", "pattern": "^XSRF-TOKEN$"}
+        ]
+      }],
+      "implies": ["php"]
+    },
+    {
+      "id": "nextjs",
+      "name": "Next.js",
+      "category": "framework",
+      "rules": [
+        {
+          "id": "pages-html-markers",
+          "state": "inferred",
+          "description": "HTML contains a __NEXT_DATA__ script and a /_next/static/ script reference",
+          "all": [
+            {"source": "html", "pattern": "(?i:<script\\b)[^>]*[\\t\\r\\n ]+(?i:id)[\\t\\r\\n ]*=[\\t\\r\\n ]*(?:\"__NEXT_DATA__\"|'__NEXT_DATA__')[\\t\\r\\n />]"},
+            {"source": "html", "pattern": "(?i:<script\\b)[^>]*[\\t\\r\\n ]+(?i:src)[\\t\\r\\n ]*=[\\t\\r\\n ]*(?:\"[^\"'<>?#\\s]*/_next/static/[^\"'<>\\s]+\"|'[^\"'<>?#\\s]*/_next/static/[^\"'<>\\s]+')[\\t\\r\\n />]"}
+          ]
+        },
+        {
+          "id": "powered-by-header",
+          "state": "detected",
+          "description": "X-Powered-By header reports Next.js",
+          "all": [{"source": "header", "name": "X-Powered-By", "pattern": "(?i)^[ \\t]*Next[.]js[ \\t]*$"}]
+        }
+      ]
+    }
+  ]
+}

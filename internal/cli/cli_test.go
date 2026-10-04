@@ -84,7 +84,7 @@ func TestFetchSummary(t *testing.T) {
 	if code != 0 || stderr.Len() != 0 {
 		t.Fatalf("code=%d, stderr=%q; want a successful fetch", code, stderr.String())
 	}
-	for _, want := range []string{server.URL, "HTTP status: 404", "Body: 4 bytes", "No fingerprints bundled yet"} {
+	for _, want := range []string{server.URL, "HTTP status: 404", "Body: 4 bytes", "No technologies detected."} {
 		if !strings.Contains(stdout.String(), want) {
 			t.Errorf("stdout=%q, want to contain %q", stdout.String(), want)
 		}
