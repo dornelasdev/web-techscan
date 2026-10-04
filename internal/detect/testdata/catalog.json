@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "technologies": [
+    {
+      "id": "sample-framework",
+      "name": "Sample Framework",
+      "category": "framework",
+      "rules": [
+        {
+          "id": "combined-markers",
+          "state": "detected",
+          "description": "Framework header and cookie-name markers",
+          "all": [
+            {"source": "header", "name": "X-Framework", "pattern": "^Sample$"},
+            {"source": "cookie", "pattern": "^sample_session$"}
+          ]
+        },
+        {
+          "id": "html-marker",
+          "state": "inferred",
+          "description": "Framework asset reference in HTML",
+          "all": [{"source": "html", "pattern": "<script src=\"/sample/runtime[.]js\""}]
+        }
+      ],
+      "implies": ["sample-language"]
+    },
+    {
+      "id": "sample-server",
+      "name": "Sample Server",
+      "category": "web_server",
+      "rules": [{
+        "id": "server-header",
+        "state": "detected",
+        "description": "Server header reports SampleHTTP",
+        "all": [{"source": "header", "name": "Server", "pattern": "(?i)^SampleHTTP(?:/[0-9.]+)?$"}]
+      }],
+      "implies": ["sample-language"]
+    },
+    {
+      "id": "sample-language",
+      "name": "Sample Language",
+      "category": "language",
+      "rules": [{
+        "id": "language-header",
+        "state": "detected",
+        "description": "Language header reports SampleLang",
+        "all": [{"source": "header", "name": "X-Language", "pattern": "^SampleLang$"}]
+      }],
+      "implies": ["sample-runtime"]
+    },
+    {
+      "id": "sample-runtime",
+      "name": "Sample Runtime",
+      "category": "framework"
+    }
+  ]
+}

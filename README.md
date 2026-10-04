@@ -6,9 +6,11 @@ programming-language inferences, with evidence attached to every finding.
 
 ## Current status
 
-The fetching checkpoint retrieves a single page and reports its final URL,
-HTTP status, redirect count, and body size. Technology detection is not yet
-implemented. `v0.1.0` is a planned release.
+The detection-core checkpoint retrieves a single page and runs an offline
+fingerprint engine against the captured signals. The bundled catalog is
+currently empty; the CLI reports that explicitly alongside fetch metadata.
+Curated technology coverage arrives in the next section. `v0.1.0` is a planned
+release.
 
 Requires Go 1.27 or newer. There are currently no external dependencies.
 
@@ -57,10 +59,21 @@ produce partial results.
 
 `main.go` only connects process arguments, output streams, and the exit code
 to `internal/cli`. `internal/fetch` handles URL validation and bounded HTTP
-retrieval, returning a snapshot for offline inspection. Future sections add
-separate detection and output packages. Fingerprints will be data files
+retrieval, returning a snapshot for offline inspection. `internal/detect`
+loads and validates JSON fingerprints, compiles patterns once, and matches
+headers, cookie names, and HTML without network access. Fingerprints are
 embedded in the executable so adding technology coverage does not require
-changes to the CLI.
+changes to the CLI. A dedicated output package arrives in a later section.
+
+Findings carry `detected` or `inferred` states and rule evidence. Supported
+technology relationships can infer additional findings, with their source
+recorded. Direct detections are never downgraded by inference. Invalid rules
+or cyclic relationships fail catalog loading. See the
+[fingerprint format](internal/detect/fingerprints/README.md) for authoring details.
+
+Detection inspects the final response only, which may be a proxy or an error
+page. It does not establish the stack of a hidden origin server. There are no
+confidence percentages. Terminal styling and JSON output are still planned.
 
 The module is currently named `webscan` for local development. Once a remote
 repository path is chosen, update the module declaration and internal imports
@@ -72,7 +85,9 @@ The user runs tests and all Git commands. The current behavioral checks cover
 help/version output, argument errors, output stream separation, and fetching
 against local HTTP servers. Fetch checks cover redirects, response isolation,
 body/header limits, timeouts, cancellation, incomplete bodies, and untrusted
-TLS certificates. No live third-party websites are needed:
+TLS certificates. Detection checks use synthetic rules for positive and near-miss
+signals, required signal combinations, inference chains, stable evidence,
+and catalog validation. No live third-party websites are needed:
 
 ```sh
 go test ./...
