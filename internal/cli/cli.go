@@ -22,6 +22,7 @@ const (
 )
 
 const usage = `Usage: webscan [options] <url>
+       webscan --techs [--json]
 
 Inspect the likely technology stack of a single website.
 Fetch a page and match its signals against the bundled fingerprint catalog.
@@ -29,7 +30,8 @@ Fetch a page and match its signals against the bundled fingerprint catalog.
 Options:
   -h, --help           Show help
   --version           Show version
-  --json              Print a JSON scan report
+  --techs             List supported technologies without fetching a URL
+  --json              Print a JSON scan report or technology catalog
   --color mode        Color: auto, always, never (default auto)
   --no-color          Disable color, overriding --color
   --timeout duration  Total fetch timeout (default 15s)
@@ -46,8 +48,9 @@ func Run(args []string, stdout, stderr io.Writer, version string) int {
 	// Handle parsing output ourselves so help goes to stdout and errors to stderr.
 	flags.SetOutput(io.Discard)
 	showVersion := flags.Bool("version", false, "Show version")
+	showTechs := flags.Bool("techs", false, "List supported technologies")
 	presentation := outputOptions{}
-	flags.BoolVar(&presentation.json, "json", false, "Print a JSON scan report")
+	flags.BoolVar(&presentation.json, "json", false, "Print a JSON scan report or technology catalog")
 	flags.StringVar(&presentation.color, "color", "auto", "Color: auto, always, never")
 	flags.BoolVar(&presentation.noColor, "no-color", false, "Disable color")
 	options := fetch.DefaultOptions()
@@ -65,6 +68,28 @@ func Run(args []string, stdout, stderr io.Writer, version string) int {
 
 	if presentation.color != "auto" && presentation.color != "always" && presentation.color != "never" {
 		return usageError(stderr, "color must be auto, always, or never")
+	}
+
+	if *showTechs {
+		if *showVersion {
+			return usageError(stderr, "--techs cannot be combined with --version")
+		}
+		if flags.NArg() != 0 {
+			return usageError(stderr, "--techs does not accept a URL")
+		}
+		fetchFlag := ""
+		flags.Visit(func(f *flag.Flag) {
+			switch f.Name {
+			case "timeout", "max-redirects", "max-body":
+				if fetchFlag == "" {
+					fetchFlag = f.Name
+				}
+			}
+		})
+		if fetchFlag != "" {
+			return usageError(stderr, "--techs cannot be combined with --"+fetchFlag)
+		}
+		return listTechnologies(presentation.json, stdout, stderr)
 	}
 
 	if *showVersion {
@@ -87,6 +112,25 @@ func Run(args []string, stdout, stderr io.Writer, version string) int {
 	default:
 		return usageError(stderr, "expected a single URL; place options before the URL")
 	}
+}
+
+func listTechnologies(asJSON bool, stdout, stderr io.Writer) int {
+	engine, err := detect.LoadBundled()
+	if err != nil {
+		fmt.Fprintf(stderr, "webscan: load fingerprints: %s\n", err)
+		return exitError
+	}
+	report := output.NewCatalogReport(engine.Technologies())
+	if asJSON {
+		err = output.CatalogJSON(stdout, report)
+	} else {
+		err = output.CatalogTerminal(stdout, report)
+	}
+	if err != nil {
+		fmt.Fprintf(stderr, "webscan: write catalog: %s\n", err)
+		return exitError
+	}
+	return exitOK
 }
 
 func fetchPage(target string, options fetch.Options, presentation outputOptions, stdout, stderr io.Writer) int {

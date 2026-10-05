@@ -1,6 +1,6 @@
 # Output contract
 
-`--json` writes one scan report to stdout, indented with two spaces and followed
+`--json <url>` writes one scan report to stdout, indented with two spaces and followed
 by a newline. No status messages, terminal symbols, or ANSI styling are mixed
 into this stream. Diagnostics go to stderr. Successful HTTP retrieval with no
 findings is still exit code 0. Fetch/configuration errors do not emit a report;
@@ -60,3 +60,31 @@ probe. Pipes, regular files, and in-memory writers remain uncolored.
 
 The terminal presentation may evolve without a JSON schema change. For
 automation, consume JSON rather than parsing human-readable lines.
+
+## Technology catalog JSON
+
+`--techs --json` writes a separate offline catalog document, not a scan report.
+Its independent schema starts at version 1:
+
+```json
+{
+  "schema_version": 1,
+  "catalog_size": 1,
+  "technologies": [
+    {"id": "php", "name": "PHP", "category": "language"}
+  ]
+}
+```
+
+This example shows one entry, not the full bundled catalog. Each technology has
+only `id`, `name`, and `category`; support does not assign a finding state or
+guarantee identification. Technologies supported only by inference are included.
+`catalog_size` equals the array length. An empty catalog uses `technologies: []`.
+
+Both catalog formats order categories as `web_server`, `framework`, `language`,
+then names case-insensitively within each category, with ID as a tie-breaker.
+Terminal output uses friendly group headings and a coverage disclaimer. It is
+always plain text, regardless of color flags. JSON uses two-space indentation,
+a trailing newline, and no status text. Load/write errors use stderr and exit 1;
+invalid argument combinations use exit 2. Failed writes can leave partial output.
+The existing scan JSON schema is unchanged.

@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Added offline `--techs` listing from the bundled catalog, grouped by category
+  with stable name ordering, plus a separate `--techs --json` catalog report.
+
 ## v0.1.0 — 2026-10-05
 
 Initial single-URL technology inspection CLI. The repository is named

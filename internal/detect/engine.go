@@ -33,6 +33,16 @@ type compiledMatcher struct {
 
 func (e *Engine) Len() int { return len(e.technologies) }
 
+// Technologies returns independent catalog metadata sorted by technology ID,
+// including technologies supported only through inference relationships.
+func (e *Engine) Technologies() []TechnologyInfo {
+	items := make([]TechnologyInfo, 0, len(e.technologies))
+	for _, tech := range e.technologies {
+		items = append(items, TechnologyInfo{ID: tech.id, Name: tech.name, Category: tech.category})
+	}
+	return items
+}
+
 // Detect requires every matcher in a rule, and accepts any matching rule in a
 // technology. Direct detections take precedence over inferences. Results are
 // sorted by technology ID, and evidence never includes raw response values.

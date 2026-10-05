@@ -4,17 +4,37 @@ A small Go CLI for identifying the likely web stack behind a single URL.
 Coverage starts with web frameworks, web servers, and supported
 programming-language inferences, with evidence attached to every finding.
 
-## v0.1.0
+## Current build
 
 The CLI retrieves a single page and matches its captured signals against a
 small bundled fingerprint catalog. It prints findings, evidence, and
-detected/inferred states, with terminal and JSON output. This first version
+detected/inferred states, with terminal and JSON output. This
 is a personal CLI built from local source, with an executable
 named `webscan`. See the [release notes](CHANGELOG.md).
 
 Requires Go 1.27 or newer. There are currently no external dependencies.
+The current development build adds `--techs` after v0.1.0; no new version has
+been assigned to this addition yet.
 
-## Initial coverage
+## Supported technologies
+
+List the actual catalog bundled in your build without fetching a website:
+
+```sh
+./bin/webscan --techs
+./bin/webscan --techs --json
+```
+
+Terminal output groups technologies under Web servers, Frameworks, and Languages,
+with names sorted alphabetically (case-insensitive) within each category. The
+list updates automatically when fingerprints are added and the binary is rebuilt.
+It describes supported coverage, not findings: there are no detected/inferred
+labels, and identification still depends on exposed signals.
+
+`--techs` does not accept a URL, `--version`, or fetch-only options (`--timeout`,
+`--max-redirects`, `--max-body`). Color options are accepted but the listing is
+always plain. JSON returns catalog metadata, not the scan-report shape; see the
+[catalog JSON contract](internal/output/README.md#technology-catalog-json).
 
 | Category | Technologies | Signals |
 | --- | --- | --- |
@@ -48,7 +68,8 @@ go build -buildvcs=false -o bin/webscan .
 ```
 
 No arguments displays help. Options go before the target URL. Development
-builds report `webscan dev`; a release version can be supplied at build time:
+builds report `webscan dev`. When building the v0.1.0 source, its release version
+can be supplied at build time (do not label newer development code as v0.1.0):
 
 ```sh
 go build -buildvcs=false -ldflags "-X main.version=v0.1.0" -o bin/webscan .
@@ -111,7 +132,7 @@ See the [JSON contract](internal/output/README.md) for fields and semantics.
 Fetch/configuration errors leave stdout empty and report the error on stderr.
 Output-write failures also return a nonzero exit code, but may leave a partial
 report at the destination. Help and version requests remain plain text even
-with `--json`; the JSON contract applies to scan results.
+with `--json`; `--techs --json` uses its separate catalog contract.
 
 ## Fetch behavior
 

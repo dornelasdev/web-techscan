@@ -42,6 +42,13 @@ type Finding struct {
 	Evidence []Evidence
 }
 
+// TechnologyInfo describes catalog coverage, not a finding from a scan.
+type TechnologyInfo struct {
+	ID       string
+	Name     string
+	Category Category
+}
+
 // Evidence describes the rule and signal locations, without copying response
 // content or cookie values into results. InferredFrom is a technology ID.
 type Evidence struct {
