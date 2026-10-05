@@ -4,12 +4,12 @@ A small Go CLI for identifying the likely web stack behind a single URL.
 Coverage starts with web frameworks, web servers, and supported
 programming-language inferences, with evidence attached to every finding.
 
-## Current status
+## v0.1.0
 
 The CLI retrieves a single page and matches its captured signals against a
 small bundled fingerprint catalog. It prints findings, evidence, and
-detected/inferred states, with terminal and JSON output. `v0.1.0` is not yet
-released. This is a personal CLI built from local source, with an executable
+detected/inferred states, with terminal and JSON output. This first version
+is a personal CLI built from local source, with an executable
 named `webscan`. See the [release notes](CHANGELOG.md).
 
 Requires Go 1.27 or newer. There are currently no external dependencies.
@@ -52,7 +52,11 @@ builds report `webscan dev`; a release version can be supplied at build time:
 
 ```sh
 go build -buildvcs=false -ldflags "-X main.version=v0.1.0" -o bin/webscan .
+./bin/webscan --version
 ```
+
+The versioned build reports `webscan v0.1.0`. A Git tag alone does not change
+the binary's version string; without the build flag it remains `webscan dev`.
 
 These commands build from local source and disable automatic VCS metadata
 collection. Setting the version string does not create a release or Git tag.

@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased — planned v0.1.0
+## v0.1.0 — 2026-10-05
 
 Initial single-URL technology inspection CLI. The repository is named
 `web-techscan`; the local module and executable use `webscan`. Build from local
@@ -23,10 +23,3 @@ source for this version; a public module path and remote `go install` are deferr
 One final response only. No asset downloading, crawling, JavaScript execution,
 version extraction, bulk targets, or vulnerability checks. Detection describes
 observed signals, not proof of the complete stack or hidden origin.
-
-### Before tagging
-
-- Complete user-run tests and local CLI smoke checks documented in the README.
-- Verify the documented local build and CLI help/version output. Public
-  installation setup and release automation are not prerequisites.
-- Publish/tag only after validation. This entry does not announce a release.
