@@ -9,8 +9,8 @@ programming-language inferences, with evidence attached to every finding.
 The CLI retrieves a single page and matches its captured signals against a
 small bundled fingerprint catalog. It prints findings, evidence, and
 detected/inferred states, with terminal and JSON output. `v0.1.0` is not yet
-released; final validation and repository installation setup remain pending.
-The executable is currently named `webscan`. See the [release notes](CHANGELOG.md).
+released. This is a personal CLI built from local source, with an executable
+named `webscan`. See the [release notes](CHANGELOG.md).
 
 Requires Go 1.27 or newer. There are currently no external dependencies.
 
@@ -33,6 +33,10 @@ for each rule's rationale and limits.
 
 ## Build and use
 
+Clone the repository or download and extract its source archive, then open a
+terminal in the project root (the directory containing `go.mod`). With Go
+installed, build and run:
+
 ```sh
 go build -buildvcs=false -o bin/webscan .
 ./bin/webscan --help
@@ -50,10 +54,17 @@ builds report `webscan dev`; a release version can be supplied at build time:
 go build -buildvcs=false -ldflags "-X main.version=v0.1.0" -o bin/webscan .
 ```
 
-These commands build from a local checkout and disable automatic VCS metadata
+These commands build from local source and disable automatic VCS metadata
 collection. Setting the version string does not create a release or Git tag.
-Remote `go install` instructions will follow once the module path and installed
-executable name are finalized.
+No GitHub connection is required by the build itself; the required Go toolchain
+must already be available for an offline build. Remote `go install` support is
+deferred, not a requirement for using this version.
+
+The resulting binary runs without Go installed on a compatible OS/architecture.
+You can run it by its full path, or place it in a directory on your `PATH` to use
+`webscan` from anywhere. The examples below assume you remain in the project root.
+To update, obtain the newer source and repeat the build command; there is no
+automatic updater or prebuilt-binary distribution workflow at this stage.
 
 Help and version output use stdout. Errors use stderr. Exit codes are `0` for
 success, `1` for an execution failure, and `2` for invalid arguments. An HTTP
@@ -137,9 +148,9 @@ Detection inspects the final response only, which may be a proxy or an error
 page. It does not establish the stack of a hidden origin server. There are no
 confidence percentages.
 
-The module is currently named `webscan` for local development. Once a remote
-repository path is chosen, update the module declaration and internal imports
-before publishing installation instructions.
+The module remains named `webscan`, with the executable entry point at the
+root. This supports the local-source build workflow. A public module path and
+remote installation can be added later without changing the current CLI scope.
 
 ## Development checks
 

@@ -3,8 +3,8 @@
 ## Unreleased — planned v0.1.0
 
 Initial single-URL technology inspection CLI. The repository is named
-`web-techscan`; the local module and executable currently use `webscan`.
-Repository module path and installation naming must be finalized before release.
+`web-techscan`; the local module and executable use `webscan`. Build from local
+source for this version; a public module path and remote `go install` are deferred.
 
 ### Included
 
@@ -27,6 +27,6 @@ observed signals, not proof of the complete stack or hidden origin.
 ### Before tagging
 
 - Complete user-run tests and local CLI smoke checks documented in the README.
-- Finalize the GitHub module path, imports, executable naming, and installation
-  instructions in section 7; repeat validation after those changes.
+- Verify the documented local build and CLI help/version output. Public
+  installation setup and release automation are not prerequisites.
 - Publish/tag only after validation. This entry does not announce a release.
