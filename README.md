@@ -8,8 +8,8 @@ programming-language inferences, with evidence attached to every finding.
 
 The CLI retrieves a single page and matches its captured signals against a
 small bundled fingerprint catalog. It prints findings, evidence, and
-detected/inferred states. `v0.1.0` is a planned release; styled terminal output
-and JSON reporting are still upcoming.
+detected/inferred states, with terminal and JSON output. `v0.1.0` is a planned
+release; release readiness and repository installation setup are still upcoming.
 
 Requires Go 1.27 or newer. There are currently no external dependencies.
 
@@ -37,6 +37,8 @@ go build -o bin/webscan .
 ./bin/webscan --help
 ./bin/webscan --version
 ./bin/webscan https://example.com
+./bin/webscan --no-color https://example.com
+./bin/webscan --json https://example.com
 ./bin/webscan --timeout 10s --max-redirects 3 --max-body 1048576 https://example.com
 ```
 
@@ -52,6 +54,43 @@ success, `1` for an execution failure, and `2` for invalid arguments. An HTTP
 error status such as 404 still counts as a successful fetch: its response may
 contain useful technology signals. Network failures and exceeded limits do not
 produce partial results.
+
+## Output
+
+Terminal findings use green `✓` for detected and yellow `?` for inferred,
+with a legend and evidence beneath each finding. Symbols remain when color
+is disabled. For example, a response with nginx's header and Laravel's paired
+cookie names could show:
+
+```text
+? Laravel [framework]
+  - laravel_session and XSRF-TOKEN cookie names suggest Laravel
+✓ nginx [web server]
+  - Server header reports nginx; this may be an intermediary
+? PHP [language]
+  - Inferred from Laravel
+
+✓ Detected  ? Inferred
+```
+
+`--color auto` is the default. Pipes and regular files receive plain output;
+automatic color uses a dependency-free character-device check. Set
+`--color always` or `--color never` to override that heuristic. Nonempty
+`NO_COLOR` or `TERM=dumb` disables automatic color; explicit `--color always`
+overrides those environment settings. `--no-color` always disables color,
+regardless of flag order.
+
+`--json` prints one indented JSON report with a trailing newline, and always
+ignores color. Reports include URLs, HTTP status, response scope, redirect
+metadata, body size, catalog size, findings, and evidence. Empty results use
+`"findings": []`. Response bodies, header values, and cookie values are excluded.
+The report's `schema_version` is separate from the fingerprint file format.
+See the [JSON contract](internal/output/README.md) for fields and semantics.
+
+Fetch/configuration errors leave stdout empty and report the error on stderr.
+Output-write failures also return a nonzero exit code, but may leave a partial
+report at the destination. Help and version requests remain plain text even
+with `--json`; the JSON contract applies to scan results.
 
 ## Fetch behavior
 
@@ -79,7 +118,8 @@ retrieval, returning a snapshot for offline inspection. `internal/detect`
 loads and validates JSON fingerprints, compiles patterns once, and matches
 headers, cookie names, and HTML without network access. Fingerprints are
 embedded in the executable so adding technology coverage does not require
-changes to the CLI. A dedicated output package arrives in a later section.
+changes to the CLI. `internal/output` builds the public report representation
+and renders either terminal text or JSON independently of detection.
 
 Findings carry `detected` or `inferred` states and rule evidence. Supported
 technology relationships can infer additional findings, with their source
@@ -89,7 +129,7 @@ or cyclic relationships fail catalog loading. See the
 
 Detection inspects the final response only, which may be a proxy or an error
 page. It does not establish the stack of a hidden origin server. There are no
-confidence percentages. Terminal styling and JSON output are still planned.
+confidence percentages.
 
 The module is currently named `webscan` for local development. Once a remote
 repository path is chosen, update the module declaration and internal imports
@@ -105,7 +145,9 @@ TLS certificates. Detection checks use synthetic rules for positive and near-mis
 signals, required signal combinations, inference chains, stable evidence,
 and catalog validation. Bundled rules have positive and near-miss cases;
 CLI fixtures cover mixed stacks, HTML filtering, error pages, and redirect
-isolation. No live third-party websites are needed:
+isolation. Output checks cover the JSON contract, color policy, empty results,
+inference evidence, clean output streams, and write failures. No live
+third-party websites are needed:
 
 ```sh
 go test ./...

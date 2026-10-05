@@ -56,6 +56,7 @@ func TestUsageErrors(t *testing.T) {
 		{name: "bad timeout", args: []string{"--timeout=soon", "https://example.com"}, want: "invalid value"},
 		{name: "negative redirects", args: []string{"--max-redirects=-1", "https://example.com"}, want: "max-redirects must not be negative"},
 		{name: "zero body limit", args: []string{"--max-body=0", "https://example.com"}, want: "max-body must be positive"},
+		{name: "invalid color", args: []string{"--color=rainbow", "https://example.com"}, want: "color must be auto, always, or never"},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			var stdout, stderr bytes.Buffer

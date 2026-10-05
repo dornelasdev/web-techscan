@@ -23,22 +23,22 @@ func TestBundledCoverageThroughCLI(t *testing.T) {
 		{
 			name: "laravel stack", contentType: "text/html", body: "<html></html>", status: 200,
 			headers: http.Header{"Server": {"nginx/1.26.2"}}, cookies: []string{"laravel_session", "XSRF-TOKEN"},
-			want:   []string{"nginx (web_server, detected)", "Laravel (framework, inferred)", "PHP (language, inferred)", "Inferred from Laravel"},
+			want:   []string{"✓ nginx [web server]", "? Laravel [framework]", "? PHP [language]", "Inferred from Laravel"},
 			absent: []string{"do-not-print-cookie-values", "No technologies detected"},
 		},
 		{
 			name: "next html", contentType: "text/html; charset=utf-8", body: nextHTML, status: 200,
-			want: []string{"Next.js (framework, inferred)", "__NEXT_DATA__"}, absent: []string{"(language,"},
+			want: []string{"? Next.js [framework]", "__NEXT_DATA__"}, absent: []string{"[language]"},
 		},
 		{
 			name: "html in plain text", contentType: "text/plain", body: nextHTML, status: 200,
-			want: []string{"No technologies detected."}, absent: []string{"Next.js ("},
+			want: []string{"No technologies detected."}, absent: []string{"Next.js ["},
 		},
 		{
 			name: "identified error page", contentType: "text/html", body: "<html>Forbidden</html>", status: 403,
 			headers: http.Header{"X-Powered-By": {"Express"}},
-			want:    []string{"HTTP status: 403", "Express (framework, detected)", "Findings describe the returned HTTP error page."},
-			absent:  []string{"(language,"},
+			want:    []string{"HTTP status: 403", "✓ Express [framework]", "Findings describe the returned HTTP error page."},
+			absent:  []string{"[language]"},
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -92,7 +92,7 @@ func TestRedirectTechnologyDoesNotLeakIntoFinalStack(t *testing.T) {
 	if code := cli.Run([]string{server.URL + "/start"}, &stdout, &stderr, "dev"); code != 0 {
 		t.Fatalf("exit=%d, stderr=%q", code, stderr.String())
 	}
-	if !strings.Contains(stdout.String(), "Apache HTTP Server (web_server, detected)") {
+	if !strings.Contains(stdout.String(), "✓ Apache HTTP Server [web server]") {
 		t.Fatalf("missing final server: %s", &stdout)
 	}
 	for _, absent := range []string{"nginx", "Express", "Laravel", "PHP"} {

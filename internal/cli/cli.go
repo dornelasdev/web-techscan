@@ -12,6 +12,7 @@ import (
 
 	"webscan/internal/detect"
 	"webscan/internal/fetch"
+	"webscan/internal/output"
 )
 
 const (
@@ -28,9 +29,12 @@ Fetch a page and match its signals against the bundled fingerprint catalog.
 Options:
   -h, --help           Show help
   --version           Show version
+  --json              Print a JSON scan report
+  --color mode        Color: auto, always, never (default auto)
+  --no-color          Disable color, overriding --color
   --timeout duration  Total fetch timeout (default 15s)
   --max-redirects n    Maximum followed redirects (default 5; 0 disallows redirects)
-  --max-body bytes    Maximum response body size (default 2097152)
+  --max-body bytes     Maximum response body size (default 2097152)
 
 Place options before the URL. Include http:// or https://.
 `
@@ -42,6 +46,10 @@ func Run(args []string, stdout, stderr io.Writer, version string) int {
 	// Handle parsing output ourselves so help goes to stdout and errors to stderr.
 	flags.SetOutput(io.Discard)
 	showVersion := flags.Bool("version", false, "Show version")
+	presentation := outputOptions{}
+	flags.BoolVar(&presentation.json, "json", false, "Print a JSON scan report")
+	flags.StringVar(&presentation.color, "color", "auto", "Color: auto, always, never")
+	flags.BoolVar(&presentation.noColor, "no-color", false, "Disable color")
 	options := fetch.DefaultOptions()
 	flags.DurationVar(&options.Timeout, "timeout", options.Timeout, "Total fetch timeout")
 	flags.IntVar(&options.MaxRedirects, "max-redirects", options.MaxRedirects, "Maximum followed redirects")
@@ -53,6 +61,10 @@ func Run(args []string, stdout, stderr io.Writer, version string) int {
 			return exitOK
 		}
 		return usageError(stderr, err.Error())
+	}
+
+	if presentation.color != "auto" && presentation.color != "always" && presentation.color != "never" {
+		return usageError(stderr, "color must be auto, always, or never")
 	}
 
 	if *showVersion {
@@ -71,13 +83,13 @@ func Run(args []string, stdout, stderr io.Writer, version string) int {
 		if flags.Arg(0) == "" {
 			return usageError(stderr, "URL must not be empty")
 		}
-		return fetchPage(flags.Arg(0), options, stdout, stderr)
+		return fetchPage(flags.Arg(0), options, presentation, stdout, stderr)
 	default:
 		return usageError(stderr, "expected a single URL; place options before the URL")
 	}
 }
 
-func fetchPage(target string, options fetch.Options, stdout, stderr io.Writer) int {
+func fetchPage(target string, options fetch.Options, presentation outputOptions, stdout, stderr io.Writer) int {
 	client, err := fetch.New(options)
 	if err != nil {
 		return usageError(stderr, err.Error())
@@ -96,28 +108,20 @@ func fetchPage(target string, options fetch.Options, stdout, stderr io.Writer) i
 		fmt.Fprintf(stderr, "webscan: %s\n", err)
 		return exitError
 	}
-	fmt.Fprintf(stdout, "URL: %s\nHTTP status: %d\nRedirects: %d\nBody: %d bytes\n",
-		snapshot.FinalURL, snapshot.StatusCode, len(snapshot.Redirects), len(snapshot.Body))
 	findings := engine.Detect(detect.Input{
 		Headers:     snapshot.Headers,
 		CookieNames: snapshot.CookieNames,
 		HTML:        htmlForDetection(snapshot.Headers, snapshot.Body),
 	})
-	if engine.Len() == 0 {
-		fmt.Fprintln(stdout, "No fingerprints bundled yet; technology detection coverage is unavailable.")
-		return exitOK
+	report := output.NewReport(*snapshot, findings, engine.Len())
+	if presentation.json {
+		err = output.JSON(stdout, report)
+	} else {
+		err = output.Terminal(stdout, report, useColor(presentation, stdout))
 	}
-	if snapshot.StatusCode >= 400 {
-		fmt.Fprintln(stdout, "Findings describe the returned HTTP error page.")
-	}
-	if len(findings) == 0 {
-		fmt.Fprintln(stdout, "No technologies detected.")
-	}
-	for _, finding := range findings {
-		fmt.Fprintf(stdout, "%s (%s, %s)\n", finding.Name, finding.Category, finding.State)
-		for _, evidence := range finding.Evidence {
-			fmt.Fprintf(stdout, "  - %s\n", evidence.Description)
-		}
+	if err != nil {
+		fmt.Fprintf(stderr, "webscan: write report: %s\n", err)
+		return exitError
 	}
 	return exitOK
 }

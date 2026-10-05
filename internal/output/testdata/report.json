@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "url": "http://example.test/",
+  "final_url": "https://example.test/",
+  "http_status": 200,
+  "response_scope": "final_response",
+  "body_bytes": 11,
+  "catalog_size": 7,
+  "redirects": [
+    {
+      "from_url": "http://example.test/",
+      "to_url": "https://example.test/",
+      "status_code": 301
+    }
+  ],
+  "findings": [
+    {
+      "id": "nginx",
+      "name": "nginx",
+      "category": "web_server",
+      "state": "detected",
+      "evidence": [
+        {
+          "rule_id": "server-header",
+          "description": "Server header reports nginx",
+          "signals": [
+            {
+              "source": "header",
+              "name": "Server"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "php",
+      "name": "PHP",
+      "category": "language",
+      "state": "inferred",
+      "evidence": [
+        {
+          "description": "Inferred from Laravel",
+          "signals": [],
+          "inferred_from": "laravel"
+        }
+      ]
+    }
+  ]
+}
