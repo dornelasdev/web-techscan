@@ -1,4 +1,4 @@
-# webscan
+# web-techscan
 
 A small Go CLI for identifying the likely web stack behind a single URL.
 Coverage starts with web frameworks, web servers, and supported
@@ -8,8 +8,9 @@ programming-language inferences, with evidence attached to every finding.
 
 The CLI retrieves a single page and matches its captured signals against a
 small bundled fingerprint catalog. It prints findings, evidence, and
-detected/inferred states, with terminal and JSON output. `v0.1.0` is a planned
-release; release readiness and repository installation setup are still upcoming.
+detected/inferred states, with terminal and JSON output. `v0.1.0` is not yet
+released; final validation and repository installation setup remain pending.
+The executable is currently named `webscan`. See the [release notes](CHANGELOG.md).
 
 Requires Go 1.27 or newer. There are currently no external dependencies.
 
@@ -33,7 +34,7 @@ for each rule's rationale and limits.
 ## Build and use
 
 ```sh
-go build -o bin/webscan .
+go build -buildvcs=false -o bin/webscan .
 ./bin/webscan --help
 ./bin/webscan --version
 ./bin/webscan https://example.com
@@ -46,8 +47,13 @@ No arguments displays help. Options go before the target URL. Development
 builds report `webscan dev`; a release version can be supplied at build time:
 
 ```sh
-go build -ldflags "-X main.version=v0.1.0" -o bin/webscan .
+go build -buildvcs=false -ldflags "-X main.version=v0.1.0" -o bin/webscan .
 ```
+
+These commands build from a local checkout and disable automatic VCS metadata
+collection. Setting the version string does not create a release or Git tag.
+Remote `go install` instructions will follow once the module path and installed
+executable name are finalized.
 
 Help and version output use stdout. Errors use stderr. Exit codes are `0` for
 success, `1` for an execution failure, and `2` for invalid arguments. An HTTP
@@ -137,7 +143,7 @@ before publishing installation instructions.
 
 ## Development checks
 
-The user runs tests and all Git commands. The current behavioral checks cover
+The behavioral checks cover
 help/version output, argument errors, output stream separation, and fetching
 against local HTTP servers. Fetch checks cover redirects, response isolation,
 body/header limits, timeouts, cancellation, incomplete bodies, and untrusted
@@ -150,5 +156,61 @@ inference evidence, clean output streams, and write failures. No live
 third-party websites are needed:
 
 ```sh
-go test ./...
+go test -v ./...
 ```
+
+Optional race and coverage checks:
+
+```sh
+go test -race ./...
+go test -coverprofile=bin/coverage.out ./...
+go tool cover -html=bin/coverage.out
+```
+
+Run the build command above first to create `bin/` for the coverage output.
+The race detector requires a supported platform and a C compiler.
+The fixture integration checks exercise both output formats, detected/inferred
+state handling, redirect isolation, and the absence of asset/link fetching.
+
+### Local smoke check
+
+No third-party website is required. From the repository root, serve the
+synthetic fixtures in one terminal (requires Python 3):
+
+```sh
+python3 -m http.server 8000 --bind 127.0.0.1 --directory internal/detect/testdata/coverage
+```
+
+In another terminal, after building:
+
+```sh
+./bin/webscan --no-color http://127.0.0.1:8000/next-pages.html
+./bin/webscan --json http://127.0.0.1:8000/next-cdn.html
+```
+
+Both should report only Next.js as **inferred**, with the paired HTML markers
+as evidence. The JSON finding uses `id: "nextjs"` and `state: "inferred"`.
+The different byte counts are expected. Referenced scripts do not need to exist:
+only their URLs in the HTML are inspected. Stop the Python server with Ctrl-C.
+
+## Limitations and future scope
+
+- v0.1 inspects one final HTTP response, not the whole site's stack. HTTP error
+  pages and intermediaries can expose different technologies from the application.
+- External CSS/JS contents are not downloaded. JavaScript is not executed, so
+  runtime variables, dynamically added DOM content, and browser-triggered
+  requests are unavailable. There is no crawling, path guessing, or port scanning.
+- HTML rules use raw-text patterns, not a DOM parser. Copied markup or comments
+  can resemble real signals; missing signals do not establish absence.
+- The catalog contains seven technologies. No version extraction, confidence
+  percentages, or automatic fingerprint updates are included.
+- Reports retain URL query strings, which may contain sensitive data. Review
+  reports before sharing them even though raw bodies and cookie values are omitted.
+- This is a local CLI for targets you choose, not a sandboxed fetch service for
+  untrusted URLs. It can reach local/private addresses and follow redirects to
+  other hosts; do not expose it as a public URL-processing endpoint as-is.
+
+Possible later increments include broader curated fingerprints, bounded asset
+inspection, and an optional browser-backed mode. These are directions, not
+v0.1 features or a promise of Wappalyzer coverage parity. Go and the CLI interface
+do not impose the current collection limits.

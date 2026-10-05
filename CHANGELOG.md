@@ -1,0 +1,32 @@
+# Changelog
+
+## Unreleased — planned v0.1.0
+
+Initial single-URL technology inspection CLI. The repository is named
+`web-techscan`; the local module and executable currently use `webscan`.
+Repository module path and installation naming must be finalized before release.
+
+### Included
+
+- Bounded HTTP(S) fetching with configurable timeout, redirect count, and body
+  size; normal TLS verification and separate redirect metadata.
+- Embedded, validated fingerprint catalogs for nginx, Apache HTTP Server,
+  Microsoft IIS, Express, Next.js, Laravel, and PHP.
+- Explicit detected/inferred states and per-finding evidence, including
+  supported language relationships, without confidence percentages.
+- Terminal output with optional color and schema-versioned JSON output.
+- Local fixtures and automated checks for fetching, rule validation, detection,
+  output, and the integrated CLI. No live third-party targets are needed.
+
+### Release boundaries
+
+One final response only. No asset downloading, crawling, JavaScript execution,
+version extraction, bulk targets, or vulnerability checks. Detection describes
+observed signals, not proof of the complete stack or hidden origin.
+
+### Before tagging
+
+- Complete user-run tests and local CLI smoke checks documented in the README.
+- Finalize the GitHub module path, imports, executable naming, and installation
+  instructions in section 7; repeat validation after those changes.
+- Publish/tag only after validation. This entry does not announce a release.
