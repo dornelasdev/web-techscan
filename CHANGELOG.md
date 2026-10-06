@@ -1,6 +1,10 @@
 # Changelog
 
-## Unreleased
+## v0.2.0 — 2026-10-06
+
+Catalog discovery, CMS coverage, and detection hardening. The bundled catalog
+now contains ten technologies. Local-source builds and the existing collection
+scope remain unchanged; no CDN, load-balancer, or WAF detection is included.
 
 - Hardened Next.js HTML inference to require complete script opening tags and
   actual attribute tokens; asset markers must be in URL paths, not hostnames,

@@ -4,7 +4,7 @@ A small Go CLI for identifying the likely web stack behind a single URL.
 Coverage includes web frameworks, web servers, CMSs, and supported
 programming-language inferences, with evidence attached to every finding.
 
-## Current build
+## Current build: v0.2.0
 
 The CLI retrieves a single page and matches its captured signals against a
 small bundled fingerprint catalog. It prints findings, evidence, and
@@ -13,8 +13,10 @@ is a personal CLI built from local source, with an executable
 named `webscan`. See the [release notes](CHANGELOG.md).
 
 Requires Go 1.27 or newer. There are currently no external dependencies.
-The current development build adds `--techs` and CMS fingerprints after v0.1.0;
-no new version has been assigned to these additions yet.
+v0.2.0 adds offline `--techs` listing, WordPress/Drupal/Joomla fingerprints,
+and detection hardening following a review of the ten-technology catalog.
+Collection remains limited to one final HTTP response; CDN, load-balancer,
+and WAF fingerprints are not included in this release.
 
 ## Supported technologies
 
@@ -71,15 +73,15 @@ go build -buildvcs=false -o bin/webscan .
 ```
 
 No arguments displays help. Options go before the target URL. Development
-builds report `webscan dev`. When building the v0.1.0 source, its release version
-can be supplied at build time (do not label newer development code as v0.1.0):
+builds report `webscan dev`. When building the v0.2.0 source, its release version
+can be supplied at build time (do not label newer development code as v0.2.0):
 
 ```sh
-go build -buildvcs=false -ldflags "-X main.version=v0.1.0" -o bin/webscan .
+go build -buildvcs=false -ldflags "-X main.version=v0.2.0" -o bin/webscan .
 ./bin/webscan --version
 ```
 
-The versioned build reports `webscan v0.1.0`. A Git tag alone does not change
+The versioned build reports `webscan v0.2.0`. A Git tag alone does not change
 the binary's version string; without the build flag it remains `webscan dev`.
 
 These commands build from local source and disable automatic VCS metadata
@@ -195,10 +197,10 @@ inference evidence, clean output streams, and write failures. No live
 third-party websites are needed:
 
 ```sh
-go test -v ./...
+go test ./...
 ```
 
-Optional race and coverage checks:
+Add `-v` for individual test output. Optional race and coverage checks:
 
 ```sh
 go test -race ./...
@@ -247,7 +249,7 @@ Stop the Python server with Ctrl-C when finished.
 
 ## Limitations and future scope
 
-- v0.1 inspects one final HTTP response, not the whole site's stack. HTTP error
+- The CLI inspects one final HTTP response, not the whole site's stack. HTTP error
   pages and intermediaries can expose different technologies from the application.
 - External CSS/JS contents are not downloaded. JavaScript is not executed, so
   runtime variables, dynamically added DOM content, and browser-triggered
@@ -262,7 +264,8 @@ Stop the Python server with Ctrl-C when finished.
   untrusted URLs. It can reach local/private addresses and follow redirects to
   other hosts; do not expose it as a public URL-processing endpoint as-is.
 
-Possible later increments include broader curated fingerprints, bounded asset
-inspection, and an optional browser-backed mode. These are directions, not
-v0.1 features or a promise of Wappalyzer coverage parity. Go and the CLI interface
-do not impose the current collection limits.
+Possible later increments include infrastructure fingerprints from exposed
+response signals (CDN/edge providers, load balancers, and WAFs), broader curated
+coverage, bounded asset inspection, and an optional browser-backed mode. These
+are directions, not v0.2.0 features or a promise of Wappalyzer coverage parity.
+Go and the CLI interface do not impose the current collection limits.
