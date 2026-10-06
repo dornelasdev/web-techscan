@@ -35,6 +35,8 @@ func Terminal(w io.Writer, report Report, color bool) error {
 			category := finding.Category
 			if category == "web_server" {
 				category = "web server"
+			} else if category == "cms" {
+				category = "CMS"
 			}
 			fmt.Fprintf(&text, "%s %s [%s]\n", marker(finding.State, color), plain(finding.Name), plain(category))
 			for _, evidence := range finding.Evidence {

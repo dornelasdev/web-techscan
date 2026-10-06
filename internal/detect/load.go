@@ -86,7 +86,7 @@ func compileTechnology(tech technology) (*compiledTechnology, error) {
 		return nil, fmt.Errorf("a lowercase hyphenated ID and nonempty name are required")
 	}
 	switch tech.Category {
-	case Framework, WebServer, Language:
+	case Framework, WebServer, Language, CMS:
 	default:
 		return nil, fmt.Errorf("unknown category %q", tech.Category)
 	}

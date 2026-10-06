@@ -50,10 +50,12 @@ func categoryOrder(category string) int {
 		return 0
 	case "framework":
 		return 1
-	case "language":
+	case "cms":
 		return 2
-	default:
+	case "language":
 		return 3
+	default:
+		return 4
 	}
 }
 
@@ -78,6 +80,8 @@ func CatalogTerminal(w io.Writer, report CatalogReport) error {
 				title = "Web servers"
 			case "framework":
 				title = "Frameworks"
+			case "cms":
+				title = "CMS"
 			case "language":
 				title = "Languages"
 			}

@@ -1,4 +1,4 @@
-# Initial coverage and sources
+# Coverage and sources
 
 Reviewed on 2026-10-05. These rules were authored for this project from
 documented behavior and upstream source. No third-party fingerprint dataset
@@ -62,3 +62,52 @@ error-page scope, and redirect isolation using local HTTP servers.
 
 Tests are authored checks, not measurements of real-world detection accuracy.
 The user runs them; the agent does not execute tests or scan live sites.
+
+## CMS additions — reviewed 2026-10-06
+
+| Technology | Rule | Evidence and state | Source |
+| --- | --- | --- | --- |
+| WordPress | `generator-meta` | Generator meta markup naming WordPress, optionally with a numeric version: inferred | [WordPress generator implementation](https://developer.wordpress.org/reference/functions/get_the_generator/) |
+| Drupal | `generator-meta` | Generator meta markup naming Drupal with a numeric version and optional official-site URL: inferred | [Drupal default metadata](https://api.drupal.org/api/drupal/core%21lib%21Drupal%21Core%21Render%21BareHtmlPageRenderer.php/11.x) |
+| Drupal | `generator-header` | Anchored `X-Generator` value naming Drupal with a numeric version and optional official-site URL: detected | [Drupal response subscriber](https://github.com/drupal/drupal/blob/11.x/core/lib/Drupal/Core/EventSubscriber/ResponseGeneratorSubscriber.php) |
+| Joomla | `generator-meta` | Generator meta markup with Joomla's standard product phrase and optional version suffix: inferred | [Joomla site metadata](https://github.com/joomla/joomla-cms/blob/5.4-dev/libraries/src/Application/SiteApplication.php), [meta renderer](https://github.com/joomla/joomla-cms/blob/5.4-dev/libraries/src/Document/Renderer/Html/MetasRenderer.php) |
+
+These are intentionally narrow first rules, not full coverage of each CMS.
+No upstream implementation or third-party fingerprint dataset was imported.
+
+- All HTML rules require the `name` and `content` attributes on the same complete
+  meta tag, in either order. Relevant values must be single- or double-quoted.
+  Tag/attribute names and the generator keyword are case-insensitive; CMS product
+  values use their upstream spelling. Extra attributes are consumed as complete
+  tokens so quoted examples inside another attribute do not become attributes.
+- Patterns have a common shape: a meta opening, optional attribute tokens, the
+  generator-name/content pair in either order, remaining attributes, and a close.
+  Product expressions occupy only the content value. Keep both order alternatives
+  equivalent when editing these patterns; tests exercise each ordering.
+- Full tags copied into comments, script strings, or quoted examples can still
+  match: these are raw HTML regexes, not parsed DOM observations. Duplicate
+  attributes and malformed HTML are not interpreted with browser semantics.
+  HTML-only findings therefore stay inferred, even for explicit generator text.
+- Hidden/customized metadata, unquoted target values, HTML entities in product
+  names, and unrecognized generator variants can be missed. WordPress.com-only
+  branding, generic CMS cookies, asset directory names, and product names in
+  ordinary text are not sufficient for these rules. No asset or API fetching.
+- Drupal's direct header can upgrade its HTML inference, retaining both evidence
+  entries. Header spelling is case-insensitive; trailing unrelated text and
+  lookalike product/domain names are rejected. Header removal causes misses and
+  spoofing remains possible, just as with existing identifying-header rules.
+- No PHP inference is added for these CMSs. Generator artifacts can survive
+  export, caching, or copying; they do not establish a currently running backend.
+  An independently observed PHP identification header still works as before.
+- Version strings constrain matches but are not extracted. The fixture version
+  numbers are synthetic examples, not a claim about latest upstream versions.
+- WordPress and Joomla accept only numeric versions optionally followed by a
+  numbered `-alpha`, `-beta`, or `-rc` suffix (case-insensitive). Arbitrary suffixes
+  such as `-compatible` are rejected. Other development/custom version forms are
+  deliberately omitted until supported by a separate reviewed case.
+
+`../cms_test.go` covers positive variants, near misses, HTML limitations, evidence
+deduplication, and Drupal direct-state precedence. Three synthetic `.html` files
+under `../testdata/coverage/` are also served by CLI integration checks, which
+cover both output formats, content-type filtering, error scope, and redirects.
+The full catalog-wide audit remains a separate checkpoint after this addition.

@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Restricted WordPress/Joomla generator version suffixes to numbered prerelease
+  forms, rejecting lookalikes such as `-compatible`.
+- Added WordPress, Drupal, and Joomla generator fingerprints in a new `cms`
+  category. HTML markers remain inferred; Drupal's identifying header is detected.
+  Added CMS fixtures and near-miss/integration checks without new network behavior
+  or automatic PHP inference from CMS markers.
 - Added offline `--techs` listing from the bundled catalog, grouped by category
   with stable name ordering, plus a separate `--techs --json` catalog report.
 

@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "technologies": [
+    {
+      "id": "drupal",
+      "name": "Drupal",
+      "category": "cms",
+      "rules": [
+        {
+          "id": "generator-meta",
+          "state": "inferred",
+          "description": "HTML contains a generator meta tag naming Drupal; markup may be copied or static",
+          "all": [
+            {
+              "source": "html",
+              "pattern": "(?i:<meta)\\s+(?:[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>`]+))?\\s+)*(?:(?i:name)\\s*=\\s*(?:\"(?i:generator)\"|'(?i:generator)')\\s+(?:[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>`]+))?\\s+)*(?i:content)\\s*=\\s*(?:\"Drupal\\s+[0-9]+(?:\\.[0-9]+)*(?:\\s+\\(https?://(?:www\\.)?drupal\\.org/?\\))?\"|'Drupal\\s+[0-9]+(?:\\.[0-9]+)*(?:\\s+\\(https?://(?:www\\.)?drupal\\.org/?\\))?')|(?i:content)\\s*=\\s*(?:\"Drupal\\s+[0-9]+(?:\\.[0-9]+)*(?:\\s+\\(https?://(?:www\\.)?drupal\\.org/?\\))?\"|'Drupal\\s+[0-9]+(?:\\.[0-9]+)*(?:\\s+\\(https?://(?:www\\.)?drupal\\.org/?\\))?')\\s+(?:[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>`]+))?\\s+)*(?i:name)\\s*=\\s*(?:\"(?i:generator)\"|'(?i:generator)'))(?:\\s+[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>`]+))?)*\\s*/?>"
+            }
+          ]
+        },
+        {
+          "id": "generator-header",
+          "state": "detected",
+          "description": "X-Generator header reports Drupal",
+          "all": [
+            {
+              "source": "header",
+              "name": "X-Generator",
+              "pattern": "(?i)^[ \\t]*Drupal[ \\t]+[0-9]+(?:\\.[0-9]+)*(?:[ \\t]+\\(https?://(?:www\\.)?drupal\\.org/?\\))?[ \\t]*$"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "joomla",
+      "name": "Joomla",
+      "category": "cms",
+      "rules": [
+        {
+          "id": "generator-meta",
+          "state": "inferred",
+          "description": "HTML contains a generator meta tag naming Joomla; markup may be copied or static",
+          "all": [
+            {
+              "source": "html",
+              "pattern": "(?i:<meta)\\s+(?:[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>`]+))?\\s+)*(?:(?i:name)\\s*=\\s*(?:\"(?i:generator)\"|'(?i:generator)')\\s+(?:[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>`]+))?\\s+)*(?i:content)\\s*=\\s*(?:\"Joomla! - Open Source Content Management(?: - Version [0-9]+(?:\\.[0-9]+)*(?:-(?i:alpha|beta|rc)[0-9]+)?)?\"|'Joomla! - Open Source Content Management(?: - Version [0-9]+(?:\\.[0-9]+)*(?:-(?i:alpha|beta|rc)[0-9]+)?)?')|(?i:content)\\s*=\\s*(?:\"Joomla! - Open Source Content Management(?: - Version [0-9]+(?:\\.[0-9]+)*(?:-(?i:alpha|beta|rc)[0-9]+)?)?\"|'Joomla! - Open Source Content Management(?: - Version [0-9]+(?:\\.[0-9]+)*(?:-(?i:alpha|beta|rc)[0-9]+)?)?')\\s+(?:[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>`]+))?\\s+)*(?i:name)\\s*=\\s*(?:\"(?i:generator)\"|'(?i:generator)'))(?:\\s+[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>`]+))?)*\\s*/?>"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wordpress",
+      "name": "WordPress",
+      "category": "cms",
+      "rules": [
+        {
+          "id": "generator-meta",
+          "state": "inferred",
+          "description": "HTML contains a generator meta tag naming WordPress; markup may be copied or static",
+          "all": [
+            {
+              "source": "html",
+              "pattern": "(?i:<meta)\\s+(?:[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>`]+))?\\s+)*(?:(?i:name)\\s*=\\s*(?:\"(?i:generator)\"|'(?i:generator)')\\s+(?:[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>`]+))?\\s+)*(?i:content)\\s*=\\s*(?:\"WordPress(?:\\s+[0-9]+(?:\\.[0-9]+)*(?:-(?i:alpha|beta|rc)[0-9]+)?)?\"|'WordPress(?:\\s+[0-9]+(?:\\.[0-9]+)*(?:-(?i:alpha|beta|rc)[0-9]+)?)?')|(?i:content)\\s*=\\s*(?:\"WordPress(?:\\s+[0-9]+(?:\\.[0-9]+)*(?:-(?i:alpha|beta|rc)[0-9]+)?)?\"|'WordPress(?:\\s+[0-9]+(?:\\.[0-9]+)*(?:-(?i:alpha|beta|rc)[0-9]+)?)?')\\s+(?:[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>`]+))?\\s+)*(?i:name)\\s*=\\s*(?:\"(?i:generator)\"|'(?i:generator)'))(?:\\s+[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>`]+))?)*\\s*/?>"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

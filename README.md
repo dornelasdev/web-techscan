@@ -1,7 +1,7 @@
 # web-techscan
 
 A small Go CLI for identifying the likely web stack behind a single URL.
-Coverage starts with web frameworks, web servers, and supported
+Coverage includes web frameworks, web servers, CMSs, and supported
 programming-language inferences, with evidence attached to every finding.
 
 ## Current build
@@ -13,8 +13,8 @@ is a personal CLI built from local source, with an executable
 named `webscan`. See the [release notes](CHANGELOG.md).
 
 Requires Go 1.27 or newer. There are currently no external dependencies.
-The current development build adds `--techs` after v0.1.0; no new version has
-been assigned to this addition yet.
+The current development build adds `--techs` and CMS fingerprints after v0.1.0;
+no new version has been assigned to these additions yet.
 
 ## Supported technologies
 
@@ -25,7 +25,7 @@ List the actual catalog bundled in your build without fetching a website:
 ./bin/webscan --techs --json
 ```
 
-Terminal output groups technologies under Web servers, Frameworks, and Languages,
+Terminal output groups technologies under Web servers, Frameworks, CMS, and Languages,
 with names sorted alphabetically (case-insensitive) within each category. The
 list updates automatically when fingerprints are added and the binary is rebuilt.
 It describes supported coverage, not findings: there are no detected/inferred
@@ -41,6 +41,7 @@ always plain. JSON returns catalog metadata, not the scan-report shape; see the
 | Web servers | nginx, Apache HTTP Server, Microsoft IIS | Identifying Server header |
 | Frameworks | Express, Next.js | Identifying X-Powered-By header; paired Next.js HTML markers also support an inference |
 | Frameworks | Laravel | Paired default cookie names support an inference |
+| CMS | WordPress, Drupal, Joomla | Generator meta tags support an inference; Drupal's identifying X-Generator header supports detection |
 | Languages | PHP | Identifying X-Powered-By header or inference from Laravel |
 
 This is a limited starting set. Missing or customized signals can produce no
@@ -49,7 +50,9 @@ direct evidence, not proof; cookie and HTML heuristics stay inferred. The
 initial catalog does not guess source languages from frontend assets or infer
 languages from web-server implementations. See the
 [coverage notes and official sources](internal/detect/fingerprints/SOURCES.md)
-for each rule's rationale and limits.
+for each rule's rationale and limits. CMS rules deliberately start with generator
+markers; removed/customized markers may be missed. No PHP inference is made from
+these CMS markers alone, since artifacts may be copied, cached, or exported.
 
 ## Build and use
 
@@ -227,7 +230,20 @@ In another terminal, after building:
 Both should report only Next.js as **inferred**, with the paired HTML markers
 as evidence. The JSON finding uses `id: "nextjs"` and `state: "inferred"`.
 The different byte counts are expected. Referenced scripts do not need to exist:
-only their URLs in the HTML are inspected. Stop the Python server with Ctrl-C.
+only their URLs in the HTML are inspected.
+
+The same fixture server also provides `wordpress.html`, `drupal.html`, and
+`joomla.html`. For example:
+
+```sh
+./bin/webscan --no-color http://127.0.0.1:8000/wordpress.html
+./bin/webscan --json http://127.0.0.1:8000/drupal.html
+```
+
+Each CMS fixture should produce only its own **inferred** CMS finding, without
+PHP. The Drupal fixture server does not send the identifying `X-Generator`
+header, so it exercises HTML inference rather than direct detection.
+Stop the Python server with Ctrl-C when finished.
 
 ## Limitations and future scope
 
@@ -238,7 +254,7 @@ only their URLs in the HTML are inspected. Stop the Python server with Ctrl-C.
   requests are unavailable. There is no crawling, path guessing, or port scanning.
 - HTML rules use raw-text patterns, not a DOM parser. Copied markup or comments
   can resemble real signals; missing signals do not establish absence.
-- The catalog contains seven technologies. No version extraction, confidence
+- The catalog contains ten technologies. No version extraction, confidence
   percentages, or automatic fingerprint updates are included.
 - Reports retain URL query strings, which may contain sensitive data. Review
   reports before sharing them even though raw bodies and cookie values are omitted.
