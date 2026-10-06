@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Hardened Next.js HTML inference to require complete script opening tags and
+  actual attribute tokens; asset markers must be in URL paths, not hostnames,
+  query strings, or fragments. Added quote-style and URL-boundary regressions.
 - Restricted WordPress/Joomla generator version suffixes to numbered prerelease
   forms, rejecting lookalikes such as `-compatible`.
 - Added WordPress, Drupal, and Joomla generator fingerprints in a new `cms`

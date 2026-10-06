@@ -37,8 +37,19 @@ Upstream branch links may change; revisit the behavior when updating a rule.
   discarding inference evidence.
 - The Next.js HTML rule requires both script markers and supports quoted
   attributes, changed attribute order, whitespace, and CDN/base-path prefixes.
+  Each marker must be a real attribute token on a complete `script` opening
+  tag: `script-widget`, truncated tags, and marker assignments inside another
+  quoted attribute do not suffice. Extra attributes are consumed as whole tokens.
+  Asset URLs support HTTP(S), scheme-relative, root-relative, and prefixed
+  relative paths (such as `./_next/static/…`). The `/_next/static/` marker must
+  occur in the path, not the authority, query, or fragment, with a nonempty
+  path remainder. Query/fragment suffixes after a valid asset path are allowed.
   It is deliberately limited to the documented Pages Router shape. App Router
   pages without these markers and without the identifying header can be missed.
+  These are conservative literal URL patterns, not URL parsing/resolution:
+  backslashes, other schemes, empty prefix segments, entity/percent-encoded
+  markers, and unquoted target attributes are not supported. Dot segments are
+  not normalized and URLs are not checked for reachability.
 - Next.js HTML can be statically exported. Its presence does not establish a
   running Node.js server or the application's source language. The initial
   catalog makes no JavaScript/TypeScript language inference from Next.js or
@@ -55,7 +66,9 @@ Upstream branch links may change; revisit the behavior when updating a rule.
 ## Verification fixtures
 
 `../coverage_test.go` covers every initial rule with positive and near-miss
-cases, including language inference and direct-evidence precedence. HTML
+cases, including language inference and direct-evidence precedence.
+`../nextjs_test.go` adds script-tag/attribute boundaries and asset URL path cases
+across both quote styles. HTML
 documents live in `../testdata/coverage/`. CLI coverage tests additionally
 exercise fetching, cookie-name extraction, HTML content-type filtering,
 error-page scope, and redirect isolation using local HTTP servers.
@@ -110,4 +123,15 @@ No upstream implementation or third-party fingerprint dataset was imported.
 deduplication, and Drupal direct-state precedence. Three synthetic `.html` files
 under `../testdata/coverage/` are also served by CLI integration checks, which
 cover both output formats, content-type filtering, error scope, and redirects.
-The full catalog-wide audit remains a separate checkpoint after this addition.
+
+## Catalog audit — 2026-10-06
+
+Reviewed all ten technologies, state assignments, implications, and existing
+near-miss coverage. The actionable issues were in Next.js HTML matching:
+tag/attribute boundaries and URL authorities being mistaken for paths. Hardened
+those two matchers without changing the engine, schema, evidence, or collection
+behavior. The [HTML start-tag syntax](https://html.spec.whatwg.org/multipage/syntax.html#start-tags)
+informs the conservative token boundaries; this is still not a DOM parser.
+HTML inference and the raw-markup limitations above remain intentional.
+This source-level audit and authored regressions are not a passing test result
+or a claim that every possible false positive has been eliminated.
