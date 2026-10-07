@@ -205,3 +205,31 @@ extraction, value-only decoys, duplicate names, split/redirect-only pairs, priva
 error responses, both output formats, and no cookie replay using local servers.
 Catalog tests include category ordering and offline listing. Tests are authored
 for user execution, not evidence of real-world accuracy.
+
+## WAF addition — reviewed 2026-10-07
+
+| Technology | Rule | Evidence and state | Source |
+| --- | --- | --- | --- |
+| AWS WAF | `action-header` | X-Amzn-Waf-Action value challenge or captcha: detected | [AWS WAF action behavior](https://docs.aws.amazon.com/waf/latest/developerguide/waf-captcha-and-challenge-actions.html) |
+
+AWS documents `challenge` with HTTP 202 and `captcha` with HTTP 405. The rule
+matches the explicit header, not the status. Header names are case-insensitive;
+values must be the documented lowercase tokens, with optional outer spaces/tabs.
+Other actions, case variants, prefixes/suffixes, and comma-combined values are
+not accepted. Repeated matching fields yield one evidence entry.
+
+Allowed traffic or ordinary blocks may expose no such header. AWS/CDN identity,
+load-balancer cookies, generic status codes, and challenge text do not establish
+WAF presence. No implication edges are added. Headers can be spoofed or copied;
+`detected` remains observed response evidence, not a guarantee about the origin,
+protection quality, or rule configuration.
+
+No status matcher, collection changes, script execution, CAPTCHA solving, special
+probes, or bypass attempts. Evidence records the rule and canonical header name,
+not raw values. Existing response-scope semantics remain: a 202 challenge is a
+`final_response`, which does not prove the origin application was reached.
+
+Detector tests cover exact values, near misses, deduplication, wrong locations,
+and independent WAF evidence in a mixed stack. Local CLI cases cover both output
+formats, status-only negatives, non-HTML responses, redirects, privacy, and request
+counts. Catalog tests cover WAF grouping and offline listing. Tests are user-run.

@@ -19,6 +19,7 @@ const (
 	CMS          Category = "cms"
 	CDN          Category = "cdn"
 	LoadBalancer Category = "load_balancer"
+	WAF          Category = "waf"
 )
 
 type Source string

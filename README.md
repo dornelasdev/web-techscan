@@ -1,8 +1,9 @@
 # web-techscan
 
 A small Go CLI for identifying the likely web stack behind a single URL.
-Coverage includes web frameworks, web servers, CMSs, CDN/edge providers, load balancers, and supported
-programming-language inferences, with evidence attached to every finding.
+Coverage includes web frameworks, web servers, CMSs, CDN/edge providers,
+load balancers, WAFs, and supported programming-language inferences,
+with evidence attached to every finding.
 
 ## Current development build
 
@@ -15,9 +16,9 @@ named `webscan`. See the [release notes](CHANGELOG.md).
 Requires Go 1.27 or newer. There are currently no external dependencies.
 v0.2.0 is the latest released baseline. Development since that tag adds
 Cloudflare and Amazon CloudFront header fingerprints plus AWS Application and
-Classic Load Balancer cookie-pair fingerprints, bringing coverage to fourteen
-technologies. These additions are unreleased; no new version is assigned.
-Collection remains limited to one final HTTP response. WAF fingerprints are not included.
+Classic Load Balancer cookie-pair fingerprints and an AWS WAF action-header rule,
+bringing coverage to fifteen technologies. These additions are unreleased;
+no new version is assigned. Collection remains limited to one final HTTP response.
 
 ## Supported technologies
 
@@ -29,7 +30,7 @@ List the actual catalog bundled in your build without fetching a website:
 ```
 
 Terminal output groups technologies under Web servers, Frameworks, CMS, Languages,
-CDN/edge, and Load balancers,
+CDN/edge, Load balancers, and WAFs,
 with names sorted alphabetically (case-insensitive) within each category. The
 list updates automatically when fingerprints are added and the binary is rebuilt.
 It describes supported coverage, not findings: there are no detected/inferred
@@ -49,6 +50,7 @@ always plain. JSON returns catalog metadata, not the scan-report shape; see the
 | Languages | PHP | Identifying X-Powered-By header or inference from Laravel |
 | CDN/edge | Cloudflare, Amazon CloudFront | Shaped CF-Ray header or identifying standalone CloudFront Via header, respectively |
 | Load balancers | AWS Application Load Balancer, AWS Classic Load Balancer | AWSALB + AWSALBCORS or AWSELB + AWSELBCORS cookie-name pairs, respectively; inferred |
+| WAFs | AWS WAF | X-Amzn-Waf-Action header with exact challenge or captcha value; detected |
 
 This is a limited starting set. Missing or customized signals can produce no
 findings even when a supported technology is present. Header matches are
@@ -73,6 +75,13 @@ values are neither inspected nor reported, and cookies are not replayed. A singl
 cookie, a pair split across redirects, other stickiness modes, and installations
 without these cookies are missed by this first batch. Findings do not establish
 backend counts, live routing, hidden origins, WAF configuration, or topology.
+
+AWS WAF detection requires its explicit action header (`challenge` or `captcha`,
+lowercase, allowing outer spaces/tabs). Status codes, provider identity, cookie
+names, and challenge text in HTML do not suffice. The header is matched regardless
+of HTTP status; status and response scope are still reported separately. Allowed
+traffic and ordinary blocks without this header may reveal no WAF evidence.
+The CLI does not execute challenge scripts, solve CAPTCHAs, or retry to bypass them.
 
 ## Build and use
 
@@ -274,7 +283,7 @@ Stop the Python server with Ctrl-C when finished.
   requests are unavailable. There is no crawling, path guessing, or port scanning.
 - HTML rules use raw-text patterns, not a DOM parser. Copied markup or comments
   can resemble real signals; missing signals do not establish absence.
-- The development catalog contains fourteen technologies. No version extraction, confidence
+- The development catalog contains fifteen technologies. No version extraction, confidence
   percentages, or automatic fingerprint updates are included.
 - Reports retain URL query strings, which may contain sensitive data. Review
   reports before sharing them even though raw bodies and cookie values are omitted.
@@ -283,7 +292,7 @@ Stop the Python server with Ctrl-C when finished.
   other hosts; do not expose it as a public URL-processing endpoint as-is.
 
 Possible later increments include more infrastructure fingerprints from exposed
-response signals (additional CDN/edge and load-balancer coverage, and WAFs), broader curated
+response signals (additional CDN/edge, load-balancer, and WAF coverage), broader curated
 coverage, bounded asset inspection, and an optional browser-backed mode. These
 are directions, not implemented features or a promise of Wappalyzer coverage parity.
 Go and the CLI interface do not impose the current collection limits.

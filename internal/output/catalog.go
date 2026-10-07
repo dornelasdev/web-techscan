@@ -58,8 +58,10 @@ func categoryOrder(category string) int {
 		return 4
 	case "load_balancer":
 		return 5
-	default:
+	case "waf":
 		return 6
+	default:
+		return 7
 	}
 }
 
@@ -92,6 +94,8 @@ func CatalogTerminal(w io.Writer, report CatalogReport) error {
 				title = "CDN/edge"
 			case "load_balancer":
 				title = "Load balancers"
+			case "waf":
+				title = "WAFs"
 			}
 			fmt.Fprintf(&text, "\n%s\n", plain(title))
 			lastCategory = tech.Category

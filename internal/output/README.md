@@ -23,13 +23,17 @@ exit code too.
 
 Each finding contains `id`, `name`, `category`, `state`, and `evidence`.
 Categories currently include `framework`, `web_server`, `cms`, `language`, `cdn`,
-and `load_balancer`.
+`load_balancer`, and `waf`.
 New category strings may be added; consumers should preserve unknown values.
 `cdn` is displayed as CDN/edge. It describes identifying edge-provider evidence,
 not enabled security services, cache behavior, or the hidden origin's identity.
 `load_balancer` is displayed as `load balancer` in findings and Load balancers
 in catalog listings. Initial cookie-pair rules remain inferred; they do not
 establish a network topology or number of backend servers.
+`waf` is displayed as WAF in findings and WAFs in catalog listings. The initial
+AWS WAF rule uses explicit action-header evidence, not status codes or provider
+relationships. A challenge response with status 202 retains `final_response`
+scope; that label does not mean the origin application was reached.
 States are `detected`
 and `inferred`; neither is a guarantee of the hidden origin's technology.
 `response_scope` describes the inspected response, not its ownership or origin.
@@ -90,7 +94,7 @@ guarantee identification. Technologies supported only by inference are included.
 `catalog_size` equals the array length. An empty catalog uses `technologies: []`.
 
 Both catalog formats order categories as `web_server`, `framework`, `cms`,
-`language`, `cdn`, `load_balancer`,
+`language`, `cdn`, `load_balancer`, `waf`,
 then names case-insensitively within each category, with ID as a tie-breaker.
 Terminal output uses friendly group headings and a coverage disclaimer. It is
 always plain text, regardless of color flags. JSON uses two-space indentation,

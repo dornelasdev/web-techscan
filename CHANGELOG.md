@@ -2,9 +2,13 @@
 
 ## Unreleased
 
+- Added AWS WAF detection from explicit challenge/CAPTCHA action-header values,
+  with `waf` in JSON and WAF/WAFs terminal labels. Coverage totals fifteen
+  technologies. Added positive/near-miss, independent-evidence, redirect, status,
+  and output checks; no challenge execution, bypass attempts, or extra requests.
 - Added inferred AWS Application Load Balancer and Classic Load Balancer findings
   from exact stickiness-cookie pairs, with a `load_balancer` category in scan and
-  catalog output. Coverage totals fourteen technologies. Added cookie-boundary,
+  catalog output. Added cookie-boundary,
   privacy, redirect-isolation, mixed-stack, and local CLI checks; no new requests.
 - Added Cloudflare and Amazon CloudFront response-header fingerprints under
   `cdn`, displayed as CDN/edge in findings and `--techs`. These findings do not

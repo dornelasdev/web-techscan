@@ -41,6 +41,8 @@ func Terminal(w io.Writer, report Report, color bool) error {
 				category = "CDN/edge"
 			} else if category == "load_balancer" {
 				category = "load balancer"
+			} else if category == "waf" {
+				category = "WAF"
 			}
 			fmt.Fprintf(&text, "%s %s [%s]\n", marker(finding.State, color), plain(finding.Name), plain(category))
 			for _, evidence := range finding.Evidence {

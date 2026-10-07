@@ -49,8 +49,9 @@ func TestCatalogOrderingAndRendering(t *testing.T) {
 	}
 }
 
-func TestLoadBalancerCatalogOrdering(t *testing.T) {
+func TestInfrastructureCatalogOrdering(t *testing.T) {
 	report := output.NewCatalogReport([]detect.TechnologyInfo{
+		{ID: "aws-waf", Name: "AWS WAF", Category: detect.WAF},
 		{ID: "aws-clb", Name: "AWS Classic Load Balancer", Category: detect.LoadBalancer},
 		{ID: "aws-alb", Name: "AWS Application Load Balancer", Category: detect.LoadBalancer},
 		{ID: "cloudflare", Name: "Cloudflare", Category: detect.CDN},
@@ -59,7 +60,7 @@ func TestLoadBalancerCatalogOrdering(t *testing.T) {
 	for _, item := range report.Technologies {
 		ids = append(ids, item.ID)
 	}
-	if !reflect.DeepEqual(ids, []string{"cloudflare", "aws-alb", "aws-clb"}) {
+	if !reflect.DeepEqual(ids, []string{"cloudflare", "aws-alb", "aws-clb", "aws-waf"}) {
 		t.Fatalf("unexpected category/name order: %v", ids)
 	}
 	var terminal bytes.Buffer
@@ -68,6 +69,9 @@ func TestLoadBalancerCatalogOrdering(t *testing.T) {
 	}
 	if !strings.Contains(terminal.String(), "\nLoad balancers\n  AWS Application Load Balancer\n  AWS Classic Load Balancer\n") {
 		t.Errorf("missing load balancer group: %s", &terminal)
+	}
+	if !strings.Contains(terminal.String(), "\nWAFs\n  AWS WAF\n") {
+		t.Errorf("missing WAF group: %s", &terminal)
 	}
 }
 

@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "technologies": [
+    {
+      "id": "aws-waf",
+      "name": "AWS WAF",
+      "category": "waf",
+      "rules": [{
+        "id": "action-header",
+        "state": "detected",
+        "description": "X-Amzn-Waf-Action header reports an AWS WAF challenge or CAPTCHA action; evidence describes this response, not the hidden origin",
+        "all": [{"source": "header", "name": "X-Amzn-Waf-Action", "pattern": "^[ \\t]*(?:challenge|captcha)[ \\t]*$"}]
+      }]
+    }
+  ]
+}
