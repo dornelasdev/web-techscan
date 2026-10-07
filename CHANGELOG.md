@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Added Nuxt framework coverage: an exact identifying header produces detected
+  state; paired payload/script-path HTML markers produce inferred state. Added
+  synthetic fixtures, boundary/evidence tests, terminal/JSON integration, and
+  offline catalog checks. Sixteen technologies are now bundled; no language
+  inferences, asset fetching, JavaScript execution, or User-Agent changes.
 - Tightened nginx/Apache Server-header fingerprints to reject malformed product
   versions and unstructured trailing text while retaining supported OS/build
   comments and Apache module banners. Added detector and terminal/JSON CLI

@@ -76,6 +76,50 @@ error-page scope, and redirect isolation using local HTTP servers.
 Tests are authored checks, not measurements of real-world detection accuracy.
 The user runs them; the agent does not execute tests or scan live sites.
 
+## Nuxt additions
+
+| Rule | Evidence and state | Source |
+| --- | --- | --- |
+| `powered-by-header` | Exact X-Powered-By value Nuxt, case-insensitive with outer spaces/tabs: detected | [Nuxt v3.17.5 HTML renderer](https://github.com/nuxt/nuxt/blob/v3.17.5/packages/nuxt/src/core/runtime/nitro/handlers/renderer.ts) |
+| `payload-html-markers` | A script with ID __NUXT_DATA__ and a script source containing the /_nuxt/ path segment: inferred | [Nuxt v3.17.5 payload renderer](https://github.com/nuxt/nuxt/blob/v3.17.5/packages/nuxt/src/core/runtime/nitro/utils/renderer/payload.ts), [asset configuration](https://nuxt.com/docs/3.x/api/nuxt-config#buildassetsdir) |
+
+The tagged renderer documents the reviewed response shapes, not an exhaustive
+version range. No upstream code or external fingerprint dataset was imported.
+Requiring the pair is this project's conservative heuristic, not an assertion
+that every Nuxt page exposes both markers.
+
+- Header matching rejects Nuxt.js, version suffixes, lookalikes, and combined
+  values. Repeated values produce one evidence entry. A direct header upgrades
+  HTML inference while retaining both rules. It works independently of HTML
+  content type, including on error responses; spoofing/removal remains possible.
+- HTML matching reuses the hardened script-tag and literal URL boundaries of
+  the Next.js rules, with Nuxt-specific markers. Attributes must occur on complete
+  script opening tags with quoted target values. Marker values and paths are
+  case-sensitive; tag/attribute names are not. The two signals may occur on
+  separate tags, but must be in the same final response.
+- Match HTTP(S), scheme-relative, root-relative, or prefixed-relative asset
+  paths, including base-path/CDN variants. A host, query, fragment, stylesheet
+  link, plain text, or data-src/data-id attribute alone is insufficient.
+- The rule checks the ID and script-source shape, not the payload's JSON
+  contents, script MIME type, runtime execution, or asset reachability.
+  The sample fixture includes additional upstream attributes for realism;
+  they are not additional match conditions.
+- Single-app JSON-payload markup is the initial HTML coverage. Legacy inline
+  window.__NUXT__ assignments, a __nuxt root alone, multi-app/custom IDs, renamed
+  buildAssetsDir, and pages without both scripts can be missed without a header.
+  No generic Vue/Nitro/header/cookie fallback or inferred JS/TS/Node.js is added.
+- As with existing HTML rules, comments/copied markup can match. This is raw
+  text, not a DOM parser or URL resolver: unquoted/encoded markers, dot-segment
+  normalization, and browser semantics remain outside scope. Artifacts may be
+  static/cached; they do not prove a currently running Nuxt origin server.
+
+`../nuxt_test.go` covers positives, near misses, attribute/URL boundaries,
+deduplication, state upgrades, raw-HTML limits, and separation from Next.js.
+`../../cli/nuxt_test.go` serves the synthetic `nuxt-payload.html` fixture and
+checks both formats, HTML filtering, errors, redirects, privacy, and exact request
+paths. Offline catalog tests cover Nuxt's framework grouping and metadata.
+Tests are authored for user execution, not a measured accuracy claim.
+
 ## Server-banner hardening — 2026-10-07
 
 Replaced the permissive nginx/Apache version and trailing-text patterns with

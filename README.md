@@ -16,8 +16,9 @@ named `webscan`. See the [release notes](CHANGELOG.md).
 Requires Go 1.27 or newer. There are currently no external dependencies.
 v0.2.0 is the latest released baseline. Development since that tag adds
 Cloudflare and Amazon CloudFront header fingerprints plus AWS Application and
-Classic Load Balancer cookie-pair fingerprints and an AWS WAF action-header rule,
-bringing coverage to fifteen technologies. These additions are unreleased;
+Classic Load Balancer cookie-pair fingerprints, an AWS WAF action-header rule,
+and Nuxt header/HTML fingerprints, bringing coverage to sixteen technologies.
+These additions are unreleased;
 no new version is assigned. Collection remains limited to one final HTTP response.
 
 ## Supported technologies
@@ -46,6 +47,7 @@ always plain. JSON returns catalog metadata, not the scan-report shape; see the
 | Web servers | nginx, Apache HTTP Server, Microsoft IIS | Identifying Server header |
 | Frameworks | Express, Next.js | Identifying X-Powered-By header; paired Next.js HTML markers also support an inference |
 | Frameworks | Laravel | Paired default cookie names support an inference |
+| Frameworks | Nuxt | Exact Nuxt X-Powered-By header; paired __NUXT_DATA__ script ID and /_nuxt/ script path support an inference |
 | CMS | WordPress, Drupal, Joomla | Generator meta tags support an inference; Drupal's identifying X-Generator header supports detection |
 | Languages | PHP | Identifying X-Powered-By header or inference from Laravel |
 | CDN/edge | Cloudflare, Amazon CloudFront | Shaped CF-Ray header or identifying standalone CloudFront Via header, respectively |
@@ -281,6 +283,16 @@ The same fixture server also provides `wordpress.html`, `drupal.html`, and
 Each CMS fixture should produce only its own **inferred** CMS finding, without
 PHP. The Drupal fixture server does not send the identifying `X-Generator`
 header, so it exercises HTML inference rather than direct detection.
+The `nuxt-payload.html` fixture in the same directory can also be inspected:
+
+```sh
+./bin/webscan --no-color http://127.0.0.1:8000/nuxt-payload.html
+./bin/webscan --json http://127.0.0.1:8000/nuxt-payload.html
+```
+
+Keep the fixture server running for these commands. Expect only Nuxt as
+**inferred**, with two HTML signals; the Python server does not send Nuxt's
+identifying header. No linked scripts, stylesheets, or pages are fetched.
 Stop the Python server with Ctrl-C when finished.
 
 ## Limitations and future scope
@@ -292,7 +304,10 @@ Stop the Python server with Ctrl-C when finished.
   requests are unavailable. There is no crawling, path guessing, or port scanning.
 - HTML rules use raw-text patterns, not a DOM parser. Copied markup or comments
   can resemble real signals; missing signals do not establish absence.
-- The development catalog contains fifteen technologies. No version extraction, confidence
+- Nuxt HTML coverage requires the single-app JSON-payload script ID and a default
+  `/_nuxt/` script path together. Legacy inline payloads, multi-app/custom markers,
+  or renamed asset directories can be missed without the identifying header.
+- The development catalog contains sixteen technologies. No version extraction, confidence
   percentages, or automatic fingerprint updates are included.
 - Reports retain URL query strings, which may contain sensitive data. Review
   reports before sharing them even though raw bodies and cookie values are omitted.

@@ -48,6 +48,40 @@
           "all": [{"source": "header", "name": "X-Powered-By", "pattern": "(?i)^[ \\t]*Next[.]js[ \\t]*$"}]
         }
       ]
+    },
+    {
+      "id": "nuxt",
+      "name": "Nuxt",
+      "category": "framework",
+      "rules": [
+        {
+          "id": "payload-html-markers",
+          "state": "inferred",
+          "description": "HTML contains a __NUXT_DATA__ script and a /_nuxt/ script reference",
+          "all": [
+            {
+              "source": "html",
+              "pattern": "(?i:<script)\\s+(?:[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>`]+))?\\s+)*(?i:id)\\s*=\\s*(?:\"__NUXT_DATA__\"|'__NUXT_DATA__')(?:\\s+[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>`]+))?)*\\s*/?>"
+            },
+            {
+              "source": "html",
+              "pattern": "(?i:<script)\\s+(?:[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>`]+))?\\s+)*(?i:src)\\s*=\\s*(?:\"(?:(?:(?i:https?):)?//[^/\"'<>?#\\\\\\s]+/|/|[^/:\"'<>?#\\\\\\s]+/)(?:[^/:\"'<>?#\\\\\\s]+/)*_nuxt/[^\"'<>?#\\\\\\s]+(?:[?#][^\"'<>\\\\\\s]*)?\"|'(?:(?:(?i:https?):)?//[^/\"'<>?#\\\\\\s]+/|/|[^/:\"'<>?#\\\\\\s]+/)(?:[^/:\"'<>?#\\\\\\s]+/)*_nuxt/[^\"'<>?#\\\\\\s]+(?:[?#][^\"'<>\\\\\\s]*)?')(?:\\s+[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>`]+))?)*\\s*/?>"
+            }
+          ]
+        },
+        {
+          "id": "powered-by-header",
+          "state": "detected",
+          "description": "X-Powered-By header reports Nuxt",
+          "all": [
+            {
+              "source": "header",
+              "name": "X-Powered-By",
+              "pattern": "(?i)^[ \\t]*Nuxt[ \\t]*$"
+            }
+          ]
+        }
+      ]
     }
   ]
 }

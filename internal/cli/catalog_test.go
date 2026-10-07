@@ -58,6 +58,9 @@ func TestTechsCatalogOffline(t *testing.T) {
 						t.Errorf("missing bundled technology %s", tech.ID)
 					}
 				}
+				if !strings.Contains(stdout.String(), "  Next.js\n  Nuxt\n") {
+					t.Error("Nuxt must appear in the alphabetically ordered framework group")
+				}
 				return
 			}
 			var report output.CatalogReport
@@ -70,6 +73,9 @@ func TestTechsCatalogOffline(t *testing.T) {
 			byID := make(map[string]output.Technology)
 			for _, tech := range report.Technologies {
 				byID[tech.ID] = tech
+			}
+			if got := byID["nuxt"]; got.Name != "Nuxt" || got.Category != "framework" {
+				t.Errorf("missing or incorrect Nuxt metadata: %+v", got)
 			}
 			for _, tech := range engine.Technologies() {
 				if got := byID[tech.ID]; got.Name != tech.Name || got.Category != string(tech.Category) {
