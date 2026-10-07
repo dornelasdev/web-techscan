@@ -1,0 +1,13 @@
+<!doctype html>
+<!-- Synthetic markup; the rule also needs a csrftoken response cookie name. -->
+<html>
+  <head><link rel="stylesheet" href="/fixture.css"></head>
+  <body>
+    <form method="post" action="/submit">
+      <input type="hidden" name="csrfmiddlewaretoken" value="private-csrf-value">
+      <button>Fixture only</button>
+    </form>
+    <script src="/fixture.js"></script>
+    <a href="/other">Another page</a>
+  </body>
+</html>

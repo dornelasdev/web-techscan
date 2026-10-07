@@ -17,7 +17,8 @@ Requires Go 1.27 or newer. There are currently no external dependencies.
 v0.2.0 is the latest released baseline. Development since that tag adds
 Cloudflare and Amazon CloudFront header fingerprints plus AWS Application and
 Classic Load Balancer cookie-pair fingerprints, an AWS WAF action-header rule,
-and Nuxt header/HTML fingerprints, bringing coverage to sixteen technologies.
+Nuxt header/HTML fingerprints, and Django cookie/HTML inference, bringing coverage
+to seventeen technologies.
 These additions are unreleased;
 no new version is assigned. Collection remains limited to one final HTTP response.
 
@@ -48,6 +49,7 @@ always plain. JSON returns catalog metadata, not the scan-report shape; see the
 | Frameworks | Express, Next.js | Identifying X-Powered-By header; paired Next.js HTML markers also support an inference |
 | Frameworks | Laravel | Paired default cookie names support an inference |
 | Frameworks | Nuxt | Exact Nuxt X-Powered-By header; paired __NUXT_DATA__ script ID and /_nuxt/ script path support an inference |
+| Frameworks | Django | Default CSRF cookie name plus matching hidden-input markup support an inference |
 | CMS | WordPress, Drupal, Joomla | Generator meta tags support an inference; Drupal's identifying X-Generator header supports detection |
 | Languages | PHP | Identifying X-Powered-By header or inference from Laravel |
 | CDN/edge | Cloudflare, Amazon CloudFront | Shaped CF-Ray header or identifying standalone CloudFront Via header, respectively |
@@ -307,7 +309,7 @@ Stop the Python server with Ctrl-C when finished.
 - Nuxt HTML coverage requires the single-app JSON-payload script ID and a default
   `/_nuxt/` script path together. Legacy inline payloads, multi-app/custom markers,
   or renamed asset directories can be missed without the identifying header.
-- The development catalog contains sixteen technologies. No version extraction, confidence
+- The development catalog contains seventeen technologies. No version extraction, confidence
   percentages, or automatic fingerprint updates are included.
 - Reports retain URL query strings, which may contain sensitive data. Review
   reports before sharing them even though raw bodies and cookie values are omitted.

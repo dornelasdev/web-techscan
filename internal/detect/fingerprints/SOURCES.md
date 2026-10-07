@@ -76,6 +76,51 @@ error-page scope, and redirect isolation using local HTTP servers.
 Tests are authored checks, not measurements of real-world detection accuracy.
 The user runs them; the agent does not execute tests or scan live sites.
 
+## Django addition
+
+`csrf-cookie-and-input` requires the exact, case-sensitive cookie name
+`csrftoken` and a complete HTML `input` tag with `type="hidden"` and
+`name="csrfmiddlewaretoken"`. Both signals must belong to the final response;
+neither alone produces a finding. State is always inferred.
+
+Authored from Django's [CSRF documentation](https://docs.djangoproject.com/en/5.2/ref/csrf/),
+[5.2 default cookie settings](https://github.com/django/django/blob/5.2/django/conf/global_settings.py),
+and [5.2 CSRF template renderer](https://github.com/django/django/blob/5.2/django/template/defaulttags.py).
+The pair is our conservative fingerprint policy, not an upstream uniqueness
+guarantee. No third-party fingerprint dataset or Django code was imported.
+
+- The HTML matcher requires both attributes on the same complete input tag,
+  in either order. Target values must be quoted; other attributes are consumed
+  as whole tokens. Tag/attribute names and the hidden type are case-insensitive;
+  the field name is case-sensitive. Reject lookalike tags/attributes, split tags,
+  truncated tags, quoted attribute examples, and suffix/prefix variations.
+- Cookie and form token values are not validated, compared, or reported.
+  Cookie values are discarded by fetching; HTML evidence contains no raw token.
+  A token value, enclosing form, or POST method is not a matching requirement.
+  This is not a check of CSRF protection, token validity, or security posture.
+- Keep the existing `sessionid`/`csrftoken` cookie-only negative. Session cookies
+  are not required: the default CSRF mechanism can work without a session.
+  No generic X-Powered-By, WSGIServer, debug/error text, cookie-value, or header
+  fallback is introduced. No Python relationship is added for these potentially
+  copied/cached artifacts.
+- Customized cookie names, session-backed CSRF, a cookie not set on this
+  response, omitted/JS-generated forms, and unquoted/encoded target attributes
+  can cause misses. Explicit non-HTML responses do not supply HTML evidence.
+- These remain raw HTML patterns, not DOM observations. Comments, script strings,
+  or copied full tags can still match with a qualifying cookie name. Duplicate
+  attributes and malformed HTML are not interpreted with browser semantics.
+  Duplicated valid signals produce one rule evidence entry; redirect signals
+  cannot be combined. No form submissions, asset requests, or cookie replay.
+
+`../django_test.go` covers pairs, missing/near-miss signals, same-tag boundaries,
+case/order/quote variations, raw-HTML limitations, and mixed-stack isolation.
+`../../cli/django_test.go` serves the synthetic `django-csrf.html` fixture with
+controlled Set-Cookie headers and checks both formats, content types, error
+scope, redirects, raw-value omission, and exact GET-only request counts.
+Serving the fixture with plain `python3 -m http.server` alone will not identify
+Django because that server does not set the required cookie. Offline catalog
+tests check framework grouping/metadata. Tests are user-run, not accuracy metrics.
+
 ## Nuxt additions
 
 | Rule | Evidence and state | Source |

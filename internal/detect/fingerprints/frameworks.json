@@ -2,6 +2,28 @@
   "schema_version": 1,
   "technologies": [
     {
+      "id": "django",
+      "name": "Django",
+      "category": "framework",
+      "rules": [
+        {
+          "id": "csrf-cookie-and-input",
+          "state": "inferred",
+          "description": "csrftoken cookie name and a hidden csrfmiddlewaretoken input suggest Django",
+          "all": [
+            {
+              "source": "cookie",
+              "pattern": "^csrftoken$"
+            },
+            {
+              "source": "html",
+              "pattern": "(?i:<input)\\s+(?:[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>\\x60]+))?\\s+)*(?:(?i:type)\\s*=\\s*(?i:\"hidden\"|'hidden')\\s+(?:[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>\\x60]+))?\\s+)*(?i:name)\\s*=\\s*(?:\"csrfmiddlewaretoken\"|'csrfmiddlewaretoken')|(?i:name)\\s*=\\s*(?:\"csrfmiddlewaretoken\"|'csrfmiddlewaretoken')\\s+(?:[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>\\x60]+))?\\s+)*(?i:type)\\s*=\\s*(?i:\"hidden\"|'hidden'))(?:\\s+[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>\\x60]+))?)*\\s*/?>"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "id": "express",
       "name": "Express",
       "category": "framework",

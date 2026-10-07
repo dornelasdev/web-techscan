@@ -61,6 +61,9 @@ func TestTechsCatalogOffline(t *testing.T) {
 				if !strings.Contains(stdout.String(), "  Next.js\n  Nuxt\n") {
 					t.Error("Nuxt must appear in the alphabetically ordered framework group")
 				}
+				if !strings.Contains(stdout.String(), "Frameworks\n  Django\n  Express\n") {
+					t.Error("Django must appear in the alphabetically ordered framework group")
+				}
 				return
 			}
 			var report output.CatalogReport
@@ -76,6 +79,9 @@ func TestTechsCatalogOffline(t *testing.T) {
 			}
 			if got := byID["nuxt"]; got.Name != "Nuxt" || got.Category != "framework" {
 				t.Errorf("missing or incorrect Nuxt metadata: %+v", got)
+			}
+			if got := byID["django"]; got.Name != "Django" || got.Category != "framework" {
+				t.Errorf("missing or incorrect Django metadata: %+v", got)
 			}
 			for _, tech := range engine.Technologies() {
 				if got := byID[tech.ID]; got.Name != tech.Name || got.Category != string(tech.Category) {

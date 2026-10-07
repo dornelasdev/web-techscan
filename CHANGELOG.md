@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Added inferred Django coverage requiring both its default CSRF cookie name
+  and hidden-input markup on the final response. Added positive/near-miss,
+  cross-source, redirect-isolation, privacy, terminal/JSON, and catalog checks.
+  Seventeen technologies are now bundled; cookie names alone remain insufficient.
+  No Python inference, form submission, or collection changes.
 - Added Nuxt framework coverage: an exact identifying header produces detected
   state; paired payload/script-path HTML markers produce inferred state. Added
   synthetic fixtures, boundary/evidence tests, terminal/JSON integration, and
