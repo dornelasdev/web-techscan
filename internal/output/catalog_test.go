@@ -19,10 +19,12 @@ func TestCatalogOrderingAndRendering(t *testing.T) {
 		{ID: "nextjs", Name: "Next.js", Category: detect.Framework},
 		{ID: "apache", Name: "Apache HTTP Server", Category: detect.WebServer},
 		{ID: "wordpress", Name: "WordPress", Category: detect.CMS},
+		{ID: "cloudflare", Name: "Cloudflare", Category: detect.CDN},
+		{ID: "cloudfront", Name: "Amazon CloudFront", Category: detect.CDN},
 	}
 	report := output.NewCatalogReport(items)
 	items[0].Name = "changed"
-	wantIDs := []string{"apache", "nginx", "nextjs", "wordpress", "php"}
+	wantIDs := []string{"apache", "nginx", "nextjs", "wordpress", "php", "cloudfront", "cloudflare"}
 	var ids []string
 	for _, item := range report.Technologies {
 		ids = append(ids, item.ID)
@@ -34,7 +36,7 @@ func TestCatalogOrderingAndRendering(t *testing.T) {
 	if err := output.CatalogTerminal(&terminal, report); err != nil {
 		t.Fatal(err)
 	}
-	want := "Supported technologies (5)\n\nWeb servers\n  Apache HTTP Server\n  nginx\n\nFrameworks\n  Next.js\n\nCMS\n  WordPress\n\nLanguages\n  PHP\n\nCoverage depends on exposed signals; identification is not guaranteed.\n"
+	want := "Supported technologies (7)\n\nWeb servers\n  Apache HTTP Server\n  nginx\n\nFrameworks\n  Next.js\n\nCMS\n  WordPress\n\nLanguages\n  PHP\n\nCDN/edge\n  Amazon CloudFront\n  Cloudflare\n\nCoverage depends on exposed signals; identification is not guaranteed.\n"
 	if terminal.String() != want {
 		t.Errorf("terminal=%q, want %q", terminal.String(), want)
 	}

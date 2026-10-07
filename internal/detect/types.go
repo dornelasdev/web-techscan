@@ -17,6 +17,7 @@ const (
 	WebServer Category = "web_server"
 	Language  Category = "language"
 	CMS       Category = "cms"
+	CDN       Category = "cdn"
 )
 
 type Source string

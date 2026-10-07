@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+- Added Cloudflare and Amazon CloudFront response-header fingerprints under
+  `cdn`, displayed as CDN/edge in findings and `--techs`. Coverage totals twelve
+  technologies; findings do not imply enabled WAF/load-balancer services or
+  identify a hidden origin. No additional requests or dependencies.
+- Added CDN positive/near-miss, mixed-stack, catalog, and local CLI checks for
+  evidence, redirect isolation, error responses, and both output formats.
+
 ## v0.2.0 — 2026-10-06
 
 Catalog discovery, CMS coverage, and detection hardening. The bundled catalog

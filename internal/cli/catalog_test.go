@@ -48,7 +48,7 @@ func TestTechsCatalogOffline(t *testing.T) {
 				t.Error("catalog should remain unstyled")
 			}
 			if !strings.Contains(strings.Join(args, " "), "--json") {
-				for _, want := range []string{"Supported technologies (", "Web servers", "Frameworks", "CMS", "Languages", "identification is not guaranteed"} {
+				for _, want := range []string{"Supported technologies (", "Web servers", "Frameworks", "CMS", "Languages", "CDN/edge", "identification is not guaranteed"} {
 					if !strings.Contains(stdout.String(), want) {
 						t.Errorf("missing %q in %s", want, &stdout)
 					}

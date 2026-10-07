@@ -11,10 +11,15 @@ import (
 	"testing"
 
 	"webscan/internal/cli"
+	"webscan/internal/detect"
 	"webscan/internal/output"
 )
 
 func TestCMSCoverageThroughCLI(t *testing.T) {
+	engine, err := detect.LoadBundled()
+	if err != nil {
+		t.Fatal(err)
+	}
 	for _, tc := range []struct{ id, name string }{{"wordpress", "WordPress"}, {"drupal", "Drupal"}, {"joomla", "Joomla"}} {
 		t.Run(tc.id, func(t *testing.T) {
 			body, err := os.ReadFile("../detect/testdata/coverage/" + tc.id + ".html")
@@ -45,7 +50,7 @@ func TestCMSCoverageThroughCLI(t *testing.T) {
 				if err := json.Unmarshal(stdout.Bytes(), &report); err != nil {
 					t.Fatal(err)
 				}
-				if report.CatalogSize != 10 || len(report.Findings) != 1 || report.Findings[0].ID != tc.id || report.Findings[0].Category != "cms" || report.Findings[0].State != "inferred" {
+				if report.CatalogSize != engine.Len() || len(report.Findings) != 1 || report.Findings[0].ID != tc.id || report.Findings[0].Category != "cms" || report.Findings[0].State != "inferred" {
 					t.Fatalf("unexpected CMS report: %+v", report)
 				}
 			}

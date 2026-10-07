@@ -1,10 +1,10 @@
 # web-techscan
 
 A small Go CLI for identifying the likely web stack behind a single URL.
-Coverage includes web frameworks, web servers, CMSs, and supported
+Coverage includes web frameworks, web servers, CMSs, CDN/edge providers, and supported
 programming-language inferences, with evidence attached to every finding.
 
-## Current build: v0.2.0
+## Current development build
 
 The CLI retrieves a single page and matches its captured signals against a
 small bundled fingerprint catalog. It prints findings, evidence, and
@@ -13,10 +13,11 @@ is a personal CLI built from local source, with an executable
 named `webscan`. See the [release notes](CHANGELOG.md).
 
 Requires Go 1.27 or newer. There are currently no external dependencies.
-v0.2.0 adds offline `--techs` listing, WordPress/Drupal/Joomla fingerprints,
-and detection hardening following a review of the ten-technology catalog.
-Collection remains limited to one final HTTP response; CDN, load-balancer,
-and WAF fingerprints are not included in this release.
+v0.2.0 is the latest released baseline. Development since that tag adds
+Cloudflare and Amazon CloudFront header fingerprints, bringing coverage to
+twelve technologies. These additions are unreleased; no new version is assigned.
+Collection remains limited to one final HTTP response. Load-balancer and WAF
+fingerprints are not included.
 
 ## Supported technologies
 
@@ -27,7 +28,7 @@ List the actual catalog bundled in your build without fetching a website:
 ./bin/webscan --techs --json
 ```
 
-Terminal output groups technologies under Web servers, Frameworks, CMS, and Languages,
+Terminal output groups technologies under Web servers, Frameworks, CMS, Languages, and CDN/edge,
 with names sorted alphabetically (case-insensitive) within each category. The
 list updates automatically when fingerprints are added and the binary is rebuilt.
 It describes supported coverage, not findings: there are no detected/inferred
@@ -45,6 +46,7 @@ always plain. JSON returns catalog metadata, not the scan-report shape; see the
 | Frameworks | Laravel | Paired default cookie names support an inference |
 | CMS | WordPress, Drupal, Joomla | Generator meta tags support an inference; Drupal's identifying X-Generator header supports detection |
 | Languages | PHP | Identifying X-Powered-By header or inference from Laravel |
+| CDN/edge | Cloudflare, Amazon CloudFront | Shaped CF-Ray header or identifying standalone CloudFront Via header, respectively |
 
 This is a limited starting set. Missing or customized signals can produce no
 findings even when a supported technology is present. Header matches are
@@ -55,6 +57,13 @@ languages from web-server implementations. See the
 for each rule's rationale and limits. CMS rules deliberately start with generator
 markers; removed/customized markers may be missed. No PHP inference is made from
 these CMS markers alone, since artifacts may be copied, cached, or exported.
+
+CDN/edge findings describe identifying response evidence, not a hidden origin,
+cache hit, enabled WAF, load-balancer configuration, or network topology. The first
+rules accept Cloudflare's 16-hex-digit Ray ID plus three-letter location suffix
+and CloudFront's standalone `Via` value containing its host and product comment.
+Other header forms (including comma-combined `Via` chains) can be missed. Generic
+cache headers, status codes, and provider names in HTML do not produce findings.
 
 ## Build and use
 
@@ -256,7 +265,7 @@ Stop the Python server with Ctrl-C when finished.
   requests are unavailable. There is no crawling, path guessing, or port scanning.
 - HTML rules use raw-text patterns, not a DOM parser. Copied markup or comments
   can resemble real signals; missing signals do not establish absence.
-- The catalog contains ten technologies. No version extraction, confidence
+- The development catalog contains twelve technologies. No version extraction, confidence
   percentages, or automatic fingerprint updates are included.
 - Reports retain URL query strings, which may contain sensitive data. Review
   reports before sharing them even though raw bodies and cookie values are omitted.
@@ -264,8 +273,8 @@ Stop the Python server with Ctrl-C when finished.
   untrusted URLs. It can reach local/private addresses and follow redirects to
   other hosts; do not expose it as a public URL-processing endpoint as-is.
 
-Possible later increments include infrastructure fingerprints from exposed
-response signals (CDN/edge providers, load balancers, and WAFs), broader curated
+Possible later increments include more infrastructure fingerprints from exposed
+response signals (additional CDN/edge coverage, load balancers, and WAFs), broader curated
 coverage, bounded asset inspection, and an optional browser-backed mode. These
-are directions, not v0.2.0 features or a promise of Wappalyzer coverage parity.
+are directions, not implemented features or a promise of Wappalyzer coverage parity.
 Go and the CLI interface do not impose the current collection limits.

@@ -135,3 +135,39 @@ informs the conservative token boundaries; this is still not a DOM parser.
 HTML inference and the raw-markup limitations above remain intentional.
 This source-level audit and authored regressions are not a passing test result
 or a claim that every possible false positive has been eliminated.
+
+## CDN/edge additions — reviewed 2026-10-07
+
+| Technology | Rule | Evidence and state | Source |
+| --- | --- | --- | --- |
+| Cloudflare | `ray-header` | CF-Ray with a 16-hex-digit ID and three-letter location suffix: detected | [Cloudflare response headers and Ray format](https://developers.cloudflare.com/fundamentals/reference/http-headers/) |
+| Amazon CloudFront | `via-header` | Standalone Via value with HTTP version, alphanumeric cloudfront.net host, and CloudFront comment: detected | [CloudFront response header behavior](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/RequestAndResponseBehaviorCustomOrigin.html) |
+
+These are intentionally narrow first rules, authored from documented response
+shapes rather than imported from another fingerprint dataset. Header names and
+these patterns are case-insensitive; outer spaces/tabs are accepted. Both values
+are anchored to reject lookalike domains, product suffixes, and unrelated text.
+
+- The Ray length restriction follows the documented example, not a promise that
+  all future Ray formats have that length. No-suffix or changed formats are missed.
+- CloudFront accepts a numeric HTTP version (such as `1.1` or `2`), a single
+  alphanumeric hostname label, and the exact `(CloudFront)` product comment.
+  Repeated header fields are examined independently. Comma-combined Via chains
+  are deliberately omitted; this is not a general Via parser, and substring
+  matching could misread quoted comments as proxy entries.
+- Server names, CF-Cache-Status, X-Cache, X-Amz-Cf-Id, and X-Amz-Cf-Pop do not
+  independently match these first rules. Additional signals need their own review.
+- These are observations on the final response, including non-HTML/error pages.
+  Headers can be copied, cached, removed, or spoofed. Multiple provider findings
+  do not establish their order or the live network topology. Absence is not proof
+  that a provider is unused.
+- No WAF, bot-protection, load-balancer, cache-hit, origin-hosting, or language
+  inference is made. There are no implication edges from these providers.
+  Raw Ray IDs and Via values are not included in evidence or output.
+- No DNS enrichment, special probes, asset fetching, or collection changes.
+
+`../cdn_test.go` covers valid shapes, near misses, unsupported signals, repeated
+values, mixed stacks, and absence of extra inferences. CLI tests exercise both
+output formats, non-HTML responses, error scope, redirect isolation, and request
+counts using local servers. Catalog tests cover the new category and offline
+listing. The user runs the tests; these additions are not measured accuracy claims.

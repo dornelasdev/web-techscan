@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "technologies": [
+    {
+      "id": "cloudflare",
+      "name": "Cloudflare",
+      "category": "cdn",
+      "rules": [{
+        "id": "ray-header",
+        "state": "detected",
+        "description": "CF-Ray header identifies Cloudflare edge handling; not proof of the origin or enabled security features",
+        "all": [{"source": "header", "name": "CF-Ray", "pattern": "(?i)^[ \\t]*[0-9a-f]{16}-[a-z]{3}[ \\t]*$"}]
+      }]
+    },
+    {
+      "id": "cloudfront",
+      "name": "Amazon CloudFront",
+      "category": "cdn",
+      "rules": [{
+        "id": "via-header",
+        "state": "detected",
+        "description": "Via header identifies Amazon CloudFront edge handling; not proof of the origin or enabled security features",
+        "all": [{"source": "header", "name": "Via", "pattern": "(?i)^[ \\t]*[0-9]+(?:[.][0-9]+)?[ \\t]+[a-z0-9]+[.]cloudfront[.]net[ \\t]+\\(CloudFront\\)[ \\t]*$"}]
+      }]
+    }
+  ]
+}
