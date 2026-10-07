@@ -13,11 +13,12 @@ const (
 type Category string
 
 const (
-	Framework Category = "framework"
-	WebServer Category = "web_server"
-	Language  Category = "language"
-	CMS       Category = "cms"
-	CDN       Category = "cdn"
+	Framework    Category = "framework"
+	WebServer    Category = "web_server"
+	Language     Category = "language"
+	CMS          Category = "cms"
+	CDN          Category = "cdn"
+	LoadBalancer Category = "load_balancer"
 )
 
 type Source string

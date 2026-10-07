@@ -49,6 +49,28 @@ func TestCatalogOrderingAndRendering(t *testing.T) {
 	}
 }
 
+func TestLoadBalancerCatalogOrdering(t *testing.T) {
+	report := output.NewCatalogReport([]detect.TechnologyInfo{
+		{ID: "aws-clb", Name: "AWS Classic Load Balancer", Category: detect.LoadBalancer},
+		{ID: "aws-alb", Name: "AWS Application Load Balancer", Category: detect.LoadBalancer},
+		{ID: "cloudflare", Name: "Cloudflare", Category: detect.CDN},
+	})
+	var ids []string
+	for _, item := range report.Technologies {
+		ids = append(ids, item.ID)
+	}
+	if !reflect.DeepEqual(ids, []string{"cloudflare", "aws-alb", "aws-clb"}) {
+		t.Fatalf("unexpected category/name order: %v", ids)
+	}
+	var terminal bytes.Buffer
+	if err := output.CatalogTerminal(&terminal, report); err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(terminal.String(), "\nLoad balancers\n  AWS Application Load Balancer\n  AWS Classic Load Balancer\n") {
+		t.Errorf("missing load balancer group: %s", &terminal)
+	}
+}
+
 func TestCatalogEmptyAndSafeTerminal(t *testing.T) {
 	var terminal, json bytes.Buffer
 	if err := output.CatalogTerminal(&terminal, output.NewCatalogReport(nil)); err != nil {

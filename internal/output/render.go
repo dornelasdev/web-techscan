@@ -39,6 +39,8 @@ func Terminal(w io.Writer, report Report, color bool) error {
 				category = "CMS"
 			} else if category == "cdn" {
 				category = "CDN/edge"
+			} else if category == "load_balancer" {
+				category = "load balancer"
 			}
 			fmt.Fprintf(&text, "%s %s [%s]\n", marker(finding.State, color), plain(finding.Name), plain(category))
 			for _, evidence := range finding.Evidence {

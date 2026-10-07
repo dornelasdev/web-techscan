@@ -171,3 +171,37 @@ values, mixed stacks, and absence of extra inferences. CLI tests exercise both
 output formats, non-HTML responses, error scope, redirect isolation, and request
 counts using local servers. Catalog tests cover the new category and offline
 listing. The user runs the tests; these additions are not measured accuracy claims.
+
+## Load-balancer additions — reviewed 2026-10-07
+
+| Technology | Rule | Evidence and state | Source |
+| --- | --- | --- | --- |
+| AWS Application Load Balancer | `stickiness-cookie-pair` | Both AWSALB and AWSALBCORS cookie names: inferred | [ALB stickiness](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/edit-target-group-attributes.html) |
+| AWS Classic Load Balancer | `stickiness-cookie-pair` | Both AWSELB and AWSELBCORS cookie names: inferred | [Classic Load Balancer stickiness](https://docs.aws.amazon.com/elasticloadbalancing/latest/classic/elb-sticky-sessions.html) |
+
+AWS documents these names for load-balancer stickiness and its CORS companion
+cookies. Requiring the pair is our conservative fingerprint policy, not a claim
+that every deployment or response must expose both. In particular, the Classic
+documentation describes its companion cookie in the CORS context. Single-cookie
+responses and disabled/other stickiness configurations can be missed.
+
+- Match exact, case-sensitive names from the final response only. Duplicate
+  names do not create extra evidence; pairs cannot be assembled across redirects.
+- Cookie names are indirect evidence and can be copied or chosen by applications.
+  Findings remain inferred even with both names. No cookie values, payload shapes,
+  expiration, or cookie attributes are evaluated. Cookie values are discarded by
+  fetching and never appear in evidence; the rule description names the pair.
+- Application-based ALB cookies, target-group cookies, generic affinity names,
+  and single names are deliberately outside this first batch. There is no NLB
+  detection or inference from an AWS/CDN identity or a generic server header.
+- No implications are added: these findings do not establish WAF usage, backend
+  language, backend count, routing behavior, network order, or hidden origin.
+  Both load-balancer findings may coexist if both pairs appear; that does not
+  reconstruct the infrastructure. No additional requests or cookie replay.
+
+`../loadbalancer_test.go` covers paired-name inference, near misses, wrong signal
+locations, mixed stacks, and evidence isolation. CLI tests exercise real Set-Cookie
+extraction, value-only decoys, duplicate names, split/redirect-only pairs, privacy,
+error responses, both output formats, and no cookie replay using local servers.
+Catalog tests include category ordering and offline listing. Tests are authored
+for user execution, not evidence of real-world accuracy.

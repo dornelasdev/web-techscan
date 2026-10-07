@@ -2,10 +2,14 @@
 
 ## Unreleased
 
+- Added inferred AWS Application Load Balancer and Classic Load Balancer findings
+  from exact stickiness-cookie pairs, with a `load_balancer` category in scan and
+  catalog output. Coverage totals fourteen technologies. Added cookie-boundary,
+  privacy, redirect-isolation, mixed-stack, and local CLI checks; no new requests.
 - Added Cloudflare and Amazon CloudFront response-header fingerprints under
-  `cdn`, displayed as CDN/edge in findings and `--techs`. Coverage totals twelve
-  technologies; findings do not imply enabled WAF/load-balancer services or
-  identify a hidden origin. No additional requests or dependencies.
+  `cdn`, displayed as CDN/edge in findings and `--techs`. These findings do not
+  imply enabled WAF/load-balancer services or identify a hidden origin.
+  No additional requests or dependencies.
 - Added CDN positive/near-miss, mixed-stack, catalog, and local CLI checks for
   evidence, redirect isolation, error responses, and both output formats.
 

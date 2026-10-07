@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "technologies": [
+    {
+      "id": "aws-alb",
+      "name": "AWS Application Load Balancer",
+      "category": "load_balancer",
+      "rules": [{
+        "id": "stickiness-cookie-pair",
+        "state": "inferred",
+        "description": "AWSALB and AWSALBCORS cookie names suggest AWS Application Load Balancer; names alone do not prove live routing or topology",
+        "all": [
+          {"source": "cookie", "pattern": "^AWSALB$"},
+          {"source": "cookie", "pattern": "^AWSALBCORS$"}
+        ]
+      }]
+    },
+    {
+      "id": "aws-clb",
+      "name": "AWS Classic Load Balancer",
+      "category": "load_balancer",
+      "rules": [{
+        "id": "stickiness-cookie-pair",
+        "state": "inferred",
+        "description": "AWSELB and AWSELBCORS cookie names suggest AWS Classic Load Balancer; names alone do not prove live routing or topology",
+        "all": [
+          {"source": "cookie", "pattern": "^AWSELB$"},
+          {"source": "cookie", "pattern": "^AWSELBCORS$"}
+        ]
+      }]
+    }
+  ]
+}

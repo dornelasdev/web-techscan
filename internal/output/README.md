@@ -22,10 +22,14 @@ exit code too.
 | `findings` | array | Findings ordered by technology ID |
 
 Each finding contains `id`, `name`, `category`, `state`, and `evidence`.
-Categories currently include `framework`, `web_server`, `cms`, `language`, and `cdn`.
+Categories currently include `framework`, `web_server`, `cms`, `language`, `cdn`,
+and `load_balancer`.
 New category strings may be added; consumers should preserve unknown values.
 `cdn` is displayed as CDN/edge. It describes identifying edge-provider evidence,
 not enabled security services, cache behavior, or the hidden origin's identity.
+`load_balancer` is displayed as `load balancer` in findings and Load balancers
+in catalog listings. Initial cookie-pair rules remain inferred; they do not
+establish a network topology or number of backend servers.
 States are `detected`
 and `inferred`; neither is a guarantee of the hidden origin's technology.
 `response_scope` describes the inspected response, not its ownership or origin.
@@ -85,7 +89,8 @@ only `id`, `name`, and `category`; support does not assign a finding state or
 guarantee identification. Technologies supported only by inference are included.
 `catalog_size` equals the array length. An empty catalog uses `technologies: []`.
 
-Both catalog formats order categories as `web_server`, `framework`, `cms`, `language`, `cdn`,
+Both catalog formats order categories as `web_server`, `framework`, `cms`,
+`language`, `cdn`, `load_balancer`,
 then names case-insensitively within each category, with ID as a tie-breaker.
 Terminal output uses friendly group headings and a coverage disclaimer. It is
 always plain text, regardless of color flags. JSON uses two-space indentation,

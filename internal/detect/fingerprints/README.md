@@ -5,7 +5,7 @@ JSON files in this directory are embedded at build time. Each file contains
 inference relationships may reference technology IDs in another file.
 
 The catalog is split across `servers.json`, `frameworks.json`, `cms.json`,
-`languages.json`, and `cdn.json`. See [coverage and sources](SOURCES.md) for the supported
+`languages.json`, `cdn.json`, and `load-balancers.json`. See [coverage and sources](SOURCES.md) for the supported
 technologies, rule rationale, and limitations. Synthetic examples live under
 `../testdata/` and are never embedded.
 
@@ -47,7 +47,8 @@ This illustrates the format, not a real detection rule:
 
 - Technology IDs are unique across files. Rule IDs are unique within a
   technology. IDs use lowercase letters, digits, and single separating hyphens.
-- Categories are `framework`, `web_server`, `cms`, `language`, and `cdn` (CDN/edge).
+- Categories are `framework`, `web_server`, `cms`, `language`, `cdn` (CDN/edge),
+  and `load_balancer`.
 - Every rule needs an ID, a description, an explicit `detected` or `inferred`
   state, and at least one matcher in `all`. Every matcher must succeed for the
   rule to match. Any matching rule produces a finding for its technology.
