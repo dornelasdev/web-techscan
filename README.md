@@ -239,6 +239,11 @@ Run the build command above first to create `bin/` for the coverage output.
 The race detector requires a supported platform and a C compiler.
 The fixture integration checks exercise both output formats, detected/inferred
 state handling, redirect isolation, and the absence of asset/link fetching.
+The synthetic mixed-stack fixture also combines application, CDN, load-balancer,
+and WAF signals to check evidence preservation, duplicate signals, misleading
+near-matches, challenge/error responses, and body-limit failures without partial
+results. This combination is a regression fixture, not a claim about a real
+site's network topology; no challenge forms are submitted.
 
 ### Local smoke check
 

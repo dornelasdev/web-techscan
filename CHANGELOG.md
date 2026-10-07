@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Added mixed-stack CLI regressions across application, CDN, load-balancer, and
+  WAF signals in terminal and JSON output, covering evidence/state preservation,
+  duplicate signals, near-misses, redirect isolation, response scope, privacy,
+  and body-limit failures. No new fingerprints or collection behavior.
 - Added AWS WAF detection from explicit challenge/CAPTCHA action-header values,
   with `waf` in JSON and WAF/WAFs terminal labels. Coverage totals fifteen
   technologies. Added positive/near-miss, independent-evidence, redirect, status,
