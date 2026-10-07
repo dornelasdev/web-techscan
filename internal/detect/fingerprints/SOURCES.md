@@ -76,6 +76,47 @@ error-page scope, and redirect isolation using local HTTP servers.
 Tests are authored checks, not measurements of real-world detection accuracy.
 The user runs them; the agent does not execute tests or scan live sites.
 
+## Ruby on Rails addition
+
+Reviewed on 2026-10-07. `csrf-meta-pair` requires two complete HTML meta tags:
+`name="csrf-param" content="authenticity_token"` and
+`name="csrf-token" content="..."`, with a nonempty, whitespace-free token value.
+Both must occur in the final HTML response. The finding is always inferred.
+
+Authored from Rails' [CSRF helper documentation and implementation](https://api.rubyonrails.org/classes/ActionView/Helpers/CsrfHelper.html)
+and [Rails 8.0.2 request-forgery protection defaults](https://github.com/rails/rails/blob/v8.0.2/actionpack/lib/action_controller/metal/request_forgery_protection.rb).
+The helper emits the two metadata entries when forgery protection is active;
+the default parameter is `authenticity_token`. Requiring the pair is our heuristic,
+not an upstream uniqueness guarantee. No third-party fingerprint dataset or
+Rails source code was imported.
+
+- Each name/content pair must be on the same complete `meta` tag, in either
+  attribute order and with quoted target values. Tag/attribute names are
+  case-insensitive; marker values and the default parameter are case-sensitive.
+  Extra attributes are consumed as whole tokens. Lookalike tags/attributes,
+  split attributes, truncated tags, and markers inside other attributes do not
+  suffice. Either meta tag alone produces no finding.
+- Token content is checked only for a nonempty whitespace-free shape, not its
+  encoding, length, validity, or relationship to cookies/forms. It is never
+  included in evidence. This is not a CSRF-protection or security-posture check.
+- Generic session-cookie names, `X-Request-ID`, `X-Runtime`, Turbo assets, or
+  hidden `authenticity_token` fields do not independently identify Rails.
+  Cookie names are configurable ([CookieStore](https://github.com/rails/rails/blob/v8.0.2/actionpack/lib/action_dispatch/middleware/session/cookie_store.rb));
+  request IDs can come from upstream infrastructure ([RequestId](https://github.com/rails/rails/blob/v8.0.2/actionpack/lib/action_dispatch/middleware/request_id.rb)).
+- Apps without these tags, custom CSRF parameter names, API-only responses,
+  unquoted/encoded marker values, and runtime-injected tags can be missed.
+  Regex matching is not DOM parsing: copied/commented markup or duplicate
+  attributes can still yield an inference. Other stacks can reproduce the pair.
+- No Ruby/runtime implication, version extraction, cookie replay, form submission,
+  asset fetching, or extra requests. Error-page evidence describes that response,
+  not a hidden origin application; redirect-hop HTML is not combined.
+
+`../rails_test.go` covers pairs, boundaries, deduplication, weak standalone
+signals, and Django coexistence. `../../cli/rails_test.go` uses the synthetic
+`../testdata/coverage/rails-csrf.html` fixture for both output formats, content-type
+filtering, error scope, redirect isolation, raw-token privacy, and request counts.
+Offline catalog checks cover framework grouping and stable metadata.
+
 ## Django addition
 
 `csrf-cookie-and-input` requires the exact, case-sensitive cookie name

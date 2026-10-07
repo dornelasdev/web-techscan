@@ -1,0 +1,14 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="csrf-param" content="authenticity_token">
+  <meta name="csrf-token" content="private-rails-token">
+  <script src="/assets/fixture.js"></script>
+</head>
+<body>
+  <a href="/other-page">Another page</a>
+  <form action="/submit" method="post">
+    <input type="hidden" name="authenticity_token" value="private-form-token">
+  </form>
+</body>
+</html>

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Added initial Ruby on Rails inference from paired CSRF meta tags on the final
+  HTML response. Added boundary, partial-pair, cross-framework, privacy, redirect,
+  terminal/JSON, and offline catalog checks. Eighteen technologies are now bundled;
+  no Ruby inference, generic session-cookie detection, or collection changes.
 - Added inferred Django coverage requiring both its default CSRF cookie name
   and hidden-input markup on the final response. Added positive/near-miss,
   cross-source, redirect-isolation, privacy, terminal/JSON, and catalog checks.

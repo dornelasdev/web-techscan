@@ -104,6 +104,28 @@
           ]
         }
       ]
+    },
+    {
+      "id": "rails",
+      "name": "Ruby on Rails",
+      "category": "framework",
+      "rules": [
+        {
+          "id": "csrf-meta-pair",
+          "state": "inferred",
+          "description": "Paired csrf-param authenticity_token and csrf-token meta tags suggest Ruby on Rails",
+          "all": [
+            {
+              "source": "html",
+              "pattern": "(?i:<meta)\\s+(?:[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>\\x60]+))?\\s+)*(?:(?i:name)\\s*=\\s*(?:\"csrf-param\"|'csrf-param')\\s+(?:[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>\\x60]+))?\\s+)*(?i:content)\\s*=\\s*(?:\"authenticity_token\"|'authenticity_token')|(?i:content)\\s*=\\s*(?:\"authenticity_token\"|'authenticity_token')\\s+(?:[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>\\x60]+))?\\s+)*(?i:name)\\s*=\\s*(?:\"csrf-param\"|'csrf-param'))(?:\\s+[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>\\x60]+))?)*\\s*/?>"
+            },
+            {
+              "source": "html",
+              "pattern": "(?i:<meta)\\s+(?:[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>\\x60]+))?\\s+)*(?:(?i:name)\\s*=\\s*(?:\"csrf-token\"|'csrf-token')\\s+(?:[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>\\x60]+))?\\s+)*(?i:content)\\s*=\\s*(?:\"[^\\s\"'<>]+\"|'[^\\s\"'<>]+')|(?i:content)\\s*=\\s*(?:\"[^\\s\"'<>]+\"|'[^\\s\"'<>]+')\\s+(?:[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>\\x60]+))?\\s+)*(?i:name)\\s*=\\s*(?:\"csrf-token\"|'csrf-token'))(?:\\s+[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>\\x60]+))?)*\\s*/?>"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
