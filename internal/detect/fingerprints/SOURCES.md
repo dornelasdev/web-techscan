@@ -76,6 +76,48 @@ error-page scope, and redirect isolation using local HTTP servers.
 Tests are authored checks, not measurements of real-world detection accuracy.
 The user runs them; the agent does not execute tests or scan live sites.
 
+## Server-banner hardening — 2026-10-07
+
+Replaced the permissive nginx/Apache version and trailing-text patterns with
+conservative complete-banner shapes. IIS's existing matcher is unchanged.
+The rules retain their IDs, detected states, header-only evidence, and warnings
+that the exposed server may be an intermediary. Catalog size is unchanged.
+
+- nginx accepts its product name, an optional numeric dot-separated version,
+  and at most one whitespace-separated parenthesized build/OS comment.
+  [server_tokens](https://nginx.org/en/docs/http/ngx_http_core_module.html#server_tokens)
+  documents version suppression and build-name emission.
+- Apache accepts its product name, an optional numeric dot-separated version
+  with optional `-dev`, and whitespace-separated comments or module/version
+  tokens. Preserve product-only, major, minor, minimal, OS, and full-style
+  banners from [ServerTokens](https://httpd.apache.org/docs/2.4/mod/core.html#servertokens).
+  The `-dev` suffix follows the upstream
+  [release definitions](https://github.com/apache/httpd/blob/2.4.x/include/ap_release.h).
+- Comments in these two rules allow printable ASCII and tabs, but not nested
+  parentheses or backslash escapes. Apache module names start with an ASCII
+  letter and continue with letters/digits/dot/underscore/plus/hyphen; their
+  required version starts alphanumeric and additionally permits tilde.
+  Module text is accepted only as banner structure, not as independent evidence
+  of a language or another technology.
+- IIS still accepts Microsoft-IIS with an optional numeric dot-separated
+  version and outer spaces/tabs; no extra comments or module text.
+- Reject empty version components, arbitrary product-version suffixes,
+  free-form trailing words, broken comments, controls, and comma-combined
+  banners. Values from repeated header fields are inspected independently:
+  valid values survive unrelated/invalid siblings, duplicates yield one rule
+  evidence entry, and distinct servers may coexist without implying topology.
+- This is deliberately not a general HTTP Server-field parser. Custom version
+  suffixes (except Apache `-dev`), non-ASCII/nested/escaped comments, unusual
+  module tokens, and hidden/rewritten banners can be missed. Generic text or
+  default error-page footers are not fallback evidence. Header spoofing remains
+  possible; stricter syntax is not proof of the origin or measured accuracy.
+
+`../servers_test.go` adds positive/negative boundary, wrong-source, repeated-field,
+and evidence checks. `../../cli/servers_test.go` covers all three servers in both
+formats, HTML/non-HTML and error responses, final-response isolation, raw-value
+omission, absence of automatic language inference, and bounded request counts.
+These are authored regressions for user execution, not passing-test claims.
+
 ## CMS additions — reviewed 2026-10-06
 
 | Technology | Rule | Evidence and state | Source |

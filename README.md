@@ -244,6 +244,10 @@ and WAF signals to check evidence preservation, duplicate signals, misleading
 near-matches, challenge/error responses, and body-limit failures without partial
 results. This combination is a regression fixture, not a claim about a real
 site's network topology; no challenge forms are submitted.
+Dedicated server checks cover nginx, Apache, and IIS banner boundaries, repeated
+header fields, wrong-source decoys, response scope, and both output formats.
+Server fingerprints accept conservative banner shapes; see the
+[supported forms and custom-banner limits](internal/detect/fingerprints/SOURCES.md#server-banner-hardening--2026-10-07).
 
 ### Local smoke check
 

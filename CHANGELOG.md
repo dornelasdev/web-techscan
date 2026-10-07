@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Tightened nginx/Apache Server-header fingerprints to reject malformed product
+  versions and unstructured trailing text while retaining supported OS/build
+  comments and Apache module banners. Added detector and terminal/JSON CLI
+  regressions for nginx, Apache, and IIS; IIS's rule is unchanged. Unusual custom
+  banners may be missed; no new technologies, requests, or language inferences.
 - Added mixed-stack CLI regressions across application, CDN, load-balancer, and
   WAF signals in terminal and JSON output, covering evidence/state preservation,
   duplicate signals, near-misses, redirect isolation, response scope, privacy,

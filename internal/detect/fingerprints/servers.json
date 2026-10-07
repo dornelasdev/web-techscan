@@ -9,7 +9,7 @@
         "id": "server-header",
         "state": "detected",
         "description": "Server header reports Apache; this may be an intermediary",
-        "all": [{"source": "header", "name": "Server", "pattern": "(?i)^[ \\t]*Apache(?:/[0-9][0-9A-Za-z.+_~-]*)?(?:[ \\t]+[^\\r\\n]*)?$"}]
+        "all": [{"source": "header", "name": "Server", "pattern": "^[ \\t]*(?i:Apache)(?:/[0-9]+(?:[.][0-9]+)*(?i:-dev)?)?(?:[ \\t]+(?:\\([\\x20-\\x27\\x2A-\\x5B\\x5D-\\x7E\\t]*\\)|[A-Za-z][A-Za-z0-9._+-]*/[A-Za-z0-9][A-Za-z0-9._+~-]*))*[ \\t]*$"}]
       }]
     },
     {
@@ -31,7 +31,7 @@
         "id": "server-header",
         "state": "detected",
         "description": "Server header reports nginx; this may be an intermediary",
-        "all": [{"source": "header", "name": "Server", "pattern": "(?i)^[ \\t]*nginx(?:/[0-9][0-9A-Za-z.+_~-]*)?(?:[ \\t]+[^\\r\\n]*)?$"}]
+        "all": [{"source": "header", "name": "Server", "pattern": "^[ \\t]*(?i:nginx)(?:/[0-9]+(?:[.][0-9]+)*)?(?:[ \\t]+\\([\\x20-\\x27\\x2A-\\x5B\\x5D-\\x7E\\t]*\\))?[ \\t]*$"}]
       }]
     }
   ]
