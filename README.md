@@ -179,6 +179,12 @@ with `--json`; `--techs --json` uses its separate catalog contract.
   redirects and reading the response body. Override it with `--timeout`.
 - Follow up to five redirects by default. `--max-redirects 0` rejects redirects;
   exceeding the configured limit is an error, rather than a truncated scan.
+- Cross-origin redirects omit `Referer`: changing scheme, hostname, or effective
+  port counts as a different origin. Same-origin redirects retain Go's normal
+  referrer behavior, including query strings. No DNS lookup is used for this check.
+- Request/redirect error messages omit raw URLs and `Location` values. Known
+  failures retain category-specific reasons; unknown network/HTTP failures use
+  a generic diagnostic. Successful reports still retain URL query strings.
 - Read at most 2 MiB of response body by default. `--max-body` sets a positive
   byte limit, including for chunked and transparently decompressed gzip bodies.
 - Response headers are capped at 1 MiB per response. Normal TLS certificate

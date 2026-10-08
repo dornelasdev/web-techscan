@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Prevented rejected/malformed redirect destinations from appearing in request
+  error messages, preserving underlying error classification. Unknown request
+  failures use safe generic diagnostics. Cross-origin redirects now omit Referer;
+  same-origin behavior and successful report URLs remain unchanged. Added origin,
+  redirect-chain, error-privacy, and terminal/JSON failure regressions. No new
+  requests, dependencies, or fingerprint changes.
 - Added combined server/framework regressions: all subsets of Nuxt/Django/Rails
   paired signals against valid and malformed nginx, Apache, and IIS banners.
   Expanded the mixed-stack CLI fixture across all three servers, preserving

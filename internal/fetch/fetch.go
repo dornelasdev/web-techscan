@@ -89,19 +89,27 @@ func (c *Client) Fetch(ctx context.Context, rawURL string) (*Snapshot, error) {
 	req.Header.Set("User-Agent", "webscan")
 
 	var redirects []Redirect
+	var redirectErr error // Safe, locally authored reason; never Go's raw Location text.
 	client := &http.Client{
 		Transport: c.transport,
 		Timeout:   c.options.Timeout,
 		CheckRedirect: func(next *http.Request, via []*http.Request) error {
 			if len(via) > c.options.MaxRedirects {
-				return fmt.Errorf("%w (maximum %d)", ErrRedirectLimit, c.options.MaxRedirects)
+				redirectErr = fmt.Errorf("%w (maximum %d)", ErrRedirectLimit, c.options.MaxRedirects)
+				return redirectErr
 			}
 			clean, err := ParseURL(next.URL.String())
 			if err != nil {
 				// A server's bad redirect is an execution error, not bad CLI input.
-				return fmt.Errorf("invalid redirect target: %s", err)
+				redirectErr = fmt.Errorf("invalid redirect target: %s", err)
+				return redirectErr
 			}
 			next.URL = clean
+			// Go adds Referer before calling this hook. Compare the immediately
+			// preceding hop, not the original URL, and never resolve hosts via DNS.
+			if !sameOrigin(via[len(via)-1].URL, clean) {
+				next.Header.Del("Referer")
+			}
 			redirects = append(redirects, Redirect{
 				FromURL:    via[len(via)-1].URL.String(),
 				ToURL:      clean.String(),
@@ -112,7 +120,10 @@ func (c *Client) Fetch(ctx context.Context, rawURL string) (*Snapshot, error) {
 	}
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("fetch page: %w", err)
+		if redirectErr != nil {
+			return nil, &requestError{message: "fetch page: " + redirectErr.Error(), cause: err}
+		}
+		return nil, safeRequestError(err)
 	}
 	defer resp.Body.Close()
 
