@@ -3,11 +3,18 @@
 <html>
   <head>
     <meta name="generator" content="WordPress 6.8.3">
+    <meta name="csrf-param" content="authenticity_token">
+    <meta name="csrf-token" content="private-rails-token">
     <script src="/_next/static/chunks/fixture.js" defer></script>
+    <script src="/_nuxt/fixture.js" type="module"></script>
     <link rel="stylesheet" href="/fixture.css">
   </head>
   <body>
     <script id="__NEXT_DATA__" type="application/json">{"page":"/"}</script>
+    <script id="__NUXT_DATA__" type="application/json">[]</script>
+    <form action="/submit" method="post">
+      <input type="hidden" name="csrfmiddlewaretoken" value="private-django-token">
+    </form>
     <a href="/other">Fixture link</a>
     <form action="/verify"><button>Fixture challenge</button></form>
   </body>

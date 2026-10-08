@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Added combined server/framework regressions: all subsets of Nuxt/Django/Rails
+  paired signals against valid and malformed nginx, Apache, and IIS banners.
+  Expanded the mixed-stack CLI fixture across all three servers, preserving
+  independent evidence/state upgrades, language-inference sources, privacy,
+  final-response isolation, and GET-only collection in both output formats.
+  No production fingerprints, collection behavior, or catalog-size changes.
 - Added initial Ruby on Rails inference from paired CSRF meta tags on the final
   HTML response. Added boundary, partial-pair, cross-framework, privacy, redirect,
   terminal/JSON, and offline catalog checks. Eighteen technologies are now bundled;

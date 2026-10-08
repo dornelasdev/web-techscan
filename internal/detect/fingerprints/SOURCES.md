@@ -76,6 +76,37 @@ error-page scope, and redirect isolation using local HTTP servers.
 Tests are authored checks, not measurements of real-world detection accuracy.
 The user runs them; the agent does not execute tests or scan live sites.
 
+## Combined server/framework review — 2026-10-08
+
+Reviewed the bundled server/framework rules, inference relationships, existing
+boundary tests, and final-response handoff from fetching to detection. No further
+production rule changes were identified in this review. This is a source-level
+review, not an exhaustive correctness or real-world accuracy claim.
+
+- `../serverframework_test.go` covers all 64 subsets of the six Nuxt/Django/Rails
+  paired signals, each with valid and malformed banners for nginx, Apache, and
+  IIS. One framework's signals cannot complete another's pair; a valid server
+  cannot strengthen a partial framework match, and a malformed banner must not
+  suppress independently supported frameworks. An empty follow-up scan checks
+  that findings do not carry over when the engine is reused.
+- Apache's PHP module token must not create a PHP finding. Nuxt/Django/Rails
+  remain without language relationships; the existing Laravel-to-PHP edge is
+  preserved separately in the mixed-stack CLI checks.
+- `../../cli/mixedstack_test.go` and its synthetic fixture now combine the newer
+  frameworks with Next.js, Laravel, WordPress, CDN, load-balancer, and WAF signals
+  across all three servers. Explicit expectations check each finding and ordered
+  rule/source evidence, Nuxt/Next.js/PHP header upgrades, duplicate signal handling,
+  HTML filtering, errors/challenges, redirect-only signals, misleading partial
+  signals, raw-token omission, and body-limit failures without partial reports.
+  Request assertions require exactly the expected GET redirect/page sequence,
+  without asset/link requests, form submissions, or cookie replay.
+- Multiple frameworks in these fixtures are deliberately synthetic. Findings do
+  not establish deployment topology, a hidden origin, or currently running
+  backends. The documented raw-HTML/comment/duplicate-attribute and customized
+  banner/marker limitations remain unchanged. No new collection or fallback rule.
+
+The user runs these regressions; their addition is not a passing-test claim.
+
 ## Ruby on Rails addition
 
 Reviewed on 2026-10-07. `csrf-meta-pair` requires two complete HTML meta tags:

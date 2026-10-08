@@ -251,6 +251,10 @@ results. This combination is a regression fixture, not a claim about a real
 site's network topology; no challenge forms are submitted.
 Dedicated server checks cover nginx, Apache, and IIS banner boundaries, repeated
 header fields, wrong-source decoys, response scope, and both output formats.
+Combined checks exercise every subset of the Nuxt/Django/Rails paired signals
+against valid and malformed banners for all three servers. The mixed-stack CLI
+fixture also checks these frameworks alongside existing application and
+infrastructure findings, including independent state upgrades and language evidence.
 Server fingerprints accept conservative banner shapes; see the
 [supported forms and custom-banner limits](internal/detect/fingerprints/SOURCES.md#server-banner-hardening--2026-10-07).
 
@@ -296,6 +300,16 @@ The `nuxt-payload.html` fixture in the same directory can also be inspected:
 Keep the fixture server running for these commands. Expect only Nuxt as
 **inferred**, with two HTML signals; the Python server does not send Nuxt's
 identifying header. No linked scripts, stylesheets, or pages are fetched.
+The `rails-csrf.html` fixture should likewise report only inferred Ruby on Rails:
+
+```sh
+./bin/webscan --no-color http://127.0.0.1:8000/rails-csrf.html
+./bin/webscan --json http://127.0.0.1:8000/rails-csrf.html
+```
+
+The `django-csrf.html` fixture alone will not identify Django with this Python
+server: its rule also needs a `csrftoken` cookie set by the same response.
+The automated Django and mixed-stack CLI checks supply that cookie locally.
 Stop the Python server with Ctrl-C when finished.
 
 ## Limitations and future scope
