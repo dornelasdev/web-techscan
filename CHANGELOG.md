@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Validate final-response content encodings before decoding with the standard
+  library. Preserve plain/identity/gzip support and decoded-body limits; reject
+  unsupported, stacked, or repeated encodings without partial scan reports.
+  Added gzip corruption/truncation, chunking, cancellation, shared-deadline,
+  cleanup, and terminal/JSON regressions. Body errors now use safe summaries.
+  No new dependencies, extra requests, or fingerprint changes.
 - Prevented rejected/malformed redirect destinations from appearing in request
   error messages, preserving underlying error classification. Unknown request
   failures use safe generic diagnostics. Cross-origin redirects now omit Referer;

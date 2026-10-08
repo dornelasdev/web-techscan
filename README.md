@@ -186,7 +186,15 @@ with `--json`; `--techs --json` uses its separate catalog contract.
   failures retain category-specific reasons; unknown network/HTTP failures use
   a generic diagnostic. Successful reports still retain URL query strings.
 - Read at most 2 MiB of response body by default. `--max-body` sets a positive
-  byte limit, including for chunked and transparently decompressed gzip bodies.
+  decoded-byte limit, including for chunked and gzip bodies.
+- Requests advertise gzip. Final response bodies support no encoding, a single
+  `identity`, or a single `gzip` value. Unsupported encodings (such as Brotli or
+  deflate), repeated encoding fields, and encoding lists fail explicitly; no
+  fallback request is made. Encoding metadata on bodyless 204/304 responses is
+  not decoded. Redirect bodies are not detection inputs.
+- Incomplete/corrupt bodies, decoding failures, cancellation, and exceeded limits
+  fail without a partial scan report. Body errors use safe summaries while keeping
+  their underlying causes available internally.
 - Response headers are capped at 1 MiB per response. Normal TLS certificate
   verification and Go's standard environment proxy support remain enabled.
 - Requests use GET and the `webscan` user agent. No assets or other pages are
@@ -248,6 +256,10 @@ go tool cover -html=bin/coverage.out
 
 Run the build command above first to create `bin/` for the coverage output.
 The race detector requires a supported platform and a C compiler.
+Body regressions cover decoded-size boundaries, gzip integrity and concatenated
+members, unsupported/ambiguous encodings, malformed chunking, active cancellation,
+and a shared deadline across redirects and body reading. CLI checks assert empty
+stdout on failure in both formats; successful gzip reports use decoded byte counts.
 The fixture integration checks exercise both output formats, detected/inferred
 state handling, redirect isolation, and the absence of asset/link fetching.
 The synthetic mixed-stack fixture also combines application, CDN, load-balancer,

@@ -5,7 +5,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io"
 	"math"
 	"net/http"
 	"time"
@@ -68,6 +67,9 @@ func New(options Options) (*Client, error) {
 	}
 	transport := http.DefaultTransport.(*http.Transport).Clone()
 	transport.MaxResponseHeaderBytes = 1 << 20
+	// Validate all encoding fields before decoding, rather than letting the
+	// transport decode the first gzip field and discard the remaining values.
+	transport.DisableCompression = true
 	return &Client{options: options, transport: transport}, nil
 }
 
@@ -87,6 +89,7 @@ func (c *Client) Fetch(ctx context.Context, rawURL string) (*Snapshot, error) {
 		return nil, fmt.Errorf("create request: %w", err)
 	}
 	req.Header.Set("User-Agent", "webscan")
+	req.Header.Set("Accept-Encoding", "gzip")
 
 	var redirects []Redirect
 	var redirectErr error // Safe, locally authored reason; never Go's raw Location text.
@@ -127,14 +130,9 @@ func (c *Client) Fetch(ctx context.Context, rawURL string) (*Snapshot, error) {
 	}
 	defer resp.Body.Close()
 
-	// Read one extra byte to distinguish an exact fit from an oversized body.
-	// This also bounds chunked responses and transparently decompressed gzip.
-	body, err := io.ReadAll(io.LimitReader(resp.Body, c.options.MaxBodyBytes+1))
+	body, err := readBody(resp, c.options.MaxBodyBytes)
 	if err != nil {
-		return nil, fmt.Errorf("read response body: %w", err)
-	}
-	if int64(len(body)) > c.options.MaxBodyBytes {
-		return nil, fmt.Errorf("%w (maximum %d bytes)", ErrBodyLimit, c.options.MaxBodyBytes)
+		return nil, err
 	}
 
 	var cookieNames []string
