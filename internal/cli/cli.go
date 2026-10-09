@@ -32,6 +32,7 @@ Options:
   --version                 Show version
   --techs                   List supported technologies without fetching a URL
   --json                    Print a JSON scan report or technology catalog
+  --redact-query            Redact URL queries in scan reports (default false)
   --color mode              Color: auto, always, never (default auto)
   --no-color                Disable color, overriding --color
   --timeout duration        Total fetch timeout (default 15s)
@@ -55,6 +56,7 @@ func Run(args []string, stdout, stderr io.Writer, version string) int {
 	flags.BoolVar(&presentation.json, "json", false, "Print a JSON scan report or technology catalog")
 	flags.StringVar(&presentation.color, "color", "auto", "Color: auto, always, never")
 	flags.BoolVar(&presentation.noColor, "no-color", false, "Disable color")
+	flags.BoolVar(&presentation.redactQuery, "redact-query", false, "Redact URL queries in scan reports")
 	options := fetch.DefaultOptions()
 	flags.DurationVar(&options.Timeout, "timeout", options.Timeout, "Total fetch timeout")
 	flags.IntVar(&options.MaxRedirects, "max-redirects", options.MaxRedirects, "Maximum followed redirects")
@@ -82,7 +84,11 @@ func Run(args []string, stdout, stderr io.Writer, version string) int {
 			return usageError(stderr, "--techs does not accept a URL")
 		}
 		fetchFlag := ""
+		redactionFlag := false
 		flags.Visit(func(f *flag.Flag) {
+			if f.Name == "redact-query" {
+				redactionFlag = true
+			}
 			switch f.Name {
 			case "timeout", "max-redirects", "max-body", "max-encoded-body", "allow-http-downgrade":
 				if fetchFlag == "" {
@@ -90,6 +96,9 @@ func Run(args []string, stdout, stderr io.Writer, version string) int {
 				}
 			}
 		})
+		if redactionFlag {
+			return usageError(stderr, "--techs cannot be combined with --redact-query")
+		}
 		if fetchFlag != "" {
 			return usageError(stderr, "--techs cannot be combined with --"+fetchFlag)
 		}
@@ -162,6 +171,9 @@ func fetchPage(target string, options fetch.Options, presentation outputOptions,
 		HTML:        htmlForDetection(snapshot.Headers, snapshot.Body),
 	})
 	report := output.NewReport(*snapshot, findings, engine.Len())
+	if presentation.redactQuery {
+		report = report.RedactQueries()
+	}
 	if presentation.json {
 		err = output.JSON(stdout, report)
 	} else {

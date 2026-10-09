@@ -23,6 +23,9 @@ func Terminal(w io.Writer, report Report, color bool) error {
 	var text strings.Builder
 	fmt.Fprintf(&text, "URL: %s\nHTTP status: %d\nRedirects: %d\nBody: %d bytes\n\n",
 		plain(report.FinalURL), report.HTTPStatus, len(report.Redirects), report.BodyBytes)
+	if report.QueryRedacted {
+		fmt.Fprintln(&text, "Query strings redacted in this report.")
+	}
 	if report.ResponseScope == "http_error_response" {
 		fmt.Fprintln(&text, "Findings describe the returned HTTP error page.")
 	}

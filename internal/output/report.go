@@ -2,6 +2,9 @@
 package output
 
 import (
+	"slices"
+	"strings"
+
 	"webscan/internal/detect"
 	"webscan/internal/fetch"
 )
@@ -11,6 +14,7 @@ type Report struct {
 	SchemaVersion int        `json:"schema_version"`
 	URL           string     `json:"url"`
 	FinalURL      string     `json:"final_url"`
+	QueryRedacted bool       `json:"query_redacted,omitempty"`
 	HTTPStatus    int        `json:"http_status"`
 	ResponseScope string     `json:"response_scope"`
 	BodyBytes     int        `json:"body_bytes"`
@@ -85,4 +89,30 @@ func NewReport(snapshot fetch.Snapshot, findings []detect.Finding, catalogSize i
 		report.Findings = append(report.Findings, item)
 	}
 	return report
+}
+
+// RedactQueries returns a report copy with every URL query replaced. It never
+// modifies the source report or fetch snapshot. QueryRedacted records the policy
+// even when none of the URLs contain a query. Findings are left untouched.
+func (r Report) RedactQueries() Report {
+	r.QueryRedacted = true
+	r.URL = redactURLQuery(r.URL)
+	r.FinalURL = redactURLQuery(r.FinalURL)
+	r.Redirects = slices.Clone(r.Redirects)
+	for i := range r.Redirects {
+		r.Redirects[i].FromURL = redactURLQuery(r.Redirects[i].FromURL)
+		r.Redirects[i].ToURL = redactURLQuery(r.Redirects[i].ToURL)
+	}
+	return r
+}
+
+func redactURLQuery(raw string) string {
+	// Report URLs come from validated, fragment-free snapshots. Cut at the
+	// literal query delimiter without decoding escapes, parsing parameters, or
+	// normalizing the path. This also handles malformed query escapes safely.
+	base, _, hasQuery := strings.Cut(raw, "?")
+	if hasQuery {
+		return base + "?[redacted]"
+	}
+	return raw
 }

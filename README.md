@@ -43,6 +43,8 @@ labels, and identification still depends on exposed signals.
 Color options are accepted but the listing is always plain. JSON returns catalog
 metadata, not the scan-report shape; see the
 [catalog JSON contract](internal/output/README.md#technology-catalog-json).
+The scan-only `--redact-query` flag is also rejected with `--techs`, even when
+explicitly set to false.
 
 | Category | Technologies | Signals |
 | --- | --- | --- |
@@ -170,9 +172,24 @@ ignores color. Reports include URLs, HTTP status, response scope, redirect
 metadata, body size, catalog size, findings, and evidence. Empty results use
 `"findings": []`. Response bodies, header values, and cookie values are excluded.
 The report's `schema_version` is separate from the fingerprint file format.
-JSON preserves original string values, subject to JSON escaping; consumers must
-apply their own display sanitization when presenting those values.
+By default, JSON preserves original string values, subject to JSON escaping;
+consumers must apply their own display sanitization when presenting those values.
 See the [JSON contract](internal/output/README.md) for fields and semantics.
+
+Use `--redact-query` to replace the entire query (parameter names and values) in
+every report URL with `?[redacted]`. This covers original/final URLs and both
+ends of every redirect hop. URLs without a query are unchanged. Terminal output
+notes the policy; JSON includes optional `query_redacted: true` whenever enabled,
+even if no URL had a query. Default output is unchanged.
+
+```sh
+./bin/webscan --redact-query --json 'https://example.com/page?token=secret'
+```
+
+Redaction affects reports only, not requests, redirects, or referrers. It does
+not hide secrets in hostnames/paths, shell history, process arguments, or remote
+logs, and is not a general anonymization feature. Redacted report URLs do not
+reproduce the original request.
 
 Fetch/configuration errors leave stdout empty and report the error on stderr.
 Output-write failures also return a nonzero exit code, but may leave a partial
@@ -199,7 +216,8 @@ with `--json`; `--techs --json` uses its separate catalog contract.
   referrer behavior, including query strings. No DNS lookup is used for this check.
 - Request/redirect error messages omit raw URLs and `Location` values. Known
   failures retain category-specific reasons; unknown network/HTTP failures use
-  a generic diagnostic. Successful reports still retain URL query strings.
+  a generic diagnostic. Successful reports retain URL query strings unless
+  `--redact-query` is enabled.
 - Read at most 2 MiB of response body by default. `--max-body` sets a positive
   decoded-byte limit, including for chunked and gzip bodies.
 - Independently cap the final response body before content decoding at 4 MiB
@@ -366,8 +384,9 @@ Stop the Python server with Ctrl-C when finished.
   or renamed asset directories can be missed without the identifying header.
 - The development catalog contains eighteen technologies. No version extraction, confidence
   percentages, or automatic fingerprint updates are included.
-- Reports retain URL query strings, which may contain sensitive data. Review
-  reports before sharing them even though raw bodies and cookie values are omitted.
+- Reports retain URL query strings by default; `--redact-query` masks them in
+  report output. Hostnames/paths may still contain sensitive data. Review reports
+  before sharing them even though raw bodies and cookie values are omitted.
 - This is a local CLI for targets you choose, not a sandboxed fetch service for
   untrusted URLs. It can reach local/private addresses and follow redirects to
   other hosts; do not expose it as a public URL-processing endpoint as-is.

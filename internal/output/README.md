@@ -14,6 +14,7 @@ exit code too.
 | `schema_version` | integer | Output contract version, currently 1 |
 | `url` | string | Normalized requested URL, without a fragment |
 | `final_url` | string | Final URL after followed redirects |
+| `query_redacted` | boolean, optional | `true` when query redaction is enabled for this report; omitted by default |
 | `http_status` | integer | Final response's HTTP status code |
 | `response_scope` | string | `final_response` or `http_error_response` for status 400 and above |
 | `body_bytes` | integer | Size of the captured body after any automatic gzip decompression |
@@ -47,8 +48,22 @@ can have state `inferred` while retaining its own `rule_id` and observed signals
 All collection fields are arrays, including when empty; they are not `null`.
 Absent optional strings are omitted. A catalog of size 0 is distinct from a
 populated catalog with no findings. There are no confidence scores, raw body
-contents, raw header values, or cookie values in the report. URLs are retained,
-including query strings; this is not a general redaction/export facility.
+contents, raw header values, or cookie values in the report. URLs retain query
+strings by default. With `--redact-query`, the query in `url`, `final_url`, and
+every redirect's `from_url`/`to_url` is replaced with `?[redacted]`. Both names and
+values are removed, including bare parameters and malformed query escapes.
+An empty trailing `?` is also replaced; URLs with no query are unchanged.
+Escaped path delimiters such as `%3F` are preserved without decoding.
+
+`query_redacted: true` records that the policy was applied, even when all URLs
+were query-free. It is an additive optional field in schema 1; default report
+bytes are unchanged. Redacted URLs are display/export representations and must
+not be interpreted as the exact requested URLs. Redaction copies the report's
+URL fields and redirect slice; it never mutates the source report/snapshot or
+changes findings, actual requests, referrers, or fetch-error behavior.
+
+This is not general anonymization. Sensitive hostnames/paths, process arguments,
+shell history, and network/server logs are outside this flag's scope.
 
 Consumers should check `schema_version`, use IDs rather than display names,
 and allow additional fields within a schema version. A breaking change to
@@ -62,6 +77,8 @@ Terminal output shows final-response metadata, findings with evidence, and a
 legend: green `✓` for detected, yellow `?` for inferred. It uses friendly
 category labels such as `web server`. Control characters in displayed values
 are replaced so they cannot insert terminal commands or extra lines.
+When query redaction is enabled, the report includes a policy note and the
+displayed final URL uses the same `?[redacted]` placeholder as JSON.
 
 Color is selected by the CLI; the renderer receives an explicit boolean.
 JSON has no color option. `--no-color` has highest priority, followed by an
@@ -115,8 +132,9 @@ Ordinary Unicode letters, combining marks, and joiners/variation selectors used
 in scripts and emoji are preserved. Literal percent escapes are not decoded.
 This is not general Unicode spoofing or homoglyph protection.
 
-Sanitization is presentation-only: it does not change request URLs, snapshots,
-findings, catalog metadata, or JSON values. Both JSON formats retain the original
-valid Unicode strings through JSON escaping; they are data formats, not
+Unicode sanitization is presentation-only: it does not change request URLs,
+snapshots, findings, catalog metadata, or JSON values. Both JSON formats retain
+valid Unicode strings through JSON escaping (scan URL queries may separately
+be redacted with `--redact-query`); they are data formats, not
 terminal-safe display formats. Consumers must sanitize values for their display
 context, including after decoding JSON strings.

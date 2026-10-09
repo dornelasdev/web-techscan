@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Added optional `--redact-query` for scan reports: replace entire queries in
+  original/final/redirect URLs with `?[redacted]`, with a terminal policy note
+  and optional `query_redacted: true` JSON metadata. Default output, actual
+  requests, referrers, and findings remain unchanged. Added redaction boundary,
+  non-mutation, request-fidelity, failure, and terminal/JSON regressions.
 - Block HTTPS-to-HTTP redirects by default, checking every hop even in chains
   that started on HTTP. Added explicit `--allow-http-downgrade` opt-in without
   weakening TLS verification, URL validation, or redirect limits. Direct HTTP

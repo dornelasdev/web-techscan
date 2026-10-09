@@ -6,9 +6,10 @@ import (
 )
 
 type outputOptions struct {
-	json    bool
-	color   string
-	noColor bool
+	json        bool
+	color       string
+	noColor     bool
+	redactQuery bool
 }
 
 func useColor(options outputOptions, stdout io.Writer) bool {
