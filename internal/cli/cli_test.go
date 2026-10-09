@@ -46,6 +46,7 @@ func TestUsageErrors(t *testing.T) {
 	}{
 		{name: "unknown option", args: []string{"--unknown"}, want: "flag provided but not defined"},
 		{name: "invalid boolean", args: []string{"--version=invalid"}, want: "invalid boolean value"},
+		{name: "invalid downgrade boolean", args: []string{"--allow-http-downgrade=invalid"}, want: "invalid boolean value"},
 		{name: "multiple URLs", args: []string{"https://one.example", "https://two.example"}, want: "expected a single URL"},
 		{name: "empty URL", args: []string{""}, want: "URL must not be empty"},
 		{name: "version with URL", args: []string{"--version", "https://example.com"}, want: "--version does not accept a URL"},

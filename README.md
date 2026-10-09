@@ -39,8 +39,9 @@ It describes supported coverage, not findings: there are no detected/inferred
 labels, and identification still depends on exposed signals.
 
 `--techs` does not accept a URL, `--version`, or fetch-only options (`--timeout`,
-`--max-redirects`, `--max-body`, `--max-encoded-body`). Color options are accepted
-but the listing is always plain. JSON returns catalog metadata, not the scan-report shape; see the
+`--max-redirects`, `--max-body`, `--max-encoded-body`, `--allow-http-downgrade`).
+Color options are accepted but the listing is always plain. JSON returns catalog
+metadata, not the scan-report shape; see the
 [catalog JSON contract](internal/output/README.md#technology-catalog-json).
 
 | Category | Technologies | Signals |
@@ -186,6 +187,13 @@ with `--json`; `--techs --json` uses its separate catalog contract.
   redirects and reading the response body. Override it with `--timeout`.
 - Follow up to five redirects by default. `--max-redirects 0` rejects redirects;
   exceeding the configured limit is an error, rather than a truncated scan.
+- HTTPS-to-HTTP redirects are blocked by default before requesting the HTTP
+  destination, including in a chain that started on HTTP and upgraded to HTTPS.
+  Use `--allow-http-downgrade` only when you accept following a redirect over
+  unencrypted HTTP. Direct HTTP URLs, HTTP-to-HTTPS upgrades, and HTTPS-to-HTTPS
+  redirects remain supported. The opt-in does not disable TLS certificate
+  verification, URL validation, redirect limits, or cross-origin Referer removal.
+  A blocked downgrade is an execution error with no partial scan report.
 - Cross-origin redirects omit `Referer`: changing scheme, hostname, or effective
   port counts as a different origin. Same-origin redirects retain Go's normal
   referrer behavior, including query strings. No DNS lookup is used for this check.

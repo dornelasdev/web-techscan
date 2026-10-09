@@ -38,6 +38,7 @@ Options:
   --max-redirects n          Maximum followed redirects (default 5; 0 disallows redirects)
   --max-body bytes           Maximum decoded response body size (default 2097152)
   --max-encoded-body bytes   Maximum body size before decoding (default 4194304)
+  --allow-http-downgrade     Allow HTTPS-to-HTTP redirects (default false)
 
 Place options before the URL. Include http:// or https://.
 `
@@ -59,6 +60,7 @@ func Run(args []string, stdout, stderr io.Writer, version string) int {
 	flags.IntVar(&options.MaxRedirects, "max-redirects", options.MaxRedirects, "Maximum followed redirects")
 	flags.Int64Var(&options.MaxBodyBytes, "max-body", options.MaxBodyBytes, "Maximum decoded response body size")
 	flags.Int64Var(&options.MaxEncodedBodyBytes, "max-encoded-body", options.MaxEncodedBodyBytes, "Maximum body size before decoding")
+	flags.BoolVar(&options.AllowHTTPDowngrade, "allow-http-downgrade", options.AllowHTTPDowngrade, "Allow HTTPS-to-HTTP redirects")
 
 	if err := flags.Parse(args); err != nil {
 		if errors.Is(err, flag.ErrHelp) {
@@ -82,7 +84,7 @@ func Run(args []string, stdout, stderr io.Writer, version string) int {
 		fetchFlag := ""
 		flags.Visit(func(f *flag.Flag) {
 			switch f.Name {
-			case "timeout", "max-redirects", "max-body", "max-encoded-body":
+			case "timeout", "max-redirects", "max-body", "max-encoded-body", "allow-http-downgrade":
 				if fetchFlag == "" {
 					fetchFlag = f.Name
 				}

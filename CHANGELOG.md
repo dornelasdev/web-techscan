@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Block HTTPS-to-HTTP redirects by default, checking every hop even in chains
+  that started on HTTP. Added explicit `--allow-http-downgrade` opt-in without
+  weakening TLS verification, URL validation, or redirect limits. Direct HTTP
+  and private/local targets remain supported. Added redirect-policy and local
+  TLS terminal/JSON regressions, including no requests to blocked destinations.
 - Hardened scan/catalog terminal text against Unicode bidi controls and
   line/paragraph separators, preserving ordinary Unicode and emoji. Added
   colored/plain rendering, JSON-preservation, and local redirect regressions.

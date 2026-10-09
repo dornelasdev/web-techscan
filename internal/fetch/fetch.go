@@ -11,8 +11,9 @@ import (
 )
 
 var (
-	ErrRedirectLimit = errors.New("redirect limit exceeded")
-	ErrBodyLimit     = errors.New("response body limit exceeded")
+	ErrRedirectLimit  = errors.New("redirect limit exceeded")
+	ErrBodyLimit      = errors.New("response body limit exceeded")
+	ErrHTTPSDowngrade = errors.New("HTTPS-to-HTTP redirect blocked")
 )
 
 // Options bounds a complete fetch, including redirects and body reading.
@@ -21,6 +22,7 @@ type Options struct {
 	MaxRedirects        int
 	MaxBodyBytes        int64 // Decoded final-response bytes.
 	MaxEncodedBodyBytes int64 // Final-response bytes before content decoding.
+	AllowHTTPDowngrade  bool  // Opt in to HTTPS-to-HTTP redirects, not insecure TLS.
 }
 
 func DefaultOptions() Options {
@@ -113,13 +115,20 @@ func (c *Client) Fetch(ctx context.Context, rawURL string) (*Snapshot, error) {
 				return redirectErr
 			}
 			next.URL = clean
+			previous := via[len(via)-1].URL
+			// Check each hop, including after an HTTP start upgraded to HTTPS.
+			// Both schemes have been normalized by ParseURL.
+			if previous.Scheme == "https" && clean.Scheme == "http" && !c.options.AllowHTTPDowngrade {
+				redirectErr = fmt.Errorf("%w (use --allow-http-downgrade to allow)", ErrHTTPSDowngrade)
+				return redirectErr
+			}
 			// Go adds Referer before calling this hook. Compare the immediately
 			// preceding hop, not the original URL, and never resolve hosts via DNS.
-			if !sameOrigin(via[len(via)-1].URL, clean) {
+			if !sameOrigin(previous, clean) {
 				next.Header.Del("Referer")
 			}
 			redirects = append(redirects, Redirect{
-				FromURL:    via[len(via)-1].URL.String(),
+				FromURL:    previous.String(),
 				ToURL:      clean.String(),
 				StatusCode: next.Response.StatusCode,
 			})
