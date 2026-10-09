@@ -101,3 +101,22 @@ always plain text, regardless of color flags. JSON uses two-space indentation,
 a trailing newline, and no status text. Load/write errors use stderr and exit 1;
 invalid argument combinations use exit 2. Failed writes can leave partial output.
 The existing scan JSON schema is unchanged.
+
+## Terminal text safety
+
+Scan and catalog terminal renderers replace C0/C1 controls, including ESC,
+Unicode `Bidi_Control` characters (direction marks, embeddings, overrides, and
+isolates), and U+2028/U+2029 line/paragraph separators with U+FFFD (`�`) in
+displayed string values. The implementation uses Go's
+[Unicode property tables](https://pkg.go.dev/unicode#Bidi_Control). Renderer-owned
+line breaks and optional scan-marker color sequences are not filtered.
+
+Ordinary Unicode letters, combining marks, and joiners/variation selectors used
+in scripts and emoji are preserved. Literal percent escapes are not decoded.
+This is not general Unicode spoofing or homoglyph protection.
+
+Sanitization is presentation-only: it does not change request URLs, snapshots,
+findings, catalog metadata, or JSON values. Both JSON formats retain the original
+valid Unicode strings through JSON escaping; they are data formats, not
+terminal-safe display formats. Consumers must sanitize values for their display
+context, including after decoding JSON strings.

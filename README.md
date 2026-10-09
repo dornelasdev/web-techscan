@@ -159,11 +159,18 @@ automatic color uses a dependency-free character-device check. Set
 overrides those environment settings. `--no-color` always disables color,
 regardless of flag order.
 
+Terminal reports and `--techs` replace control characters, explicit Unicode
+text-direction controls, and Unicode line/paragraph separators in displayed
+values with `�`. Ordinary international text and emoji remain intact. This is
+display hardening, not protection against every lookalike or misleading URL.
+
 `--json` prints one indented JSON report with a trailing newline, and always
 ignores color. Reports include URLs, HTTP status, response scope, redirect
 metadata, body size, catalog size, findings, and evidence. Empty results use
 `"findings": []`. Response bodies, header values, and cookie values are excluded.
 The report's `schema_version` is separate from the fingerprint file format.
+JSON preserves original string values, subject to JSON escaping; consumers must
+apply their own display sanitization when presenting those values.
 See the [JSON contract](internal/output/README.md) for fields and semantics.
 
 Fetch/configuration errors leave stdout empty and report the error on stderr.

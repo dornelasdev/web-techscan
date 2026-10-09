@@ -65,10 +65,12 @@ func marker(state string, color bool) string {
 	return symbol
 }
 
-// Keep response-derived text from inserting terminal controls or extra lines.
+// Keep displayed values from inserting terminal controls, explicit bidi controls,
+// or extra lines. Do not strip all Unicode format characters: joiners used in
+// ordinary scripts and emoji remain intact. This is not a homoglyph defense.
 func plain(value string) string {
 	return strings.Map(func(r rune) rune {
-		if unicode.IsControl(r) {
+		if unicode.IsControl(r) || unicode.Is(unicode.Bidi_Control, r) || r == '\u2028' || r == '\u2029' {
 			return '�'
 		}
 		return r

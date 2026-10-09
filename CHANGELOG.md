@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Hardened scan/catalog terminal text against Unicode bidi controls and
+  line/paragraph separators, preserving ordinary Unicode and emoji. Added
+  colored/plain rendering, JSON-preservation, and local redirect regressions.
+  Request URLs, JSON schemas/values, and detection behavior remain unchanged.
 - Bound final-response input before content decoding with `--max-encoded-body`
   (default 4 MiB), independently of the existing decoded-body limit. Reject
   oversized input, including empty gzip member sequences, without partial reports.
