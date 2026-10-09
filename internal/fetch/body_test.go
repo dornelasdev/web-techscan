@@ -62,7 +62,7 @@ func TestBodyEncodingAndIntegrity(t *testing.T) {
 			if tc.encoding != nil {
 				resp.Header["Content-Encoding"] = tc.encoding
 			}
-			body, err := readBody(resp, 32)
+			body, err := readBody(resp, 32, DefaultOptions().MaxEncodedBodyBytes)
 			if tc.wantErr != nil {
 				if !errors.Is(err, tc.wantErr) || body != nil {
 					t.Fatalf("body=%q err=%v want=%v", body, err, tc.wantErr)
@@ -90,7 +90,7 @@ func TestBodyEncodingAndIntegrity(t *testing.T) {
 func TestNoBodyStatusesIgnoreRepresentationEncoding(t *testing.T) {
 	for _, status := range []int{204, 304} {
 		resp := &http.Response{StatusCode: status, Header: http.Header{"Content-Encoding": {"gzip"}}, Body: http.NoBody}
-		body, err := readBody(resp, 32)
+		body, err := readBody(resp, 32, DefaultOptions().MaxEncodedBodyBytes)
 		if err != nil || len(body) != 0 {
 			t.Fatalf("status=%d body=%q err=%v", status, body, err)
 		}

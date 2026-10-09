@@ -17,16 +17,18 @@ var (
 
 // Options bounds a complete fetch, including redirects and body reading.
 type Options struct {
-	Timeout      time.Duration
-	MaxRedirects int
-	MaxBodyBytes int64
+	Timeout             time.Duration
+	MaxRedirects        int
+	MaxBodyBytes        int64 // Decoded final-response bytes.
+	MaxEncodedBodyBytes int64 // Final-response bytes before content decoding.
 }
 
 func DefaultOptions() Options {
 	return Options{
-		Timeout:      15 * time.Second,
-		MaxRedirects: 5,
-		MaxBodyBytes: 2 << 20,
+		Timeout:             15 * time.Second,
+		MaxRedirects:        5,
+		MaxBodyBytes:        2 << 20,
+		MaxEncodedBodyBytes: 4 << 20,
 	}
 }
 
@@ -64,6 +66,9 @@ func New(options Options) (*Client, error) {
 	}
 	if options.MaxBodyBytes <= 0 || options.MaxBodyBytes == math.MaxInt64 {
 		return nil, errors.New("max-body must be positive and less than 9223372036854775807")
+	}
+	if options.MaxEncodedBodyBytes <= 0 {
+		return nil, errors.New("max-encoded-body must be positive")
 	}
 	transport := http.DefaultTransport.(*http.Transport).Clone()
 	transport.MaxResponseHeaderBytes = 1 << 20
@@ -130,7 +135,7 @@ func (c *Client) Fetch(ctx context.Context, rawURL string) (*Snapshot, error) {
 	}
 	defer resp.Body.Close()
 
-	body, err := readBody(resp, c.options.MaxBodyBytes)
+	body, err := readBody(resp, c.options.MaxBodyBytes, c.options.MaxEncodedBodyBytes)
 	if err != nil {
 		return nil, err
 	}

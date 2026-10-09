@@ -105,6 +105,7 @@ func TestTechsConflictingArguments(t *testing.T) {
 	for _, extra := range [][]string{
 		{"https://example.test"}, {"--version"}, {"--timeout=15s"},
 		{"--max-redirects=5"}, {"--max-body=2097152"}, {"--color=invalid"},
+		{"--max-encoded-body=4194304"},
 	} {
 		var stdout, stderr bytes.Buffer
 		if code := cli.Run(append([]string{"--techs", "--json"}, extra...), &stdout, &stderr, "dev"); code != 2 || stdout.Len() != 0 || stderr.Len() == 0 {

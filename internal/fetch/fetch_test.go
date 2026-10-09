@@ -245,6 +245,7 @@ func TestInvalidLimits(t *testing.T) {
 		{Timeout: time.Second, MaxBodyBytes: -1},
 		{Timeout: time.Second, MaxBodyBytes: math.MaxInt64},
 	} {
+		options.MaxEncodedBodyBytes = fetch.DefaultOptions().MaxEncodedBodyBytes
 		if _, err := fetch.New(options); err == nil {
 			t.Errorf("accepted invalid limits: %+v", options)
 		}

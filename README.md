@@ -39,8 +39,8 @@ It describes supported coverage, not findings: there are no detected/inferred
 labels, and identification still depends on exposed signals.
 
 `--techs` does not accept a URL, `--version`, or fetch-only options (`--timeout`,
-`--max-redirects`, `--max-body`). Color options are accepted but the listing is
-always plain. JSON returns catalog metadata, not the scan-report shape; see the
+`--max-redirects`, `--max-body`, `--max-encoded-body`). Color options are accepted
+but the listing is always plain. JSON returns catalog metadata, not the scan-report shape; see the
 [catalog JSON contract](internal/output/README.md#technology-catalog-json).
 
 | Category | Technologies | Signals |
@@ -187,6 +187,13 @@ with `--json`; `--techs --json` uses its separate catalog contract.
   a generic diagnostic. Successful reports still retain URL query strings.
 - Read at most 2 MiB of response body by default. `--max-body` sets a positive
   decoded-byte limit, including for chunked and gzip bodies.
+- Independently cap the final response body before content decoding at 4 MiB
+  with `--max-encoded-body`. This covers gzip headers and all concatenated members,
+  including empty members; it also applies to plain/identity bodies. The larger
+  default leaves room for gzip overhead. Both limits must be satisfied; raising
+  one does not raise the other. Reads may consume one extra byte to detect
+  overflow. This is a payload limit, not a cap on HTTP framing, TLS overhead,
+  or transport buffering; headers and the total timeout have separate limits.
 - Requests advertise gzip. Final response bodies support no encoding, a single
   `identity`, or a single `gzip` value. Unsupported encodings (such as Brotli or
   deflate), repeated encoding fields, and encoding lists fail explicitly; no

@@ -27,6 +27,11 @@ func TestBodyHandlingThroughCLI(t *testing.T) {
 	}
 	checksum := append([]byte(nil), compressed.Bytes()...)
 	checksum[len(checksum)-8] ^= 1
+	var empty bytes.Buffer
+	if err := gzip.NewWriter(&empty).Close(); err != nil {
+		t.Fatal(err)
+	}
+	members := append(append([]byte(nil), empty.Bytes()...), compressed.Bytes()...)
 	for _, tc := range []struct {
 		name      string
 		encodings []string
@@ -36,6 +41,8 @@ func TestBodyHandlingThroughCLI(t *testing.T) {
 		flags     []string
 	}{
 		{"gzip-success", []string{"gzip"}, compressed.Bytes(), 200, "", nil},
+		{"gzip-encoded-exact", []string{"gzip"}, compressed.Bytes(), 200, "", []string{fmt.Sprintf("--max-encoded-body=%d", compressed.Len())}},
+		{"gzip-members-exact", []string{"gzip"}, members, 200, "", []string{fmt.Sprintf("--max-encoded-body=%d", len(members))}},
 		{"gzip-error-page", []string{"gzip"}, compressed.Bytes(), 403, "", nil},
 		{"identity", []string{"identity"}, []byte(body), 200, "", nil},
 		{"unsupported", []string{"private-unsupported"}, []byte(body), 200, "unsupported or ambiguous response content encoding", nil},
@@ -45,6 +52,11 @@ func TestBodyHandlingThroughCLI(t *testing.T) {
 		{"gzip-checksum", []string{"gzip"}, checksum, 200, "invalid gzip checksum", nil},
 		{"gzip-truncated", []string{"gzip"}, compressed.Bytes()[:compressed.Len()-4], 200, "incomplete response body", nil},
 		{"gzip-limit", []string{"gzip"}, compressed.Bytes(), 200, "response body limit exceeded", []string{"--max-body=32"}},
+		{"gzip-encoded-limit", []string{"gzip"}, compressed.Bytes(), 200, "encoded response body limit exceeded", []string{fmt.Sprintf("--max-encoded-body=%d", compressed.Len()-1)}},
+		{"gzip-chunked-encoded-limit", []string{"gzip"}, compressed.Bytes(), 200, "encoded response body limit exceeded", []string{fmt.Sprintf("--max-encoded-body=%d", compressed.Len()-1)}},
+		{"empty-members-limit", []string{"gzip"}, bytes.Repeat(empty.Bytes(), 100), 200, "encoded response body limit exceeded", []string{fmt.Sprintf("--max-encoded-body=%d", empty.Len()*3)}},
+		{"member-boundary-limit", []string{"gzip"}, members, 200, "encoded response body limit exceeded", []string{fmt.Sprintf("--max-encoded-body=%d", empty.Len())}},
+		{"identity-encoded-limit", []string{"identity"}, []byte(body), 200, "encoded response body limit exceeded", []string{"--max-encoded-body=32"}},
 		{"short-length", nil, []byte(body), 200, "incomplete response body", nil},
 		{"bad-chunk", nil, nil, 200, "invalid or incomplete response body", nil},
 		{"body-timeout", nil, nil, 200, "timed out", []string{"--timeout=200ms"}},
@@ -86,6 +98,9 @@ func TestBodyHandlingThroughCLI(t *testing.T) {
 						w.Header().Set("X-Large", strings.Repeat("x", (1<<20)+4096))
 					}
 					w.WriteHeader(tc.status)
+					if tc.name == "gzip-chunked-encoded-limit" {
+						w.(http.Flusher).Flush() // Force unknown-length/chunked delivery.
+					}
 					if tc.name == "body-timeout" || tc.name == "gzip-header-timeout" {
 						if tc.name == "body-timeout" {
 							fmt.Fprint(w, "partial")

@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Bound final-response input before content decoding with `--max-encoded-body`
+  (default 4 MiB), independently of the existing decoded-body limit. Reject
+  oversized input, including empty gzip member sequences, without partial reports.
+  Added exact-boundary, gzip-header/member, chunked, cleanup, option-validation,
+  and terminal/JSON regressions. No new dependencies or collection requests.
 - Validate final-response content encodings before decoding with the standard
   library. Preserve plain/identity/gzip support and decoded-body limits; reject
   unsupported, stacked, or repeated encodings without partial scan reports.

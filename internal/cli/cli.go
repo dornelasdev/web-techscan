@@ -28,15 +28,16 @@ Inspect the likely technology stack of a single website.
 Fetch a page and match its signals against the bundled fingerprint catalog.
 
 Options:
-  -h, --help           Show help
-  --version           Show version
-  --techs             List supported technologies without fetching a URL
-  --json              Print a JSON scan report or technology catalog
-  --color mode        Color: auto, always, never (default auto)
-  --no-color          Disable color, overriding --color
-  --timeout duration  Total fetch timeout (default 15s)
-  --max-redirects n    Maximum followed redirects (default 5; 0 disallows redirects)
-  --max-body bytes     Maximum response body size (default 2097152)
+  -h, --help                 Show help
+  --version                 Show version
+  --techs                   List supported technologies without fetching a URL
+  --json                    Print a JSON scan report or technology catalog
+  --color mode              Color: auto, always, never (default auto)
+  --no-color                Disable color, overriding --color
+  --timeout duration        Total fetch timeout (default 15s)
+  --max-redirects n          Maximum followed redirects (default 5; 0 disallows redirects)
+  --max-body bytes           Maximum decoded response body size (default 2097152)
+  --max-encoded-body bytes   Maximum body size before decoding (default 4194304)
 
 Place options before the URL. Include http:// or https://.
 `
@@ -56,7 +57,8 @@ func Run(args []string, stdout, stderr io.Writer, version string) int {
 	options := fetch.DefaultOptions()
 	flags.DurationVar(&options.Timeout, "timeout", options.Timeout, "Total fetch timeout")
 	flags.IntVar(&options.MaxRedirects, "max-redirects", options.MaxRedirects, "Maximum followed redirects")
-	flags.Int64Var(&options.MaxBodyBytes, "max-body", options.MaxBodyBytes, "Maximum response body size")
+	flags.Int64Var(&options.MaxBodyBytes, "max-body", options.MaxBodyBytes, "Maximum decoded response body size")
+	flags.Int64Var(&options.MaxEncodedBodyBytes, "max-encoded-body", options.MaxEncodedBodyBytes, "Maximum body size before decoding")
 
 	if err := flags.Parse(args); err != nil {
 		if errors.Is(err, flag.ErrHelp) {
@@ -80,7 +82,7 @@ func Run(args []string, stdout, stderr io.Writer, version string) int {
 		fetchFlag := ""
 		flags.Visit(func(f *flag.Flag) {
 			switch f.Name {
-			case "timeout", "max-redirects", "max-body":
+			case "timeout", "max-redirects", "max-body", "max-encoded-body":
 				if fetchFlag == "" {
 					fetchFlag = f.Name
 				}
