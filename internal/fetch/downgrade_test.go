@@ -60,7 +60,7 @@ func TestRedirectDowngradePolicy(t *testing.T) {
 					}
 					if i > 0 {
 						prior, _ := ParseURL(tc.hops[i-1])
-						if !sameOrigin(prior, r.URL) && r.Referer() != "" {
+						if !SameOrigin(prior, r.URL) && r.Referer() != "" {
 							t.Error("cross-origin redirect sent Referer")
 						}
 					}

@@ -124,7 +124,7 @@ func (c *Client) Fetch(ctx context.Context, rawURL string) (*Snapshot, error) {
 			}
 			// Go adds Referer before calling this hook. Compare the immediately
 			// preceding hop, not the original URL, and never resolve hosts via DNS.
-			if !sameOrigin(previous, clean) {
+			if !SameOrigin(previous, clean) {
 				next.Header.Del("Referer")
 			}
 			redirects = append(redirects, Redirect{

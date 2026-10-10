@@ -36,7 +36,7 @@ func TestSameOrigin(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			if got := sameOrigin(a, b); got != tc.want {
+			if got := SameOrigin(a, b); got != tc.want {
 				t.Errorf("sameOrigin=%t want=%t", got, tc.want)
 			}
 		})

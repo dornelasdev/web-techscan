@@ -245,6 +245,10 @@ with `--json`; `--techs --json` uses its separate catalog contract.
 
 ## Structure
 
+`internal/assets` contains offline JS/CSS reference-extraction groundwork using
+a pinned HTML parser. It is not connected to scanning yet: no `--assets` flag
+or asset requests are available. See its [scope and limits](internal/assets/README.md).
+
 `main.go` only connects process arguments, output streams, and the exit code
 to `internal/cli`. `internal/fetch` handles URL validation and bounded HTTP
 retrieval, returning a snapshot for offline inspection. `internal/detect`

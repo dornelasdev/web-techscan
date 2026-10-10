@@ -6,9 +6,9 @@ import (
 	"strings"
 )
 
-// sameOrigin compares validated HTTP(S) URLs by scheme, hostname and effective
+// SameOrigin compares validated HTTP(S) URLs by scheme, hostname and effective
 // port. Different DNS aliases remain different origins, even on the same IP.
-func sameOrigin(a, b *url.URL) bool {
+func SameOrigin(a, b *url.URL) bool {
 	return strings.EqualFold(a.Scheme, b.Scheme) &&
 		strings.EqualFold(a.Hostname(), b.Hostname()) && effectivePort(a) == effectivePort(b)
 }
