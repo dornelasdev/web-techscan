@@ -1,12 +1,139 @@
 package detect_test
 
 import (
+	"fmt"
 	"net/http"
 	"reflect"
+	"strings"
 	"testing"
 
 	"webscan/internal/detect"
 )
+
+func TestFrontendFindingCombinations(t *testing.T) {
+	engine := bundledEngine(t)
+	css := bootstrapBanner + bootstrapButtons
+	react := reactClientAssignment + reactElementSymbol + ";"
+	vue := vueRuntimeFlag + vueAppAssignment + vueFragmentSymbol
+	jsOne, jsTwo, cssURL := "https://example.test/z", "https://example.test/a", "https://example.test/style"
+	type expectedEvidence struct {
+		rule, url string
+		source    detect.Source
+		count     int
+	}
+	// All 32 technology subsets, with independent Next.js/Nuxt header
+	// upgrades and reversed capture order. This is synthetic coexistence,
+	// not a claim about real application architecture.
+	for mask := 0; mask < 32; mask++ {
+		for headers := 0; headers < 4; headers++ {
+			for _, reverse := range []bool{false, true} {
+				t.Run(fmt.Sprintf("subset=%d/headers=%d/reverse=%t", mask, headers, reverse), func(t *testing.T) {
+					bootstrap, next, nuxt, hasReact, hasVue := mask&1 != 0, mask&2 != 0, mask&4 != 0, mask&8 != 0, mask&16 != 0
+					nextHeader, nuxtHeader := headers&1 != 0, headers&2 != 0
+					input := detect.Input{Headers: make(http.Header)}
+					// Bootstrap text in JS must not supply a CSS finding, and
+					// complete JS markers in CSS must not supply JS findings.
+					jsBody := css + "\n"
+					cssBody := "/* " + nextBuildAsset + react + vue + " */"
+					if bootstrap {
+						cssBody = css + cssBody
+					}
+					if next {
+						jsBody += nextBuildAsset
+						input.HTML = append(input.HTML, []byte(`<script id="__NEXT_DATA__"></script><script src="/_next/static/entry.js"></script>`)...)
+					}
+					if nuxt {
+						input.HTML = append(input.HTML, []byte(nuxtDataScript+nuxtAssetScript)...)
+					}
+					if hasReact {
+						jsBody += react
+					}
+					if hasVue {
+						jsBody += vue
+					}
+					if nextHeader {
+						input.Headers.Add("X-Powered-By", "Next.js")
+					}
+					if nuxtHeader {
+						input.Headers.Add("X-Powered-By", "Nuxt")
+					}
+					first, second := jsOne, jsTwo
+					if reverse {
+						first, second = second, first
+					}
+					input.Assets = []detect.Asset{scriptAsset(first, jsBody), cssAsset(cssURL, cssBody), scriptAsset(second, jsBody), scriptAsset(first, jsBody), cssAsset(cssURL, cssBody)}
+					want := make(map[string][]expectedEvidence)
+					states := make(map[string]detect.State)
+					assetEvidence := func(id, rule string, count int) {
+						want[id] = []expectedEvidence{{rule, first, detect.AssetJavaScript, count}, {rule, second, detect.AssetJavaScript, count}}
+					}
+					if bootstrap {
+						want["bootstrap"] = []expectedEvidence{{"asset-css-banner-and-buttons", cssURL, detect.AssetCSS, 2}}
+					}
+					if next {
+						assetEvidence("nextjs", "asset-build-manifest", 2)
+						want["nextjs"] = append(want["nextjs"], expectedEvidence{"pages-html-markers", "", detect.HTML, 2})
+					}
+					if nextHeader {
+						want["nextjs"] = append(want["nextjs"], expectedEvidence{"powered-by-header", "", detect.Header, 1})
+						states["nextjs"] = detect.Detected
+					}
+					if nuxt {
+						want["nuxt"] = []expectedEvidence{{"payload-html-markers", "", detect.HTML, 2}}
+					}
+					if nuxtHeader {
+						want["nuxt"] = append(want["nuxt"], expectedEvidence{"powered-by-header", "", detect.Header, 1})
+						states["nuxt"] = detect.Detected
+					}
+					if hasReact {
+						assetEvidence("react", "asset-client-runtime", 2)
+					}
+					if hasVue {
+						assetEvidence("vue", "asset-renderer-runtime", 3)
+					}
+					got := engine.Detect(input)
+					if len(got) != len(want) {
+						t.Fatalf("findings=%+v want=%+v", got, want)
+					}
+					previous := ""
+					for _, finding := range got {
+						expected, ok := want[finding.ID]
+						state := detect.Inferred
+						if states[finding.ID] == detect.Detected {
+							state = detect.Detected
+						}
+						category := detect.Framework
+						if finding.ID == "bootstrap" {
+							category = detect.UIFramework
+						}
+						if !ok || finding.ID <= previous || finding.State != state || finding.Category != category || len(finding.Evidence) != len(expected) {
+							t.Fatalf("finding=%+v want=%+v", finding, expected)
+						}
+						previous = finding.ID
+						for i, e := range finding.Evidence {
+							w := expected[i]
+							if e.RuleID != w.rule || e.AssetURL != w.url || e.InferredFrom != "" || e.Description == "" || len(e.Signals) != w.count || strings.Contains(e.Description, "private-") {
+								t.Fatalf("evidence=%+v want=%+v", e, w)
+							}
+							for _, signal := range e.Signals {
+								name := ""
+								if w.source == detect.Header {
+									name = "X-Powered-By"
+								}
+								if signal.Source != w.source || signal.Name != name {
+									t.Fatalf("signal=%+v want source=%s name=%s", signal, w.source, name)
+								}
+							}
+						}
+					}
+					if !reflect.DeepEqual(got, engine.Detect(input)) || len(engine.Detect(detect.Input{})) != 0 {
+						t.Error("unstable findings or retained scan state")
+					}
+				})
+			}
+		}
+	}
+}
 
 func TestMixedAssetEvidenceIsolationAndPageUpgrade(t *testing.T) {
 	engine := bundledEngine(t)

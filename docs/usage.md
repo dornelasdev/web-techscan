@@ -133,7 +133,8 @@ go test ./...
 
 Tests use synthetic fixtures and local servers. They cover fetch boundaries,
 rule validation, positive/near-miss detections, inference, redirects, mixed
-stacks, JS/CSS isolation, optional failures, privacy, and output contracts.
+frontend/network stacks, JS/CSS isolation, optional failures, privacy, and output
+contracts.
 Passing fixtures are not a measurement of real-world detection accuracy.
 
 Optional checks, after building to create `bin/`:

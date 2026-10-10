@@ -22,7 +22,8 @@
 - Added explicit encoding validation and `--max-encoded-body` (4 MiB default).
 - Hardened terminal text handling for Unicode bidi and line/paragraph controls.
 - Tightened nginx/Apache banner patterns.
-- Added mixed-stack, fetch-failure, privacy, and combined JS/CSS regressions.
+- Added mixed-stack, fetch-failure, privacy, combined JS/CSS and independent
+  frontend-finding regressions.
 - Reorganized documentation into usage, policies, and fingerprint references.
 
 ## v0.2.0 — 2026-10-06

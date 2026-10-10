@@ -24,8 +24,18 @@ func TestMixedAssetRedactionCopiesAllProvenance(t *testing.T) {
 				{RuleID: "asset-build-manifest", Description: "JS evidence", AssetURL: jsURL, Signals: []detect.Signal{{Source: detect.AssetJavaScript}}},
 				{RuleID: "powered-by-header", Description: "Page evidence", Signals: []detect.Signal{{Source: detect.Header, Name: "X-Powered-By"}}},
 			}},
+		{ID: "nuxt", Name: "Nuxt", Category: detect.Framework, State: detect.Detected,
+			Evidence: []detect.Evidence{
+				{RuleID: "payload-html-markers", Description: "Nuxt HTML evidence", Signals: []detect.Signal{{Source: detect.HTML}, {Source: detect.HTML}}},
+				{RuleID: "powered-by-header", Description: "Nuxt header evidence", Signals: []detect.Signal{{Source: detect.Header, Name: "X-Powered-By"}}},
+			}},
+		{ID: "react", Name: "React", Category: detect.Framework, State: detect.Inferred,
+			Evidence: []detect.Evidence{{RuleID: "asset-client-runtime", Description: "React runtime evidence", AssetURL: jsURL, Signals: []detect.Signal{{Source: detect.AssetJavaScript}, {Source: detect.AssetJavaScript}}}}},
+		{ID: "vue", Name: "Vue", Category: detect.Framework, State: detect.Inferred,
+			Evidence: []detect.Evidence{{RuleID: "asset-renderer-runtime", Description: "Vue runtime evidence", AssetURL: jsURL, Signals: []detect.Signal{{Source: detect.AssetJavaScript}, {Source: detect.AssetJavaScript}, {Source: detect.AssetJavaScript}}}}},
 	}
-	report := output.NewReport(fetch.Snapshot{OriginalURL: "https://example.test/", FinalURL: "https://example.test/"}, findings, 19)
+	// Synthetic catalog metadata, independent of the bundled catalog total.
+	report := output.NewReport(fetch.Snapshot{OriginalURL: "https://example.test/", FinalURL: "https://example.test/"}, findings, len(findings))
 	report.Assets = output.NewAssetReport(assets.Collection{Status: "complete", Attempted: 2, Collected: 2, Items: []assets.Item{
 		{Reference: assets.Reference{URL: cssURL, Kind: assets.Stylesheet}, Status: "collected"},
 		{Reference: assets.Reference{URL: jsURL, Kind: assets.JavaScript}, Status: "collected"},
@@ -43,6 +53,14 @@ func TestMixedAssetRedactionCopiesAllProvenance(t *testing.T) {
 	}
 	if redacted.Findings[1].Evidence[1].AssetURL != "" || redacted.Findings[1].State != "detected" || redacted.Findings[0].State != "inferred" || !reflect.DeepEqual(redacted.RedactQueries(), redacted) {
 		t.Fatal("redaction changed page evidence/states or was not idempotent")
+	}
+	for _, index := range []int{3, 4} {
+		if redacted.Findings[index].State != "inferred" || redacted.Findings[index].Evidence[0].AssetURL != wantURLs[1] || !reflect.DeepEqual(redacted.Findings[index].Evidence[0].Signals, report.Findings[index].Evidence[0].Signals) {
+			t.Fatalf("runtime provenance changed: %+v", redacted.Findings[index])
+		}
+	}
+	if !reflect.DeepEqual(redacted.Findings[2], report.Findings[2]) {
+		t.Fatal("redaction changed Nuxt page evidence")
 	}
 	var encoded bytes.Buffer
 	if err := output.JSON(&encoded, redacted); err != nil {
@@ -64,13 +82,15 @@ func TestMixedAssetRedactionCopiesAllProvenance(t *testing.T) {
 		for j := range redacted.Findings[i].Evidence {
 			redacted.Findings[i].Evidence[j].AssetURL = "changed"
 		}
+	}
+	for i := range redacted.Assets.Items {
 		redacted.Assets.Items[i].URL = "changed"
 	}
 	after, err := json.Marshal(report)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !bytes.Equal(before, after) || findings[0].Evidence[0].AssetURL != cssURL || findings[1].Evidence[0].AssetURL != jsURL {
+	if !bytes.Equal(before, after) || findings[0].Evidence[0].AssetURL != cssURL || findings[1].Evidence[0].AssetURL != jsURL || findings[3].Evidence[0].AssetURL != jsURL || findings[4].Evidence[0].AssetURL != jsURL {
 		t.Fatal("redaction shares source provenance")
 	}
 }

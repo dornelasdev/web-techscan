@@ -389,5 +389,6 @@ Reviewed 2026-10-07. Source:
 
 Tests cover positive and near-miss rules, partial/split signals, source isolation,
 inference upgrades, deterministic evidence, redirects, mixed application/network
-stacks, optional asset failures, and privacy. Multiple technologies in a synthetic
-fixture do not model a real network topology. Tests are not accuracy percentages.
+stacks, independent frontend combinations, optional asset failures, and privacy.
+Multiple technologies in a synthetic fixture do not model a real network topology.
+Tests are not accuracy percentages.
