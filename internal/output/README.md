@@ -41,10 +41,16 @@ and `inferred`; neither is a guarantee of the hidden origin's technology.
 `response_scope` describes the inspected response, not its ownership or origin.
 
 Each evidence entry has a `description` and a `signals` array. Matched rules
-also have `rule_id`. A signal has `source` (`header`, `cookie`, or `html`) and
+also have `rule_id`. A signal has `source` (`header`, `cookie`, `html`,
+`asset_javascript`, or `asset_css`) and
 an optional `name` for header names. Inference relationships instead have an
 `inferred_from` technology ID, and an empty `signals` array. An indirect rule
 can have state `inferred` while retaining its own `rule_id` and observed signals.
+An asset rule also records optional `asset_url` on the evidence entry. All its
+signals belong to that one captured asset. Different matching assets retain
+separate evidence entries on a single technology finding; repeated markers in
+the same asset do not duplicate evidence. Inference relationships still point
+to the source technology, whose evidence carries any asset provenance.
 
 All collection fields are arrays, including when empty; they are not `null`.
 Absent optional strings are omitted. A catalog of size 0 is distinct from a
@@ -52,7 +58,7 @@ populated catalog with no findings. There are no confidence scores, raw body
 contents, raw header values, or cookie values in the report. URLs retain query
 strings by default. With `--redact-query`, the query in `url`, `final_url`, and
 every redirect's `from_url`/`to_url`, and every asset item's `url` is replaced with
-`?[redacted]`. Both names and
+`?[redacted]`; this also covers every evidence `asset_url`. Both names and
 values are removed, including bare parameters and malformed query escapes.
 An empty trailing `?` is also replaced; URLs with no query are unchanged.
 Escaped path delimiters such as `%3F` are preserved without decoding.
@@ -61,8 +67,9 @@ Escaped path delimiters such as `%3F` are preserved without decoding.
 were query-free. It is an additive optional field in schema 1; default report
 bytes are unchanged. Redacted URLs are display/export representations and must
 not be interpreted as the exact requested URLs. Redaction copies the report's
-URL fields, redirect slice, asset metadata and item slice; it never mutates the source report/snapshot or
-changes findings, actual requests, referrers, or fetch-error behavior.
+URL fields, redirect slice, asset metadata/item slice and finding/evidence slices;
+it never mutates the source report/snapshot or changes non-URL evidence, actual
+requests, referrers, or fetch-error behavior.
 
 This is not general anonymization. Sensitive hostnames/paths, process arguments,
 shell history, and network/server logs are outside this flag's scope.
@@ -76,13 +83,16 @@ those structures does not implicitly change the public JSON shape.
 ## Optional asset collection
 
 `--assets` adds an `assets` object in schema 1; default JSON is unchanged.
-No asset content contributes findings in this checkpoint (`mode: collection_only`).
+Captured bodies now contribute through supported asset rules
+(`mode: fingerprint_inspection`, replacing the unreleased `collection_only` mode).
+Initial production rules cover only Next.js JS manifests; CSS captures currently
+have no production fingerprints. Collection completeness is not detection coverage.
 Asset failures do not change successful page scans to exit 1; consumers needing
 all selected assets must check the collection status and individual items.
 
 | Field | Meaning |
 | --- | --- |
-| `mode` | Currently `collection_only`; no asset-content findings |
+| `mode` | Currently `fingerprint_inspection`; supported rules inspect captured content without execution |
 | `status` | `complete` within bounded eligible scope, `incomplete`, or whole-pass `skipped` |
 | `reason` | Optional safe summary code |
 | `truncated` | More eligible distinct references existed than the five retained |
@@ -125,7 +135,8 @@ are replaced so they cannot insert terminal commands or extra lines.
 When query redaction is enabled, the report includes a policy note and the
 displayed final URL uses the same `?[redacted]` placeholder as JSON.
 Opt-in asset output includes status, counts, per-item URLs/reasons, and an
-explicit collection-only note. Every asset string uses the same terminal safety
+explicit static-inspection note. Each asset-backed finding displays its evidence
+URL below the rule description. Every asset string uses the same terminal safety
 filter as the rest of the report; optional query redaction happens first.
 
 Color is selected by the CLI; the renderer receives an explicit boolean.

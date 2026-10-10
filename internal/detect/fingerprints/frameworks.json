@@ -55,6 +55,24 @@
       "category": "framework",
       "rules": [
         {
+          "id": "asset-build-manifest",
+          "state": "inferred",
+          "description": "A fetched script contains paired Next.js build-manifest assignment and callback markers",
+          "all": [
+            {"source": "asset_javascript", "pattern": "(?:^|[^A-Za-z0-9_$\\.])self\\s*\\.\\s*__BUILD_MANIFEST\\s*=\\s*(?:\\{|\\(?function\\s*\\()"},
+            {"source": "asset_javascript", "pattern": "(?:^|[^A-Za-z0-9_$\\.])self\\s*\\.\\s*__BUILD_MANIFEST_CB\\s*&&\\s*self\\s*\\.\\s*__BUILD_MANIFEST_CB\\s*\\(\\s*\\)"}
+          ]
+        },
+        {
+          "id": "asset-ssg-manifest",
+          "state": "inferred",
+          "description": "A fetched script contains paired Next.js SSG-manifest assignment and callback markers",
+          "all": [
+            {"source": "asset_javascript", "pattern": "(?:^|[^A-Za-z0-9_$\\.])self\\s*\\.\\s*__SSG_MANIFEST\\s*=\\s*new\\s+Set(?:\\s*\\(|\\s*;)"},
+            {"source": "asset_javascript", "pattern": "(?:^|[^A-Za-z0-9_$\\.])self\\s*\\.\\s*__SSG_MANIFEST_CB\\s*&&\\s*self\\s*\\.\\s*__SSG_MANIFEST_CB\\s*\\(\\s*\\)"}
+          ]
+        },
+        {
           "id": "pages-html-markers",
           "state": "inferred",
           "description": "HTML contains a __NEXT_DATA__ script and a /_next/static/ script reference",

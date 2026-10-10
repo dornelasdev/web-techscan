@@ -43,6 +43,7 @@ type Evidence struct {
 	Description  string   `json:"description"`
 	Signals      []Signal `json:"signals"`
 	InferredFrom string   `json:"inferred_from,omitempty"`
+	AssetURL     string   `json:"asset_url,omitempty"`
 }
 
 type Signal struct {
@@ -81,6 +82,7 @@ func NewReport(snapshot fetch.Snapshot, findings []detect.Finding, catalogSize i
 			detail := Evidence{
 				RuleID: evidence.RuleID, Description: evidence.Description,
 				InferredFrom: evidence.InferredFrom, Signals: make([]Signal, 0, len(evidence.Signals)),
+				AssetURL: evidence.AssetURL,
 			}
 			for _, signal := range evidence.Signals {
 				detail.Signals = append(detail.Signals, Signal{Source: string(signal.Source), Name: signal.Name})
@@ -94,7 +96,7 @@ func NewReport(snapshot fetch.Snapshot, findings []detect.Finding, catalogSize i
 
 // RedactQueries returns a report copy with every URL query replaced. It never
 // modifies the source report or fetch snapshot. QueryRedacted records the policy
-// even when none of the URLs contain a query. Findings are left untouched.
+// even when none of the URLs contain a query. Asset evidence URLs are copied too.
 func (r Report) RedactQueries() Report {
 	r.QueryRedacted = true
 	r.URL = redactURLQuery(r.URL)
@@ -111,6 +113,14 @@ func (r Report) RedactQueries() Report {
 			copy.Items[i].URL = redactURLQuery(copy.Items[i].URL)
 		}
 		r.Assets = &copy
+	}
+	r.Findings = slices.Clone(r.Findings)
+	for i := range r.Findings {
+		r.Findings[i].Evidence = slices.Clone(r.Findings[i].Evidence)
+		for j := range r.Findings[i].Evidence {
+			detail := &r.Findings[i].Evidence[j]
+			detail.AssetURL = redactURLQuery(detail.AssetURL)
+		}
 	}
 	return r
 }

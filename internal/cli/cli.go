@@ -34,7 +34,7 @@ Options:
   --techs                   List supported technologies without fetching a URL
   --json                    Print a JSON scan report or technology catalog
   --redact-query            Redact URL queries in scan reports (default false)
-  --assets                  Collect bounded same-origin JS/CSS (no asset fingerprints yet)
+  --assets                  Inspect bounded same-origin JS/CSS with asset fingerprints
   --color mode              Color: auto, always, never (default auto)
   --no-color                Disable color, overriding --color
   --timeout duration        Total page-and-assets timeout (default 15s)
@@ -170,16 +170,26 @@ func fetchPage(target string, options fetch.Options, presentation outputOptions,
 		fmt.Fprintf(stderr, "webscan: %s\n", err)
 		return exitError
 	}
-	findings := engine.Detect(detect.Input{
+	input := detect.Input{
 		Headers:     snapshot.Headers,
 		CookieNames: snapshot.CookieNames,
 		HTML:        htmlForDetection(snapshot.Headers, snapshot.Body),
-	})
-	report := output.NewReport(*snapshot, findings, engine.Len())
+	}
+	var assetReport *output.AssetReport
 	if collectAssets {
 		collection := assets.Collect(ctx, client, *snapshot)
-		report.Assets = output.NewAssetReport(collection)
+		for _, capture := range collection.Captures {
+			source := detect.AssetJavaScript
+			if capture.Kind == assets.Stylesheet {
+				source = detect.AssetCSS
+			}
+			input.Assets = append(input.Assets, detect.Asset{URL: capture.URL, Source: source, Body: capture.Body})
+		}
+		assetReport = output.NewAssetReport(collection)
 	}
+	findings := engine.Detect(input)
+	report := output.NewReport(*snapshot, findings, engine.Len())
+	report.Assets = assetReport
 	if presentation.redactQuery {
 		report = report.RedactQueries()
 	}

@@ -436,3 +436,41 @@ Detector tests cover exact values, near misses, deduplication, wrong locations,
 and independent WAF evidence in a mixed stack. Local CLI cases cover both output
 formats, status-only negatives, non-HTML responses, redirects, privacy, and request
 counts. Catalog tests cover WAF grouping and offline listing. Tests are user-run.
+
+## Next.js asset manifests — reviewed 2026-10-10
+
+Two additional rules for the existing Next.js entry, available only with
+`--assets`. The catalog remains at eighteen technologies.
+
+| Rule | Same-script evidence | State | Primary source |
+| --- | --- | --- | --- |
+| `asset-build-manifest` | `self.__BUILD_MANIFEST` assignment plus its guarded `__BUILD_MANIFEST_CB` invocation | inferred | [Next.js v15.5.0 client manifest generator](https://github.com/vercel/next.js/blob/v15.5.0/packages/next/src/build/webpack/plugins/build-manifest-plugin.ts#L312-L323) |
+| `asset-ssg-manifest` | `self.__SSG_MANIFEST` Set assignment plus its guarded `__SSG_MANIFEST_CB` invocation | inferred | [Next.js v15.5.0 client SSG manifest writer](https://github.com/vercel/next.js/blob/v15.5.0/packages/next/src/build/index.ts#L538-L566), [empty SSG manifest](https://github.com/vercel/next.js/blob/v15.5.0/packages/next/src/build/webpack/plugins/build-manifest-plugin.ts#L27-L30) |
+
+The build rule accepts an object or anonymous-function expression start, including
+one wrapping parenthesis. The SSG rule accepts `new Set(` or empty `new Set;`.
+Whitespace is allowed around dots/operators; property names are case-sensitive.
+These are conservative text shapes, not JavaScript syntax validation. Bracket
+notation, renamed globals, other serializers, custom output, and unrelated App
+Router/runtime bundles may be missed. The reviewed tag establishes marker
+provenance, not a claim about every Next.js release or bundler.
+
+Both markers must occur in one successfully captured script. A filename, lone
+identifier, pair split across files, CSS body, inline page script or asset header
+does not satisfy these rules. No manifest routes, raw payloads or versions
+are extracted. Evidence records the rule, two `asset_javascript` signal locations
+and that asset's URL; query redaction covers the URL.
+
+Findings remain inferred: copied/commented examples and cached/exported artifacts
+can match without an active Next.js application. No JS execution, hidden-origin
+claim or backend-language inference. Existing header detection can upgrade the
+finding while preserving all separate page/asset evidence. The collector's
+same-origin, first-five and body/deadline limits still apply, so a manifest might
+never be collected. Failure of a later asset does not erase earlier evidence.
+
+Rules and minimal synthetic fixtures were authored for this project after reviewing
+upstream behavior. No application bundles or third-party fingerprint dataset were
+imported. Next.js publishes its source under the [MIT license](https://github.com/vercel/next.js/blob/canary/license.md).
+Tests cover marker boundaries, same-file/source isolation, duplicate evidence,
+header upgrades, redaction, MIME/body failures and default-off behavior. They are
+authored for user execution, not evidence of measured real-world accuracy.

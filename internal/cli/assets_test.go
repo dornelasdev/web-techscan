@@ -113,7 +113,7 @@ func TestCLIOptInAssetsFinalPageScopeAndPrivacy(t *testing.T) {
 					}
 					if setting == "true" {
 						a := report.Assets
-						if a == nil || a.Status != "incomplete" || a.Mode != "collection_only" || a.Attempted != 5 || a.Collected != 2 || !a.Truncated || a.Duplicates != 1 || a.SkippedDeclarations != 1 || len(a.Items) != 5 {
+						if a == nil || a.Status != "incomplete" || a.Mode != "fingerprint_inspection" || a.Attempted != 5 || a.Collected != 2 || !a.Truncated || a.Duplicates != 1 || a.SkippedDeclarations != 1 || len(a.Items) != 5 {
 							t.Fatalf("assets=%+v", a)
 						}
 						for i, want := range []string{"", "", "redirect_not_allowed", "unsuitable_content_type", "unsuccessful_status"} {

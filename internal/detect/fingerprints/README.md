@@ -53,15 +53,22 @@ This illustrates the format, not a real detection rule:
 - Every rule needs an ID, a description, an explicit `detected` or `inferred`
   state, and at least one matcher in `all`. Every matcher must succeed for the
   rule to match. Any matching rule produces a finding for its technology.
-- Sources are `header`, `cookie`, and `html`. Header matchers require a header
+- Page sources are `header`, `cookie`, and `html`. Header matchers require a header
   `name` and inspect each value independently. Header names are case insensitive.
   Cookie matchers inspect cookie names only. HTML matchers inspect raw HTML,
   including asset URL references; they do not parse a DOM or execute scripts.
+- Asset sources are `asset_javascript` and `asset_css`, supplied only from
+  complete, MIME-validated captures when `--assets` is enabled. All matchers in
+  an asset rule must use the same asset source and succeed in the **same body**.
+  Mixed page/asset or JS/CSS rules and asset matcher names are rejected. No
+  filename/URL matching, asset headers, content concatenation or execution.
 - Patterns use Go regular expressions and are case sensitive unless they
   include `(?i)`. Use anchors and explicit boundaries where appropriate.
   Invalid patterns and patterns matching empty input are rejected.
 - An absent signal cannot match. Multiple occurrences of a signal produce
-  one piece of evidence per matching rule, rather than duplicate findings.
+  one piece of evidence per matching page rule. Asset rules produce one piece
+  per matching rule/asset URL, retaining separate provenance across files without
+  duplicating the technology finding.
 - The CLI supplies HTML only for `text/html` or `application/xhtml+xml`. It
   sniffs the body only when Content-Type is absent. Explicit non-HTML types
   are excluded from HTML matching; headers and cookie names remain available.
@@ -71,7 +78,9 @@ This illustrates the format, not a real detection rule:
 ## Evidence and inference
 
 Descriptions explain why a rule supports a finding. Evidence includes the rule
-ID and signal locations, not captured response values. There are no confidence
+ID and signal locations, not captured response values. Asset evidence additionally
+includes `asset_url`, with the existing report redaction/display policies applied.
+There are no confidence
 percentages or automatic version extraction in this format.
 
 `implies` lists supported technology relationships. Targets must exist in the
@@ -86,7 +95,8 @@ immediate source technology ID so a chain can be traced through the findings.
 
 Results are ordered by technology ID. Matching rules are ordered by rule ID;
 inference processing also uses a stable order. The engine does not retain
-page data or findings between scans.
+page data, assets or findings between scans. Within each asset rule, evidence
+follows capture order, deduplicating identical URLs after a successful match.
 
 ## Adding coverage
 
@@ -96,6 +106,9 @@ tests. Rules that rely on indirect signals should use `inferred`; generic
 markers should not become findings without sufficient supporting conditions.
 Raw HTML regexes can also match comments or examples, so choose distinctive
 patterns and document those limitations when reviewing coverage.
+The same limitation applies to asset regexes: code-shaped text may be copied or
+commented out. Initial asset coverage adds only two inferred Next.js JS manifest
+rules; no CSS production fingerprints, language implication or version extraction.
 
 Unknown JSON fields, unsupported schema versions, and invalid relationships
 fail catalog loading instead of silently reducing coverage. Changes to this

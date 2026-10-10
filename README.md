@@ -22,7 +22,7 @@ CSRF metadata inference, bringing coverage to eighteen technologies.
 These additions are unreleased;
 no new version is assigned. Default scans collect one final HTTP response;
 optional `--assets` adds bounded same-origin JS/CSS collection and reporting.
-Asset contents do not contribute findings yet.
+Initial asset-content rules infer Next.js from paired generated-manifest markers.
 
 ## Supported technologies
 
@@ -52,7 +52,7 @@ explicitly set to false.
 | Category | Technologies | Signals |
 | --- | --- | --- |
 | Web servers | nginx, Apache HTTP Server, Microsoft IIS | Identifying Server header |
-| Frameworks | Express, Next.js | Identifying X-Powered-By header; paired Next.js HTML markers also support an inference |
+| Frameworks | Express, Next.js | Identifying X-Powered-By header; paired Next.js HTML markers or opt-in JS manifest markers support an inference |
 | Frameworks | Laravel | Paired default cookie names support an inference |
 | Frameworks | Nuxt | Exact Nuxt X-Powered-By header; paired __NUXT_DATA__ script ID and /_nuxt/ script path support an inference |
 | Frameworks | Django | Default CSRF cookie name plus matching hidden-input markup support an inference |
@@ -183,7 +183,7 @@ See the [JSON contract](internal/output/README.md) for fields and semantics.
 Use `--redact-query` to replace the entire query (parameter names and values) in
 every report URL with `?[redacted]`. This covers original/final URLs and both
 ends of every redirect hop, plus every reported asset URL (including failed or
-skipped items). URLs without a query are unchanged. Terminal output
+skipped items and finding evidence URLs). URLs without a query are unchanged. Terminal output
 notes the policy; JSON includes optional `query_redacted: true` whenever enabled,
 even if no URL had a query. Default output is unchanged.
 
@@ -249,14 +249,14 @@ with `--json`; `--techs --json` uses its separate catalog contract.
   and body content. Cookie values in `Set-Cookie` are discarded; redirect
   metadata is separate from the final page's detection inputs.
 
-## Optional asset collection
+## Optional asset inspection
 
 ```sh
 ./bin/webscan --assets --redact-query --json https://example.com
 ```
 
-This checkpoint collects and reports assets only; it adds no fingerprints and
-does not execute JavaScript. Default scans are unchanged. The optional `assets`
+This opt-in collects bounded assets and checks their content against supported
+fingerprints without executing JavaScript. Default scans are unchanged. The optional `assets`
 JSON object and terminal section expose complete/incomplete/skipped collection,
 safe failure reasons, counts, and per-asset metadata. `complete` means only the
 selected, bounded same-origin scope, not complete coverage of the site.
@@ -281,7 +281,14 @@ selected, bounded same-origin scope, not complete coverage of the site.
   failures skip collection with a reason, without discarding page findings.
 
 Asset headers are never attributed to the page's server, and asset bodies are
-neither combined with HTML nor printed. See the [collection policy](internal/assets/README.md)
+neither combined with HTML nor printed. All markers in an asset rule must match
+one file; findings retain that file's URL as evidence. Initial rules cover only
+Next.js build/SSG manifests and remain **inferred**: copied, cached or commented
+code can still match. They do not establish that a script ran or identify a
+backend language/version. CSS is collected but has no production fingerprints yet.
+Catalog size stays at eighteen; existing page/header rules remain available.
+See the [reviewed rules and limitations](internal/detect/fingerprints/SOURCES.md#nextjs-asset-manifests--reviewed-2026-10-10),
+[collection policy](internal/assets/README.md)
 and [report contract](internal/output/README.md#optional-asset-collection).
 
 ## Structure
@@ -294,7 +301,7 @@ See its [scope and limits](internal/assets/README.md).
 to `internal/cli`. `internal/fetch` handles URL validation and bounded HTTP
 retrieval, returning a snapshot for offline inspection. `internal/detect`
 loads and validates JSON fingerprints, compiles patterns once, and matches
-headers, cookie names, and HTML without network access. Fingerprints are
+headers, cookie names, HTML and separate captured assets without network access. Fingerprints are
 embedded in the executable so adding technology coverage does not require
 changes to the CLI. `internal/output` builds the public report representation
 and renders either terminal text or JSON independently of detection.
@@ -305,8 +312,9 @@ recorded. Direct detections are never downgraded by inference. Invalid rules
 or cyclic relationships fail catalog loading. See the
 [fingerprint format](internal/detect/fingerprints/README.md) for authoring details.
 
-Detection inspects the final response only, which may be a proxy or an error
-page. It does not establish the stack of a hidden origin server. There are no
+Detection inspects the final page, plus directly referenced same-origin assets
+when requested. The page may come from a proxy or be an error page; asset contents
+may be copied or cached. It does not establish the stack of a hidden origin server. There are no
 confidence percentages.
 
 The module remains named `webscan`, with the executable entry point at the
@@ -349,6 +357,8 @@ The fixture integration checks exercise both output formats, detected/inferred
 state handling, redirect isolation, and default absence of asset/link fetching.
 Dedicated opt-in checks cover asset limits, MIME validation, no asset redirects,
 shared deadlines, failure accounting, query redaction, and page-result preservation.
+Asset fingerprints have positive/near-miss fixtures, cross-file/source isolation,
+deterministic evidence, page-header upgrades and redaction of evidence URLs.
 The synthetic mixed-stack fixture also combines application, CDN, load-balancer,
 and WAF signals to check evidence preservation, duplicate signals, misleading
 near-matches, challenge/error responses, and body-limit failures without partial
@@ -422,7 +432,8 @@ Stop the Python server with Ctrl-C when finished.
 - The CLI inspects one final HTTP response, not the whole site's stack. HTTP error
   pages and intermediaries can expose different technologies from the application.
 - CSS/JS contents are downloaded only with `--assets`, within its narrow limits;
-  asset-content detection is not implemented yet. JavaScript is not executed, so
+  initial content coverage is limited to two Next.js JS manifest signatures.
+  JavaScript is not executed, so
   runtime variables, dynamically added DOM content, and browser-triggered
   requests are unavailable. There is no crawling, path guessing, or port scanning.
 - HTML rules use raw-text patterns, not a DOM parser. Copied markup or comments
@@ -441,6 +452,6 @@ Stop the Python server with Ctrl-C when finished.
 
 Possible later increments include more infrastructure fingerprints from exposed
 response signals (additional CDN/edge, load-balancer, and WAF coverage), broader curated
-coverage, asset-specific fingerprints, and an optional browser-backed mode. These
+coverage, more asset-specific fingerprints, and an optional browser-backed mode. These
 are directions, not implemented features or a promise of Wappalyzer coverage parity.
 Go and the CLI interface do not impose the current collection limits.

@@ -1,8 +1,9 @@
 # Bounded asset collection
 
 `Extract` is offline reference discovery. `Collect` connects it to opt-in
-`--assets` collection, preserving each captured body separately. This checkpoint
-has no asset-content fingerprints: default scanning and all findings are unchanged.
+`--assets` collection, preserving each captured body separately. The CLI passes
+accepted captures to the offline detector's separate JS/CSS inputs. Initial
+content fingerprints cover Next.js manifests; default page-only scans are unchanged.
 
 ## Parser and inputs
 
@@ -126,11 +127,19 @@ the bounded eligible scope. Off-origin/ineligible declarations are counted,
 not coverage failures. Zero eligible assets can be complete. Page findings
 survive all optional failures; JSON/terminal metadata makes limitations explicit.
 
-## Next checkpoint (not implemented here)
+## Offline detection handoff
 
-Asset-specific detection/evidence with reviewed initial JS/CSS fingerprints.
-Keep each asset separate; do not treat asset headers as the page server's
-identity or concatenate asset text into HTML.
+Only `Captures` (complete, accepted bodies) reach the detector. Collection failures
+never supply partial bodies; previously captured assets remain usable. JS/CSS kinds
+map to separate matcher sources. Asset headers never identify the page server,
+and bodies are never concatenated with each other or HTML. Rules cannot combine
+markers across files. No character transcoding, JS/CSS parsing or execution is
+introduced; raw text can include copied/commented examples.
+
+The first two production rules infer Next.js from paired build/SSG manifest
+markers. CSS is collected but has no production fingerprint yet. Evidence retains
+each matched asset URL, subject to report redaction and display sanitization.
+See [rule rationale and sources](../detect/fingerprints/SOURCES.md#nextjs-asset-manifests--reviewed-2026-10-10).
 
 User-run checks: `go test ./...`. Tests use inline fixtures and local servers,
 not live third-party sites.

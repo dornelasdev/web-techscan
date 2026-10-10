@@ -30,7 +30,7 @@ type AssetItem struct {
 
 func NewAssetReport(collection assets.Collection) *AssetReport {
 	report := &AssetReport{
-		Mode: "collection_only", Status: collection.Status, Reason: collection.Reason,
+		Mode: "fingerprint_inspection", Status: collection.Status, Reason: collection.Reason,
 		Truncated: collection.Truncated, SkippedDeclarations: collection.SkippedDeclarations,
 		Duplicates: collection.Duplicates, Attempted: collection.Attempted, Collected: collection.Collected,
 		DecodedBytes: collection.Usage.Decoded, EncodedBytes: collection.Usage.Encoded,

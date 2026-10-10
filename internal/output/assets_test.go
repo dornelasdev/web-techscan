@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"webscan/internal/assets"
+	"webscan/internal/detect"
 	"webscan/internal/fetch"
 	"webscan/internal/output"
 )
@@ -58,8 +59,8 @@ func TestAssetReportRedactionSafetyAndNoBodies(t *testing.T) {
 			if r.QueryRedacted && strings.Contains(data.String(), "private-") {
 				t.Fatal("query leaked in terminal output")
 			}
-			if !strings.Contains(data.String(), "Assets: incomplete") || !strings.Contains(data.String(), "Collection only") {
-				t.Error("missing coverage/collection-only warning")
+			if !strings.Contains(data.String(), "Assets: incomplete") || !strings.Contains(data.String(), "scripts are not executed") {
+				t.Error("missing coverage/inspection note")
 			}
 		}
 	}
@@ -67,6 +68,62 @@ func TestAssetReportRedactionSafetyAndNoBodies(t *testing.T) {
 	redacted.Assets.Status = "changed"
 	if report.Assets.Items[0].URL != url || report.Assets.Status != "incomplete" {
 		t.Error("report shares mutable redaction metadata")
+	}
+}
+
+func TestAssetEvidenceURLRedactionAndCopy(t *testing.T) {
+	for _, url := range []string{"https://example.test/a%3Fb?private-token=1", "https://example.test/a?", "https://example.test/a?private-key=café\u202e\u2028\u001b", "https://example.test/a"} {
+		findings := []detect.Finding{{ID: "nextjs", Name: "Next.js", State: detect.Inferred, Category: detect.Framework,
+			Evidence: []detect.Evidence{{RuleID: "asset-build-manifest", Description: "Synthetic asset markers", AssetURL: url, Signals: []detect.Signal{{Source: detect.AssetJavaScript}}}},
+		}}
+		report := output.NewReport(fetch.Snapshot{OriginalURL: "https://example.test/", FinalURL: "https://example.test/"}, findings, 18)
+		redacted := report.RedactQueries()
+		want, _, hasQuery := strings.Cut(url, "?")
+		if hasQuery {
+			want += "?[redacted]"
+		}
+		if redacted.Findings[0].Evidence[0].AssetURL != want || report.Findings[0].Evidence[0].AssetURL != url || findings[0].Evidence[0].AssetURL != url {
+			t.Fatal("asset evidence redaction leaked/mutated")
+		}
+		if !reflect.DeepEqual(redacted.RedactQueries(), redacted) {
+			t.Error("evidence redaction not idempotent")
+		}
+		for _, r := range []output.Report{report, redacted} {
+			var data bytes.Buffer
+			if err := output.JSON(&data, r); err != nil {
+				t.Fatal(err)
+			}
+			var decoded output.Report
+			if err := json.Unmarshal(data.Bytes(), &decoded); err != nil {
+				t.Fatal(err)
+			}
+			if !reflect.DeepEqual(r, decoded) {
+				t.Error("asset evidence JSON round trip changed")
+			}
+			if r.QueryRedacted && strings.Contains(data.String(), "private-") {
+				t.Error("query leaked through evidence JSON")
+			}
+			for _, color := range []bool{false, true} {
+				data.Reset()
+				if err := output.Terminal(&data, r, color); err != nil {
+					t.Fatal(err)
+				}
+				if strings.ContainsAny(data.String(), "\u202e\u2028") || strings.Contains(data.String(), "\x1b\n") {
+					t.Error("unsafe asset evidence URL display")
+				}
+				if r.QueryRedacted && (!strings.Contains(data.String(), "Asset: "+want+"\n") || strings.Contains(data.String(), "private-")) {
+					t.Fatal("redacted terminal evidence mismatch")
+				}
+			}
+		}
+		redacted.Findings[0].Evidence[0].AssetURL = "changed"
+		if report.Findings[0].Evidence[0].AssetURL != url {
+			t.Error("redaction shares mutable evidence")
+		}
+		findings[0].Evidence[0].AssetURL = "changed"
+		if report.Findings[0].Evidence[0].AssetURL != url {
+			t.Error("report shares detector evidence")
+		}
 	}
 }
 
@@ -85,7 +142,7 @@ func TestEmptyAssetReportArrayAndDefaultOmission(t *testing.T) {
 		if err := output.JSON(&data, r); err != nil {
 			t.Fatal(err)
 		}
-		if !strings.Contains(data.String(), `"items": []`) || !strings.Contains(data.String(), `"mode": "collection_only"`) {
+		if !strings.Contains(data.String(), `"items": []`) || !strings.Contains(data.String(), `"mode": "fingerprint_inspection"`) {
 			t.Fatalf("invalid empty assets: %s", &data)
 		}
 	}

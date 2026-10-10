@@ -23,6 +23,7 @@ type compiledRule struct {
 	id, description string
 	state           State
 	matchers        []compiledMatcher
+	assetSource     Source // Empty for page rules; otherwise all matchers share it.
 }
 
 type compiledMatcher struct {
@@ -56,7 +57,8 @@ func (e *Engine) Detect(input Input) []Finding {
 	var queue []string
 	for _, tech := range e.technologies {
 		for _, rule := range tech.rules {
-			if !rule.matches(input, headers) {
+			evidence := rule.evidence(input, headers)
+			if len(evidence) == 0 {
 				continue
 			}
 			finding, exists := found[tech.id]
@@ -68,11 +70,7 @@ func (e *Engine) Detect(input Input) []Finding {
 			if rule.state == Detected {
 				finding.State = Detected
 			}
-			evidence := Evidence{RuleID: rule.id, Description: rule.description}
-			for _, matcher := range rule.matchers {
-				evidence.Signals = append(evidence.Signals, Signal{Source: matcher.source, Name: matcher.name})
-			}
-			finding.Evidence = append(finding.Evidence, evidence)
+			finding.Evidence = append(finding.Evidence, evidence...)
 		}
 	}
 	// Each technology is queued once. Keep every supporting inference edge,
@@ -102,7 +100,37 @@ func (e *Engine) Detect(input Input) []Finding {
 	return results
 }
 
-func (r compiledRule) matches(input Input, headers map[string][]string) bool {
+func (r compiledRule) evidence(input Input, headers map[string][]string) []Evidence {
+	makeEvidence := func(url string) Evidence {
+		item := Evidence{RuleID: r.id, Description: r.description, AssetURL: url}
+		for _, matcher := range r.matchers {
+			item.Signals = append(item.Signals, Signal{Source: matcher.source, Name: matcher.name})
+		}
+		return item
+	}
+	if r.assetSource == "" {
+		if r.matches(input, headers, nil) {
+			return []Evidence{makeEvidence("")}
+		}
+		return nil
+	}
+	var result []Evidence
+	seen := make(map[string]bool)
+	for _, asset := range input.Assets {
+		if asset.Source != r.assetSource || asset.URL == "" || seen[asset.URL] {
+			continue
+		}
+		// All conditions must match this body, never a concatenation or a
+		// pair split across files. Input order preserves collection order.
+		if r.matches(input, headers, asset.Body) {
+			seen[asset.URL] = true
+			result = append(result, makeEvidence(asset.URL))
+		}
+	}
+	return result
+}
+
+func (r compiledRule) matches(input Input, headers map[string][]string, assetBody []byte) bool {
 	for _, matcher := range r.matchers {
 		var matched bool
 		switch matcher.source {
@@ -112,6 +140,8 @@ func (r compiledRule) matches(input Input, headers map[string][]string) bool {
 			matched = matchesAny(matcher.pattern, input.CookieNames)
 		case HTML:
 			matched = matcher.pattern.Match(input.HTML)
+		case AssetJavaScript, AssetCSS:
+			matched = matcher.pattern.Match(assetBody)
 		}
 		if !matched {
 			return false

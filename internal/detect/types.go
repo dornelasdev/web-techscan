@@ -1,4 +1,4 @@
-// Package detect matches captured page signals without performing network I/O.
+// Package detect matches captured page and asset signals without network I/O.
 package detect
 
 import "net/http"
@@ -25,17 +25,28 @@ const (
 type Source string
 
 const (
-	Header Source = "header"
-	Cookie Source = "cookie"
-	HTML   Source = "html"
+	Header          Source = "header"
+	Cookie          Source = "cookie"
+	HTML            Source = "html"
+	AssetJavaScript Source = "asset_javascript"
+	AssetCSS        Source = "asset_css"
 )
 
-// Input contains only final-response signals. HTML is populated by the caller
-// for HTML documents, not arbitrary response bodies or redirect pages.
+// Input keeps final-page signals separate from successfully collected assets.
+// HTML is populated only for HTML documents, never asset or redirect bodies.
 type Input struct {
 	Headers     http.Header
 	CookieNames []string
 	HTML        []byte
+	Assets      []Asset
+}
+
+// Asset is one complete, MIME-validated captured body, not an executed script.
+// The caller owns selection/fetching. Source must be AssetJavaScript or AssetCSS.
+type Asset struct {
+	URL    string
+	Source Source
+	Body   []byte
 }
 
 type Finding struct {
@@ -60,6 +71,7 @@ type Evidence struct {
 	Description  string
 	Signals      []Signal
 	InferredFrom string
+	AssetURL     string // Present only for a rule matched within this one asset.
 }
 
 type Signal struct {

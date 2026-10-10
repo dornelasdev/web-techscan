@@ -2,13 +2,23 @@
 
 ## Unreleased
 
+- Added initial opt-in asset-content inference for Next.js build/SSG manifests,
+  with separate JS/CSS matcher sources and same-file rule evaluation. Evidence
+  retains each matching asset URL, covered by query redaction and terminal
+  sanitization. Asset headers never become page findings; failed/partial captures
+  are excluded. Existing header detections can upgrade findings without losing
+  asset evidence. The catalog remains at eighteen technologies; no CSS production
+  rules, language/version inference, JS execution or network-policy changes.
+  Added detector validation/isolation, provenance and local CLI regressions.
+  Asset report mode is now `fingerprint_inspection`; default scans are unchanged.
 - Added opt-in `--assets` collection/reporting: up to five sequential same-origin
   direct JS/CSS assets, no asset redirects, one page-and-assets deadline, per-asset
   and aggregate decoded/encoded budgets including failed reads. MIME/status checks
   and safe per-item failure/skip reasons preserve page findings on optional failure.
   Added optional schema-1 `assets` metadata, asset URL query redaction and terminal
-  sanitization. Default scans and findings are unchanged; asset fingerprints are
-  deferred. Added local collection, accounting, privacy and integration regressions.
+  sanitization. Default scans and findings were unchanged in that checkpoint;
+  initial fingerprints are now included above. Added local collection, accounting,
+  privacy and integration regressions.
 - Added offline asset-reference extraction groundwork using a pinned Go HTML
   parser: same-origin JS/CSS references, base resolution, deduplication, and
   bounded candidates/input, with positive/negative regression fixtures. This is

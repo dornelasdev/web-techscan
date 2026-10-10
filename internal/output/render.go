@@ -45,7 +45,7 @@ func Terminal(w io.Writer, report Report, color bool) error {
 			}
 			fmt.Fprintln(&text)
 		}
-		fmt.Fprintln(&text, "  Collection only; asset contents do not contribute findings yet.")
+		fmt.Fprintln(&text, "  Captured assets are checked against supported content fingerprints; scripts are not executed.")
 		fmt.Fprintln(&text)
 	}
 	if report.CatalogSize == 0 {
@@ -69,6 +69,9 @@ func Terminal(w io.Writer, report Report, color bool) error {
 			fmt.Fprintf(&text, "%s %s [%s]\n", marker(finding.State, color), plain(finding.Name), plain(category))
 			for _, evidence := range finding.Evidence {
 				fmt.Fprintf(&text, "  - %s\n", plain(evidence.Description))
+				if evidence.AssetURL != "" {
+					fmt.Fprintf(&text, "    Asset: %s\n", plain(evidence.AssetURL))
+				}
 			}
 		}
 		fmt.Fprintf(&text, "\n%s Detected  %s Inferred\n", marker("detected", color), marker("inferred", color))
