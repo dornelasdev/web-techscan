@@ -3,7 +3,8 @@
 `Extract` is offline reference discovery. `Collect` connects it to opt-in
 `--assets` collection, preserving each captured body separately. The CLI passes
 accepted captures to the offline detector's separate JS/CSS inputs. Initial
-content fingerprints cover Next.js manifests; default page-only scans are unchanged.
+content fingerprints cover Next.js manifests and Bootstrap CSS.
+See [user policies](../../docs/policies.md#asset-inspection) for scan scope and limits.
 
 ## Parser and inputs
 
@@ -136,10 +137,10 @@ and bodies are never concatenated with each other or HTML. Rules cannot combine
 markers across files. No character transcoding, JS/CSS parsing or execution is
 introduced; raw text can include copied/commented examples.
 
-The first two production rules infer Next.js from paired build/SSG manifest
-markers. CSS is collected but has no production fingerprint yet. Evidence retains
+Production asset rules infer Next.js from paired build/SSG manifest markers and
+Bootstrap from paired banner/button CSS markers. Evidence retains
 each matched asset URL, subject to report redaction and display sanitization.
-See [rule rationale and sources](../detect/fingerprints/SOURCES.md#nextjs-asset-manifests--reviewed-2026-10-10).
+See [rule rationale and sources](../../docs/fingerprints.md).
 
 User-run checks: `go test ./...`. Tests use inline fixtures and local servers,
 not live third-party sites.

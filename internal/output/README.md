@@ -1,5 +1,8 @@
 # Output contract
 
+See [usage](../../docs/usage.md#output) for commands and
+[privacy policies](../../docs/policies.md#privacy) for report handling.
+
 `--json <url>` writes one scan report to stdout, indented with two spaces and followed
 by a newline. No status messages, terminal symbols, or ANSI styling are mixed
 into this stream. Diagnostics go to stderr. Successful HTTP retrieval with no
@@ -17,7 +20,7 @@ exit code too.
 | `query_redacted` | boolean, optional | `true` when query redaction is enabled for this report; omitted by default |
 | `http_status` | integer | Final response's HTTP status code |
 | `response_scope` | string | `final_response` or `http_error_response` for status 400 and above |
-| `body_bytes` | integer | Size of the captured body after any automatic gzip decompression |
+| `body_bytes` | integer | Size of the captured final-page body after supported content decoding |
 | `catalog_size` | integer | Number of technologies in the loaded catalog, not the number found |
 | `redirects` | array | Followed hops in request order, each with `from_url`, `to_url`, and `status_code` |
 | `findings` | array | Findings ordered by technology ID |

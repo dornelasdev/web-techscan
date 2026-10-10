@@ -6,7 +6,7 @@ inference relationships may reference technology IDs in another file.
 
 The catalog is split across `servers.json`, `frameworks.json`, `ui-frameworks.json`, `cms.json`,
 `languages.json`, `cdn.json`, `load-balancers.json`, and `waf.json`.
-See [coverage and sources](SOURCES.md) for the supported
+See [coverage and sources](../../../docs/fingerprints.md) for the supported
 technologies, rule rationale, and limitations. Synthetic examples live under
 `../testdata/` and are never embedded.
 
@@ -48,7 +48,7 @@ This illustrates the format, not a real detection rule:
 
 - Technology IDs are unique across files. Rule IDs are unique within a
   technology. IDs use lowercase letters, digits, and single separating hyphens.
-- Categories are `framework`, `web_server`, `cms`, `language`, `cdn` (CDN/edge),
+- Categories are `framework`, `ui_framework`, `web_server`, `cms`, `language`, `cdn` (CDN/edge),
   `load_balancer`, and `waf`.
 - Every rule needs an ID, a description, an explicit `detected` or `inferred`
   state, and at least one matcher in `all`. Every matcher must succeed for the
