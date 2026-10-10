@@ -9,8 +9,9 @@
   Ruby on Rails CSRF metadata inference.
 - Added Bootstrap CSS inference under UI frameworks.
 - Added paired React 19-shaped client runtime inference in captured JavaScript.
-- Added ReactDOM 18-shaped key/error-formatter inference for the existing React
-  finding, with compatibility decoys and client/renderer coexistence checks.
+- Added ReactDOM 18/19-shaped key/error-formatter inference for the existing React
+  finding, accepting exact legacy/modern error URLs with compatibility decoys
+  and client/renderer coexistence checks.
 - Added Vue 3-shaped renderer runtime inference from three paired JS markers.
   The catalog now has 21 technologies.
 - Added opt-in `--assets` inspection of direct same-origin JS/CSS, with fixed

@@ -30,6 +30,8 @@ func TestCLIReactRuntimeAssets(t *testing.T) {
 		{"react-19-client.min.js", "asset-client-runtime", 2},
 		{"react-dom-18.js", "asset-dom-runtime", 5},
 		{"react-dom-18.min.js", "asset-dom-runtime", 5},
+		{"react-dom-19.js", "asset-dom-runtime", 5},
+		{"react-dom-19.min.js", "asset-dom-runtime", 5},
 	} {
 		body, err := os.ReadFile("../detect/testdata/coverage/" + fixture.name)
 		if err != nil {
@@ -112,7 +114,7 @@ func TestCLIReactRuntimeAssets(t *testing.T) {
 							t.Error("query leaked in output")
 						}
 					}
-					for _, raw := range []string{"private-runtime-body", "__CLIENT_INTERNALS", "react.transitional.element", "__reactFiber$", "__reactProps$", "__reactContainer$", "Minified React error #", "reactjs.org/docs/error-decoder", "Next.js"} {
+					for _, raw := range []string{"private-runtime-body", "__CLIENT_INTERNALS", "__DOM_INTERNALS", "react.transitional.element", "__reactFiber$", "__reactProps$", "__reactContainer$", "Minified React error #", "reactjs.org/docs/error-decoder", "react.dev/errors/", "Next.js"} {
 						if strings.Contains(stdout.String(), raw) {
 							t.Errorf("raw asset/body/header leaked: %s", raw)
 						}

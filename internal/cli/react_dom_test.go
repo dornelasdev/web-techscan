@@ -17,17 +17,33 @@ import (
 )
 
 func TestCLIReactRuntimeCoexistence(t *testing.T) {
+	for _, fixture := range []string{"react-dom-18.min.js", "react-dom-19.min.js"} {
+		t.Run(fixture, func(t *testing.T) { testCLIReactRuntimeCoexistence(t, fixture) })
+	}
+}
+
+func testCLIReactRuntimeCoexistence(t *testing.T, fixture string) {
+	t.Helper()
 	client, err := os.ReadFile("../detect/testdata/coverage/react-19-client.min.js")
 	if err != nil {
 		t.Fatal(err)
 	}
-	dom, err := os.ReadFile("../detect/testdata/coverage/react-dom-18.min.js")
+	dom, err := os.ReadFile("../detect/testdata/coverage/" + fixture)
 	if err != nil {
 		t.Fatal(err)
 	}
 	// Split the renderer's five conditions across two accepted files.
 	keys := `var f="__reactFiber$"+k,p="__reactProps$"+k,c="__reactContainer$"+k;`
 	errors := `var u="https://reactjs.org/docs/error-decoder.html?invariant="+n;var m="Minified React error #"+n+"; visit "+u;`
+	otherFixture := "react-dom-19.min.js"
+	if fixture == "react-dom-19.min.js" {
+		errors = strings.ReplaceAll(errors, "https://reactjs.org/docs/error-decoder.html?invariant=", "https://react.dev/errors/")
+		otherFixture = "react-dom-18.min.js"
+	}
+	otherDOM, err := os.ReadFile("../detect/testdata/coverage/" + otherFixture)
+	if err != nil {
+		t.Fatal(err)
+	}
 	compat := `e.version="18.3.1";e.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED=n;Symbol.for("react.element");`
 	for _, format := range []string{"json", "plain", "color"} {
 		for _, redact := range []bool{false, true} {
@@ -42,6 +58,8 @@ func TestCLIReactRuntimeCoexistence(t *testing.T) {
 				{"failed-renderer", string(client), string(dom), true, []string{"asset-client-runtime"}, []string{"/one"}},
 				{"split-renderer", keys, errors, false, nil, nil},
 				{"compat-decoy", compat, "generic", false, nil, nil},
+				{"both-url-forms-same-body", string(dom) + string(otherDOM), "generic", false, []string{"asset-dom-runtime"}, []string{"/one"}},
+				{"both-url-forms-separate-bodies", string(dom), string(otherDOM), false, []string{"asset-dom-runtime", "asset-dom-runtime"}, []string{"/one", "/two"}},
 			} {
 				t.Run(fmt.Sprintf("%s/%s/redact=%t", tc.name, format, redact), func(t *testing.T) {
 					var mu sync.Mutex
@@ -108,7 +126,7 @@ func TestCLIReactRuntimeCoexistence(t *testing.T) {
 							t.Error("query leaked")
 						}
 					}
-					for _, raw := range []string{"private-runtime-body", "private-cookie-value", "__reactFiber$", "Minified React error #", "__CLIENT_INTERNALS", "Express", "18.3.1"} {
+					for _, raw := range []string{"private-runtime-body", "private-cookie-value", "__reactFiber$", "Minified React error #", "__CLIENT_INTERNALS", "__DOM_INTERNALS", "react.dev/errors/", "reactjs.org/docs/error-decoder", "Express", "18.3.1", "19.1.0"} {
 						if strings.Contains(stdout.String(), raw) {
 							t.Errorf("raw body/header leaked: %s", raw)
 						}

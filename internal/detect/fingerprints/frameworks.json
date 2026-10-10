@@ -162,7 +162,7 @@
             },
             {
               "source": "asset_javascript",
-              "pattern": "(?:\"https://reactjs\\.org/docs/error-decoder\\.html\\?invariant=\"|'https://reactjs\\.org/docs/error-decoder\\.html\\?invariant=')\\s*\\+\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*(?:[;,}]|$)"
+              "pattern": "(?:\"https://(?:reactjs\\.org/docs/error-decoder\\.html\\?invariant=|react\\.dev/errors/)\"|'https://(?:reactjs\\.org/docs/error-decoder\\.html\\?invariant=|react\\.dev/errors/)')\\s*\\+\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*(?:[;,}]|$)"
             },
             {
               "source": "asset_javascript",

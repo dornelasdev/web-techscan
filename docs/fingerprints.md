@@ -184,25 +184,32 @@ State: `inferred`. Requires all five:
 
 - Identifier assignments constructing `__reactFiber$`, `__reactProps$`, and
   `__reactContainer$` keys, each as a quoted prefix plus an identifier suffix.
-- The exact quoted `https://reactjs.org/docs/error-decoder.html?invariant=`
-  URL concatenated with an identifier-shaped error code.
+- The exact quoted `https://reactjs.org/docs/error-decoder.html?invariant=` or
+  `https://react.dev/errors/` URL concatenated with an identifier-shaped error code.
 - The exact quoted `Minified React error #` string concatenated with an
   identifier-shaped code, then the quoted `; visit ` string.
 
 Allow whitespace, either quote style, and renamed ASCII identifiers. Key
 assignments start at body start or after a semicolon, comma, or brace, optionally
 with `var`, `let`, or `const`. They and the URL/code concatenation end with a
-semicolon, comma, closing brace, or end of body. Bare strings, reads/comparisons, qualified key
-assignment targets, function-call suffixes/codes, generic ReactDOM APIs, partial
+semicolon, comma, closing brace, or end of body. Bare strings, reads/comparisons,
+qualified key assignment targets, function-call suffixes/codes, generic ReactDOM APIs, partial
 marker sets, and split captures do not match. The engine does not verify shared
 suffix variables, function scope, or execution. Escaped literals, changed
-serializers, development builds and the newer `react.dev/errors/` URL are outside
-this rule. No requirement that the separate React client rule also match.
+serializers and development builds are outside this rule. No requirement that
+the separate React client rule also match. Both URL alternatives use the same
+rule ID and five signal locations; multiple matching forms in one capture do not
+duplicate rule/URL evidence.
 
-The reviewed renderer baseline is ReactDOM 18.3.1's published minified UMD build
-(131,835 bytes, below the 512 KiB decoded asset cap). All five markers occur there;
-none occur in the reviewed Preact 10.26.4 compatibility UMD build. The older
-internals export plus `react.element` occurs in both and is not a fallback.
+Reviewed renderer baselines: ReactDOM 18.3.1's published minified UMD build
+(131,835 bytes) and ReactDOM 19.1.0's published client production CJS build.
+Both contain the three key constructions and message shape, with legacy and
+modern error URLs respectively. The latter reads the client internals export;
+that read alone does not satisfy the separate client-assignment rule. CJS is a
+package-build reference, not a claim of direct browser execution. None of the
+key/error markers occur in the reviewed Preact 10.26.4 compatibility UMD build.
+The older internals export plus `react.element` occurs in the reviewed ReactDOM
+18 and Preact artifacts and is not a fallback.
 This comparison does not establish every compatibility library or build form.
 Readable/compact fixtures are authored scaffolds, not full upstream bundles.
 Neither rule reports a version or establishes an entire React major-version range.
@@ -213,6 +220,11 @@ or split runtime output can be missed. Copied/commented code and forks retaining
 the marker sets can match; runtime execution/use is not established. Next.js
 does not automatically imply React. No backend language implication.
 
+The ReactDOM 19 reference is listed at about 515 kB, close to the 512 KiB decoded
+asset cap; the exact byte count was not verified. Site bundles can differ in
+size and shape, and oversized captures remain rejected. Collection limits are
+unchanged; no imports are followed or package dependencies executed.
+
 Reviewed 2026-10-10. Sources:
 [v19.1.0 client exports](https://github.com/facebook/react/blob/v19.1.0/packages/react/src/ReactClient.js),
 [element symbols](https://github.com/facebook/react/blob/v19.1.0/packages/shared/ReactSymbols.js),
@@ -220,6 +232,8 @@ Reviewed 2026-10-10. Sources:
 [v18.3.1 DOM keys](https://github.com/facebook/react/blob/v18.3.1/packages/react-dom/src/client/ReactDOMComponentTree.js),
 [production error formatter](https://github.com/facebook/react/blob/v18.3.1/packages/shared/formatProdErrorMessage.js),
 [ReactDOM production UMD build](https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js),
+[v19.1.0 DOM keys](https://github.com/facebook/react/blob/v19.1.0/packages/react-dom-bindings/src/client/ReactDOMComponentTree.js),
+[ReactDOM client production CJS build](https://app.unpkg.com/react-dom@19.1.0/files/cjs/react-dom-client.production.js),
 [Preact compatibility UMD build](https://unpkg.com/preact@10.26.4/compat/dist/compat.umd.js),
 [Preact 10.26.4 compatibility exports](https://github.com/preactjs/preact/blob/10.26.4/compat/src/index.js),
 [React 18 MIT license](https://github.com/facebook/react/blob/v18.3.1/LICENSE),

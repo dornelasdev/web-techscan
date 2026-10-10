@@ -18,6 +18,12 @@ var reactDOMMarkers = []string{
 	`var message="Minified React error #"+code+"; visit "+url;`,
 }
 
+// Transform the reviewed legacy URL components separately so spoof-host/path
+// negatives keep their invalid suffixes in the modern case too.
+func modernReactDOMText(body string) string {
+	return strings.NewReplacer("reactjs.org", "react.dev", "/docs/error-decoder.html?invariant=", "/errors/").Replace(body)
+}
+
 func TestReactDOMRuntime(t *testing.T) {
 	engine := bundledEngine(t)
 	body := strings.Join(reactDOMMarkers, "\n")
@@ -32,7 +38,13 @@ func TestReactDOMRuntime(t *testing.T) {
 		"bare-assignments":   strings.ReplaceAll(body, "var ", ""),
 		"comma-declarations": strings.ReplaceAll(body, ";\nvar ", ","),
 	}
-	for _, name := range []string{"react-dom-18.js", "react-dom-18.min.js"} {
+	variants := make(map[string]string, 2*len(cases))
+	for name, body := range cases {
+		variants["legacy/"+name] = body
+		variants["modern/"+name] = modernReactDOMText(body)
+	}
+	cases = variants
+	for _, name := range []string{"react-dom-18.js", "react-dom-18.min.js", "react-dom-19.js", "react-dom-19.min.js"} {
 		cases[name] = string(htmlFixture(t, name))
 	}
 	for name, body := range cases {
@@ -57,12 +69,16 @@ func TestReactDOMRuntimeMarkerSubsets(t *testing.T) {
 					body = append(body, marker)
 				}
 			}
-			url := "https://example.test/file"
-			got := engine.Detect(detect.Input{Assets: []detect.Asset{scriptAsset(url, strings.Join(body, "\n"))}})
-			if mask == (1<<len(reactDOMMarkers))-1 {
-				assertReactDOMEvidence(t, got, []string{url})
-			} else if len(got) != 0 {
-				t.Fatalf("partial markers produced findings=%+v", got)
+			for family, text := range map[string]string{"legacy": strings.Join(body, "\n"), "modern": modernReactDOMText(strings.Join(body, "\n"))} {
+				t.Run(family, func(t *testing.T) {
+					url := "https://example.test/file"
+					got := engine.Detect(detect.Input{Assets: []detect.Asset{scriptAsset(url, text)}})
+					if mask == (1<<len(reactDOMMarkers))-1 {
+						assertReactDOMEvidence(t, got, []string{url})
+					} else if len(got) != 0 {
+						t.Fatalf("partial markers produced findings=%+v", got)
+					}
+				})
 			}
 		})
 	}
@@ -79,7 +95,10 @@ func TestReactDOMRuntimeNearMisses(t *testing.T) {
 		"url-literal-only":     strings.Replace(valid, `"+code;`, `";`, 1),
 		"url-spoof-host":       strings.Replace(valid, "reactjs.org/", "reactjs.org.example/", 1),
 		"url-suffix":           strings.Replace(valid, "invariant=", "invariant=extra", 1),
-		"modern-error-url":     strings.Replace(valid, "https://reactjs.org/docs/error-decoder.html?invariant=", "https://react.dev/errors/", 1),
+		"url-http":             strings.Replace(valid, "https://", "http://", 1),
+		"url-prefixed-literal": strings.Replace(valid, "https://", "other-https://", 1),
+		"url-qualified-code":   strings.Replace(valid, `"+code;`, `"+code.value;`, 1),
+		"url-literal-code":     strings.Replace(valid, `"+code;`, `"+123;`, 1),
 		"url-call-value":       strings.Replace(valid, `"+code;`, `"+code();`, 1),
 		"message-literal-only": strings.Replace(valid, `"Minified React error #"+code+"; visit "`, `"Minified React error #"`, 1),
 		"message-prefix":       strings.Replace(valid, "Minified React error #", "Other Minified React error #", 1),
@@ -107,18 +126,33 @@ func TestReactDOMRuntimeNearMisses(t *testing.T) {
 		}
 	}
 	for name, body := range cases {
-		t.Run(name, func(t *testing.T) {
-			if got := engine.Detect(detect.Input{Assets: []detect.Asset{scriptAsset("https://example.test/file", body)}}); len(got) != 0 {
-				t.Fatalf("findings=%+v", got)
-			}
-		})
+		for family, text := range map[string]string{"legacy": body, "modern": modernReactDOMText(body)} {
+			t.Run(family+"/"+name, func(t *testing.T) {
+				if got := engine.Detect(detect.Input{Assets: []detect.Asset{scriptAsset("https://example.test/file", text)}}); len(got) != 0 {
+					t.Fatalf("findings=%+v", got)
+				}
+			})
+		}
 	}
 }
 
 func TestReactDOMRuntimeIsolation(t *testing.T) {
+	for _, family := range []string{"legacy", "modern"} {
+		t.Run(family, func(t *testing.T) {
+			markers := append([]string(nil), reactDOMMarkers...)
+			if family == "modern" {
+				markers[3] = modernReactDOMText(markers[3])
+			}
+			testReactDOMRuntimeIsolation(t, markers)
+		})
+	}
+}
+
+func testReactDOMRuntimeIsolation(t *testing.T, markers []string) {
+	t.Helper()
 	engine := bundledEngine(t)
-	valid := strings.Join(reactDOMMarkers, "\n")
-	keys, errors := strings.Join(reactDOMMarkers[:3], "\n"), strings.Join(reactDOMMarkers[3:], "\n")
+	valid := strings.Join(markers, "\n")
+	keys, errors := strings.Join(markers[:3], "\n"), strings.Join(markers[3:], "\n")
 	for name, input := range map[string]detect.Input{
 		"inline-html":      {HTML: []byte("<script>" + valid + "</script>")},
 		"headers-cookies":  {Headers: http.Header{"X-Marker": {valid}}, CookieNames: []string{valid}},
@@ -136,12 +170,12 @@ func TestReactDOMRuntimeIsolation(t *testing.T) {
 		})
 	}
 	// Even one omitted marker must not be supplied by another complete capture.
-	for i := range reactDOMMarkers {
-		parts := append([]string(nil), reactDOMMarkers...)
+	for i := range markers {
+		parts := append([]string(nil), markers...)
 		parts[i] = ""
 		input := detect.Input{Assets: []detect.Asset{
 			scriptAsset("https://example.test/one", strings.Join(parts, "\n")),
-			scriptAsset("https://example.test/two", reactDOMMarkers[i]),
+			scriptAsset("https://example.test/two", markers[i]),
 		}}
 		if got := engine.Detect(input); len(got) != 0 {
 			t.Fatalf("split marker %d findings=%+v", i, got)
@@ -150,8 +184,15 @@ func TestReactDOMRuntimeIsolation(t *testing.T) {
 }
 
 func TestReactRuntimeRulesCoexist(t *testing.T) {
+	body := strings.Join(reactDOMMarkers, "\n")
+	for family, dom := range map[string]string{"legacy": body, "modern": modernReactDOMText(body)} {
+		t.Run(family, func(t *testing.T) { testReactRuntimeRulesCoexist(t, dom) })
+	}
+}
+
+func testReactRuntimeRulesCoexist(t *testing.T, dom string) {
+	t.Helper()
 	engine := bundledEngine(t)
-	dom := strings.Join(reactDOMMarkers, "\n")
 	client := reactClientAssignment + reactElementSymbol
 	one, two := "https://example.test/z", "https://example.test/a"
 	// Duplicate bodies/URLs still yield one evidence item per rule and URL.
@@ -191,6 +232,24 @@ func TestReactRuntimeRulesCoexist(t *testing.T) {
 	}
 	if got := engine.Detect(detect.Input{}); len(got) != 0 {
 		t.Fatal("retained runtime findings")
+	}
+}
+
+func TestReactDOMURLFormsShareEvidence(t *testing.T) {
+	engine := bundledEngine(t)
+	legacy := strings.Join(reactDOMMarkers, "\n")
+	modern := modernReactDOMText(legacy)
+	one, two := "https://example.test/one", "https://example.test/two"
+	for _, assets := range [][]detect.Asset{
+		{scriptAsset(one, legacy+modern), scriptAsset(one, modern)},
+		{scriptAsset(one, legacy), scriptAsset(two, modern), scriptAsset(one, legacy)},
+		{scriptAsset(two, modern), scriptAsset(one, legacy), scriptAsset(two, modern)},
+	} {
+		want := []string{assets[0].URL}
+		if assets[1].URL != assets[0].URL {
+			want = append(want, assets[1].URL)
+		}
+		assertReactDOMEvidence(t, engine.Detect(detect.Input{Assets: assets}), want)
 	}
 }
 
