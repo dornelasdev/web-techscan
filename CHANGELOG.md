@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Added combined Next.js/Bootstrap asset regressions for typed-source isolation,
+  stable independent evidence, page-header upgrades, duplicate references,
+  default-off behavior, and findings before/after optional asset failures.
+  Local CLI cases cover CSS MIME/redirect/truncated/oversized rejection, JS/late
+  HTTP failures, terminal/JSON output, and query redaction with unchanged requests.
+  Added mixed-provenance report-copy checks. No production rule, collection
+  policy, dependency, catalog size, or output schema changes in this checkpoint.
 - Added opt-in Bootstrap CSS inference under the new `ui_framework` category,
   bringing the catalog to nineteen technologies. Requires a reviewed 5.2/5.3
   identifying banner plus button variable declaration/usage in one captured

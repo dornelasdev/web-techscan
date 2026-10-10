@@ -519,4 +519,13 @@ first-five attempts and existing body/deadline budgets remain unchanged. Externa
 CDN stylesheets and styles beyond those bounds may never reach detection.
 Focused detector and local CLI tests cover positive shapes, near misses, source
 and block/file isolation, evidence deduplication, both formats and default-off
-behavior. Tests are user-run; combined JS/CSS robustness is the next checkpoint.
+behavior. Tests are user-run.
+
+The combined JS/CSS checkpoint adds detector checks for source-specific evidence
+when both bodies contain decoy markers for the other kind, reversed capture
+order, duplicate inputs, independent page-header upgrades and engine reuse.
+Local CLI cases check successful capture alongside failed assets, MIME/redirect/
+truncated/oversized CSS rejection, optional JS/late HTTP failures, default-off,
+query privacy, request scope and terminal/JSON provenance. Report-copy checks
+cover both asset kinds together. No additional fingerprint or collection policy
+was introduced; authored tests are not a real-world accuracy measurement.

@@ -336,7 +336,11 @@ TLS certificates. Detection checks use synthetic rules for positive and near-mis
 signals, required signal combinations, inference chains, stable evidence,
 and catalog validation. Bundled rules have positive and near-miss cases;
 CLI fixtures cover mixed stacks, HTML filtering, error pages, and redirect
-isolation. Output checks cover the JSON contract, color policy, empty results,
+isolation. Mixed JS/CSS asset cases cover source-specific evidence, page-header
+upgrades, duplicate references, default-off behavior, failed MIME/status/redirect/
+body captures, and query redaction without changing requests. Earlier findings
+survive later optional failures; accepted assets after a failure still contribute.
+Output checks cover the JSON contract, color policy, empty results,
 inference evidence, clean output streams, and write failures. No live
 third-party websites are needed:
 
