@@ -142,6 +142,33 @@
               "pattern": "(?:^|[^A-Za-z0-9_$\\.])Symbol\\s*\\.\\s*for\\s*\\(\\s*(?:\"react\\.transitional\\.element\"|'react\\.transitional\\.element')\\s*\\)"
             }
           ]
+        },
+        {
+          "id": "asset-dom-runtime",
+          "state": "inferred",
+          "description": "Paired ReactDOM key constructions and production-error formatting suggest React",
+          "all": [
+            {
+              "source": "asset_javascript",
+              "pattern": "(?:^|[;,{}])\\s*(?:(?:var|let|const)\\s+)?[A-Za-z_$][A-Za-z0-9_$]*\\s*=\\s*(?:\"__reactFiber\\$\"|'__reactFiber\\$')\\s*\\+\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*(?:[;,}]|$)"
+            },
+            {
+              "source": "asset_javascript",
+              "pattern": "(?:^|[;,{}])\\s*(?:(?:var|let|const)\\s+)?[A-Za-z_$][A-Za-z0-9_$]*\\s*=\\s*(?:\"__reactProps\\$\"|'__reactProps\\$')\\s*\\+\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*(?:[;,}]|$)"
+            },
+            {
+              "source": "asset_javascript",
+              "pattern": "(?:^|[;,{}])\\s*(?:(?:var|let|const)\\s+)?[A-Za-z_$][A-Za-z0-9_$]*\\s*=\\s*(?:\"__reactContainer\\$\"|'__reactContainer\\$')\\s*\\+\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*(?:[;,}]|$)"
+            },
+            {
+              "source": "asset_javascript",
+              "pattern": "(?:\"https://reactjs\\.org/docs/error-decoder\\.html\\?invariant=\"|'https://reactjs\\.org/docs/error-decoder\\.html\\?invariant=')\\s*\\+\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*(?:[;,}]|$)"
+            },
+            {
+              "source": "asset_javascript",
+              "pattern": "(?:\"Minified React error #\"|'Minified React error #')\\s*\\+\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*\\+\\s*(?:\"; visit \"|'; visit ')"
+            }
+          ]
         }
       ]
     },

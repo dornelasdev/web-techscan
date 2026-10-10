@@ -3,7 +3,7 @@
 `Extract` is offline reference discovery. `Collect` connects it to opt-in
 `--assets` collection, preserving each captured body separately. The CLI passes
 accepted captures to the offline detector's separate JS/CSS inputs. Current
-content fingerprints cover Next.js manifests, React client/Vue renderer runtime
+content fingerprints cover Next.js manifests, React client/ReactDOM and Vue runtime
 markers, and Bootstrap CSS.
 See [user policies](../../docs/policies.md#asset-inspection) for scan scope and limits.
 

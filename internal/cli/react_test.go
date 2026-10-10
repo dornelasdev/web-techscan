@@ -17,13 +17,21 @@ import (
 	"webscan/internal/output"
 )
 
-func TestCLIReactClientAssets(t *testing.T) {
+func TestCLIReactRuntimeAssets(t *testing.T) {
 	engine, err := detect.LoadBundled()
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, fixture := range []string{"react-19-client.js", "react-19-client.min.js"} {
-		body, err := os.ReadFile("../detect/testdata/coverage/" + fixture)
+	for _, fixture := range []struct {
+		name, ruleID string
+		signals      int
+	}{
+		{"react-19-client.js", "asset-client-runtime", 2},
+		{"react-19-client.min.js", "asset-client-runtime", 2},
+		{"react-dom-18.js", "asset-dom-runtime", 5},
+		{"react-dom-18.min.js", "asset-dom-runtime", 5},
+	} {
+		body, err := os.ReadFile("../detect/testdata/coverage/" + fixture.name)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -40,7 +48,7 @@ func TestCLIReactClientAssets(t *testing.T) {
 				{"failed-status", true, false, false, 403, "text/javascript"},
 				{"wrong-mime", true, false, false, 200, "text/css"},
 			} {
-				t.Run(fixture+"/"+format+"/"+tc.name, func(t *testing.T) {
+				t.Run(fixture.name+"/"+format+"/"+tc.name, func(t *testing.T) {
 					var mu sync.Mutex
 					var requests []string
 					server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -104,7 +112,7 @@ func TestCLIReactClientAssets(t *testing.T) {
 							t.Error("query leaked in output")
 						}
 					}
-					for _, raw := range []string{"private-runtime-body", "__CLIENT_INTERNALS", "react.transitional.element", "Next.js"} {
+					for _, raw := range []string{"private-runtime-body", "__CLIENT_INTERNALS", "react.transitional.element", "__reactFiber$", "__reactProps$", "__reactContainer$", "Minified React error #", "reactjs.org/docs/error-decoder", "Next.js"} {
 						if strings.Contains(stdout.String(), raw) {
 							t.Errorf("raw asset/body/header leaked: %s", raw)
 						}
@@ -140,7 +148,11 @@ func TestCLIReactClientAssets(t *testing.T) {
 							t.Fatalf("findings=%+v", report.Findings)
 						}
 						f := report.Findings[0]
-						if f.ID != "react" || f.Category != "framework" || f.State != "inferred" || len(f.Evidence) != 1 || f.Evidence[0].RuleID != "asset-client-runtime" || f.Evidence[0].AssetURL != assetURL || !reflect.DeepEqual(f.Evidence[0].Signals, []output.Signal{{Source: "asset_javascript"}, {Source: "asset_javascript"}}) {
+						wantSignals := make([]output.Signal, fixture.signals)
+						for i := range wantSignals {
+							wantSignals[i].Source = "asset_javascript"
+						}
+						if f.ID != "react" || f.Category != "framework" || f.State != "inferred" || len(f.Evidence) != 1 || f.Evidence[0].RuleID != fixture.ruleID || f.Evidence[0].AssetURL != assetURL || !reflect.DeepEqual(f.Evidence[0].Signals, wantSignals) {
 							t.Fatalf("finding=%+v", f)
 						}
 					} else if tc.wantFinding {

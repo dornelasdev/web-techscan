@@ -178,22 +178,52 @@ be unqualified; bracket notation, escaped identifiers/strings, changed export
 shapes, and markers split across captures are outside this rule.
 
 The reviewed baseline is React 19.1.0's published client production runtime.
-Readable and compact synthetic fixtures test the accepted shapes; they are not
-full upstream bundles. React 18's older internals export plus `react.element`
-is not a fallback: Preact compatibility exposes older React API markers too.
-No version is reported, and the pattern does not establish a complete 19.x range.
+
+`asset-dom-runtime`: five markers in one accepted JavaScript capture.
+State: `inferred`. Requires all five:
+
+- Identifier assignments constructing `__reactFiber$`, `__reactProps$`, and
+  `__reactContainer$` keys, each as a quoted prefix plus an identifier suffix.
+- The exact quoted `https://reactjs.org/docs/error-decoder.html?invariant=`
+  URL concatenated with an identifier-shaped error code.
+- The exact quoted `Minified React error #` string concatenated with an
+  identifier-shaped code, then the quoted `; visit ` string.
+
+Allow whitespace, either quote style, and renamed ASCII identifiers. Key
+assignments start at body start or after a semicolon, comma, or brace, optionally
+with `var`, `let`, or `const`. They and the URL/code concatenation end with a
+semicolon, comma, closing brace, or end of body. Bare strings, reads/comparisons, qualified key
+assignment targets, function-call suffixes/codes, generic ReactDOM APIs, partial
+marker sets, and split captures do not match. The engine does not verify shared
+suffix variables, function scope, or execution. Escaped literals, changed
+serializers, development builds and the newer `react.dev/errors/` URL are outside
+this rule. No requirement that the separate React client rule also match.
+
+The reviewed renderer baseline is ReactDOM 18.3.1's published minified UMD build
+(131,835 bytes, below the 512 KiB decoded asset cap). All five markers occur there;
+none occur in the reviewed Preact 10.26.4 compatibility UMD build. The older
+internals export plus `react.element` occurs in both and is not a fallback.
+This comparison does not establish every compatibility library or build form.
+Readable/compact fixtures are authored scaffolds, not full upstream bundles.
+Neither rule reports a version or establishes an entire React major-version range.
+Both rules produce one React finding with separate supporting evidence when present.
 
 Inline scripts, off-origin assets, oversized/unselected bundles, and tree-shaken
 or split runtime output can be missed. Copied/commented code and forks retaining
-the pair can match; runtime execution/use is not established. Next.js does not
-automatically imply React. No backend language implication.
+the marker sets can match; runtime execution/use is not established. Next.js
+does not automatically imply React. No backend language implication.
 
 Reviewed 2026-10-10. Sources:
 [v19.1.0 client exports](https://github.com/facebook/react/blob/v19.1.0/packages/react/src/ReactClient.js),
 [element symbols](https://github.com/facebook/react/blob/v19.1.0/packages/shared/ReactSymbols.js),
 [published production runtime](https://app.unpkg.com/react@19.1.0/files/cjs/react.production.js),
+[v18.3.1 DOM keys](https://github.com/facebook/react/blob/v18.3.1/packages/react-dom/src/client/ReactDOMComponentTree.js),
+[production error formatter](https://github.com/facebook/react/blob/v18.3.1/packages/shared/formatProdErrorMessage.js),
+[ReactDOM production UMD build](https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js),
+[Preact compatibility UMD build](https://unpkg.com/preact@10.26.4/compat/dist/compat.umd.js),
 [Preact 10.26.4 compatibility exports](https://github.com/preactjs/preact/blob/10.26.4/compat/src/index.js),
-[React MIT license](https://github.com/facebook/react/blob/v19.1.0/LICENSE).
+[React 18 MIT license](https://github.com/facebook/react/blob/v18.3.1/LICENSE),
+[React 19 MIT license](https://github.com/facebook/react/blob/v19.1.0/LICENSE).
 
 ### Ruby on Rails
 

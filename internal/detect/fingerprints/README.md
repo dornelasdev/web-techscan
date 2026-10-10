@@ -108,7 +108,7 @@ Raw HTML regexes can also match comments or examples, so choose distinctive
 patterns and document those limitations when reviewing coverage.
 The same limitation applies to asset regexes: code-shaped text may be copied or
 commented out. Asset coverage includes inferred Next.js JS manifest rules,
-React client and Vue renderer runtime markers, and a Bootstrap CSS banner/button
+React client/ReactDOM and Vue renderer runtime markers, and a Bootstrap CSS banner/button
 rule. No asset-based language implication or version extraction is added. The
 UI-framework category is `ui_framework`.
 
