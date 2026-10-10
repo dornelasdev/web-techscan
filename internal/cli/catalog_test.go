@@ -67,6 +67,9 @@ func TestTechsCatalogOffline(t *testing.T) {
 				if !strings.Contains(stdout.String(), "  Nuxt\n  React\n  Ruby on Rails\n") {
 					t.Error("React and Rails must appear in the alphabetically ordered framework group")
 				}
+				if !strings.Contains(stdout.String(), "  Ruby on Rails\n  Vue\n\nUI frameworks\n") {
+					t.Error("Vue must appear last in the current framework group")
+				}
 				if !strings.Contains(stdout.String(), "\nUI frameworks\n  Bootstrap\n") {
 					t.Error("Bootstrap must appear under UI frameworks")
 				}
@@ -94,6 +97,9 @@ func TestTechsCatalogOffline(t *testing.T) {
 			}
 			if got := byID["react"]; got.Name != "React" || got.Category != "framework" {
 				t.Errorf("missing or incorrect React metadata: %+v", got)
+			}
+			if got := byID["vue"]; got.Name != "Vue" || got.Category != "framework" {
+				t.Errorf("missing or incorrect Vue metadata: %+v", got)
 			}
 			if got := byID["bootstrap"]; got.Name != "Bootstrap" || got.Category != "ui_framework" {
 				t.Errorf("missing or incorrect Bootstrap metadata: %+v", got)

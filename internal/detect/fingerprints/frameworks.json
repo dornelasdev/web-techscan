@@ -166,6 +166,32 @@
           ]
         }
       ]
+    },
+    {
+      "id": "vue",
+      "name": "Vue",
+      "category": "framework",
+      "rules": [
+        {
+          "id": "asset-renderer-runtime",
+          "state": "inferred",
+          "description": "Vue runtime flag, app assignment and fragment symbol suggest Vue",
+          "all": [
+            {
+              "source": "asset_javascript",
+              "pattern": "(?:^|[^A-Za-z0-9_$])[A-Za-z_$][A-Za-z0-9_$]*(?:\\s*\\(\\s*\\))?\\s*\\.\\s*__VUE__\\s*=\\s*(?:true|!\\s*0)\\s*(?:[;,}]|$)"
+            },
+            {
+              "source": "asset_javascript",
+              "pattern": "(?:^|[^A-Za-z0-9_$])[A-Za-z_$][A-Za-z0-9_$]*\\s*\\.\\s*__vue_app__\\s*=\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*(?:[;,}]|$)"
+            },
+            {
+              "source": "asset_javascript",
+              "pattern": "(?:^|[^A-Za-z0-9_$\\.])Symbol\\s*\\.\\s*for\\s*\\(\\s*(?:\"v-fgt\"|'v-fgt')\\s*\\)"
+            }
+          ]
+        }
+      ]
     }
   ]
 }

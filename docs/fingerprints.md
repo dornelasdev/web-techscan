@@ -3,7 +3,7 @@
 [README](../README.md) · [Usage](usage.md) · [Policies](policies.md)
 
 Rules are embedded in the binary. Use `webscan --techs` to list its catalog.
-The development catalog contains 20 technologies; v0.2.0 contains 10.
+The development catalog contains 21 technologies; v0.2.0 contains 10.
 
 ## Evidence
 
@@ -213,6 +213,44 @@ Reviewed 2026-10-07. Sources:
 [8.0.2 defaults](https://github.com/rails/rails/blob/v8.0.2/actionpack/lib/action_controller/metal/request_forgery_protection.rb),
 [configurable cookies](https://github.com/rails/rails/blob/v8.0.2/actionpack/lib/action_dispatch/middleware/session/cookie_store.rb),
 [request IDs](https://github.com/rails/rails/blob/v8.0.2/actionpack/lib/action_dispatch/middleware/request_id.rb).
+
+### Vue
+
+`asset-renderer-runtime`: three markers in one accepted JavaScript capture.
+State: `inferred`. Requires all three:
+
+- A dot-property assignment of `__VUE__` to `true` or minified `!0`.
+- A dot-property assignment of `__vue_app__` to an identifier-shaped value.
+- An exact `Symbol.for("v-fgt")` call, with either quote style.
+
+Allow whitespace and renamed ASCII identifiers. The runtime flag receiver may
+be an identifier or a zero-argument identifier call, such as `getTarget()`.
+The app receiver is an identifier. Assignments must end with a semicolon,
+comma, closing brace, or end of body. Bare names, reads/deletes, comparisons,
+generic Vue APIs, filenames, and partial or split-file triples do not match.
+Bracket notation, escaped identifiers/strings, other receiver/value shapes,
+and changed serializers are outside this rule.
+
+The reviewed baseline is Vue 3.5.13's minified runtime global and runtime
+ESM-browser production builds. All three markers survive in both; devtools
+hooks are absent and are not required. Readable/compact fixtures are authored
+scaffolds, not imported bundles. This does not establish all Vue 3 build forms
+or versions; no Vue 2 fallback or version reporting is included.
+
+Inline scripts, off-origin assets, oversized/unselected bundles, tree-shaken
+code and runtime markers split across imports/chunks can be missed. Copied or
+commented code and forks retaining the markers can match; execution, mounting
+and browser DOM use are not established. Nuxt does not automatically imply Vue.
+No language/runtime implication or collection-policy change.
+
+Reviewed 2026-10-10. Sources:
+[v3.5.13 renderer](https://github.com/vuejs/core/blob/v3.5.13/packages/runtime-core/src/renderer.ts#L333-L337),
+[app mount](https://github.com/vuejs/core/blob/v3.5.13/packages/runtime-core/src/apiCreateApp.ts#L375-L378),
+[vnode symbols](https://github.com/vuejs/core/blob/v3.5.13/packages/runtime-core/src/vnode.ts#L61-L69),
+[build forms](https://github.com/vuejs/core/blob/v3.5.13/packages/vue/README.md),
+[runtime global production build](https://unpkg.com/vue@3.5.13/dist/vue.runtime.global.prod.js),
+[runtime ESM-browser production build](https://unpkg.com/vue@3.5.13/dist/vue.runtime.esm-browser.prod.js),
+[MIT license](https://github.com/vuejs/core/blob/v3.5.13/LICENSE).
 
 ## UI frameworks
 
