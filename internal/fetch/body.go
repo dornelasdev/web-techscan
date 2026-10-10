@@ -20,48 +20,63 @@ var ErrContentEncoding = errors.New("unsupported or ambiguous response content e
 var ErrEncodedBodyLimit = errors.New("encoded response body limit exceeded")
 
 func readBody(resp *http.Response, limit, encodedLimit int64) ([]byte, error) {
+	body, _, err := readBodyMeasured(resp, limit, encodedLimit)
+	return body, err
+}
+
+// BodyUsage counts payload bytes consumed, including overflow probes and bytes
+// from failed reads. It excludes HTTP framing, headers and transport buffering.
+type BodyUsage struct {
+	Decoded int64
+	Encoded int64
+}
+
+func readBodyMeasured(resp *http.Response, limit, encodedLimit int64) (body []byte, usage BodyUsage, err error) {
 	// These statuses have no message body. Their encoding fields may describe
 	// a representation rather than an attached payload (notably a 304).
 	if resp.StatusCode == http.StatusNoContent || resp.StatusCode == http.StatusNotModified {
-		return []byte{}, nil
+		return []byte{}, usage, nil
 	}
 	encoding := "identity"
 	values := resp.Header.Values("Content-Encoding")
 	if len(values) > 0 {
 		if len(values) != 1 {
-			return nil, ErrContentEncoding
+			return nil, usage, ErrContentEncoding
 		}
 		encoding = strings.ToLower(strings.Trim(values[0], " \t"))
 		if encoding != "identity" && encoding != "gzip" {
-			return nil, ErrContentEncoding
+			return nil, usage, ErrContentEncoding
 		}
 	}
 	// Bound input before even parsing a gzip header. Do not turn budget exhaustion
 	// into EOF: a complete gzip member at the boundary may hide later members.
-	var reader io.Reader = &encodedBodyReader{reader: resp.Body, remaining: encodedLimit}
+	encoded := &encodedBodyReader{reader: resp.Body, remaining: encodedLimit}
+	defer func() { usage.Encoded = encoded.consumed }()
+	var reader io.Reader = encoded
 	if encoding == "gzip" {
 		decoded, err := gzip.NewReader(reader)
 		if err != nil {
-			return nil, safeBodyError(err)
+			return nil, usage, safeBodyError(err)
 		}
 		defer decoded.Close() // The caller separately owns and closes resp.Body.
 		reader = decoded
 	}
 	// The budget applies to decoded bytes, including concatenated gzip members.
 	// Reading to EOF within the budget also validates the gzip checksum/trailer.
-	body, err := io.ReadAll(io.LimitReader(reader, limit+1))
+	body, err = io.ReadAll(io.LimitReader(reader, limit+1))
+	usage.Decoded = int64(len(body))
 	if err != nil {
-		return nil, safeBodyError(err)
+		return nil, usage, safeBodyError(err)
 	}
 	if int64(len(body)) > limit {
-		return nil, fmt.Errorf("%w (maximum %d bytes)", ErrBodyLimit, limit)
+		return nil, usage, fmt.Errorf("%w (maximum %d bytes)", ErrBodyLimit, limit)
 	}
 	if encoding == "gzip" {
 		// Preserve the previous snapshot semantics of transparently decoded gzip.
 		resp.Header.Del("Content-Encoding")
 		resp.Header.Del("Content-Length")
 	}
-	return body, nil
+	return body, usage, nil
 }
 
 // encodedBodyReader passes at most remaining bytes to its consumer. At the
@@ -71,6 +86,7 @@ type encodedBodyReader struct {
 	reader    io.Reader
 	remaining int64
 	exceeded  bool
+	consumed  int64
 }
 
 func (r *encodedBodyReader) Read(p []byte) (int, error) {
@@ -83,6 +99,7 @@ func (r *encodedBodyReader) Read(p []byte) (int, error) {
 	if r.remaining == 0 {
 		var probe [1]byte
 		n, err := r.reader.Read(probe[:])
+		r.consumed += int64(n)
 		if n > 0 {
 			r.exceeded = true
 			return 0, ErrEncodedBodyLimit
@@ -93,6 +110,7 @@ func (r *encodedBodyReader) Read(p []byte) (int, error) {
 		p = p[:r.remaining]
 	}
 	n, err := r.reader.Read(p)
+	r.consumed += int64(n)
 	r.remaining -= int64(n)
 	return n, err
 }

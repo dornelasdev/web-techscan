@@ -13,14 +13,16 @@ detected/inferred states, with terminal and JSON output. This
 is a personal CLI built from local source, with an executable
 named `webscan`. See the [release notes](CHANGELOG.md).
 
-Requires Go 1.27 or newer. There are currently no external dependencies.
+Requires Go 1.27 or newer. The HTML parser uses pinned `golang.org/x/net v0.61.0`.
 v0.2.0 is the latest released baseline. Development since that tag adds
 Cloudflare and Amazon CloudFront header fingerprints plus AWS Application and
 Classic Load Balancer cookie-pair fingerprints, an AWS WAF action-header rule,
 Nuxt header/HTML fingerprints, Django cookie/HTML inference, and Rails paired
 CSRF metadata inference, bringing coverage to eighteen technologies.
 These additions are unreleased;
-no new version is assigned. Collection remains limited to one final HTTP response.
+no new version is assigned. Default scans collect one final HTTP response;
+optional `--assets` adds bounded same-origin JS/CSS collection and reporting.
+Asset contents do not contribute findings yet.
 
 ## Supported technologies
 
@@ -39,7 +41,8 @@ It describes supported coverage, not findings: there are no detected/inferred
 labels, and identification still depends on exposed signals.
 
 `--techs` does not accept a URL, `--version`, or fetch-only options (`--timeout`,
-`--max-redirects`, `--max-body`, `--max-encoded-body`, `--allow-http-downgrade`).
+`--max-redirects`, `--max-body`, `--max-encoded-body`, `--allow-http-downgrade`,
+`--assets`, including explicit `--assets=false`).
 Color options are accepted but the listing is always plain. JSON returns catalog
 metadata, not the scan-report shape; see the
 [catalog JSON contract](internal/output/README.md#technology-catalog-json).
@@ -122,7 +125,7 @@ the binary's version string; without the build flag it remains `webscan dev`.
 These commands build from local source and disable automatic VCS metadata
 collection. Setting the version string does not create a release or Git tag.
 No GitHub connection is required by the build itself; the required Go toolchain
-must already be available for an offline build. Remote `go install` support is
+and module dependency must already be cached for an offline build. Remote `go install` support is
 deferred, not a requirement for using this version.
 
 The resulting binary runs without Go installed on a compatible OS/architecture.
@@ -134,8 +137,9 @@ automatic updater or prebuilt-binary distribution workflow at this stage.
 Help and version output use stdout. Errors use stderr. Exit codes are `0` for
 success, `1` for an execution failure, and `2` for invalid arguments. An HTTP
 error status such as 404 still counts as a successful fetch: its response may
-contain useful technology signals. Network failures and exceeded limits do not
-produce partial results.
+contain useful technology signals. Page network failures and exceeded page limits
+do not produce partial results. Optional asset failures preserve page results,
+return exit 0, and explicitly report incomplete/skipped asset collection.
 
 ## Output
 
@@ -178,7 +182,8 @@ See the [JSON contract](internal/output/README.md) for fields and semantics.
 
 Use `--redact-query` to replace the entire query (parameter names and values) in
 every report URL with `?[redacted]`. This covers original/final URLs and both
-ends of every redirect hop. URLs without a query are unchanged. Terminal output
+ends of every redirect hop, plus every reported asset URL (including failed or
+skipped items). URLs without a query are unchanged. Terminal output
 notes the policy; JSON includes optional `query_redacted: true` whenever enabled,
 even if no URL had a query. Default output is unchanged.
 
@@ -191,7 +196,7 @@ not hide secrets in hostnames/paths, shell history, process arguments, or remote
 logs, and is not a general anonymization feature. Redacted report URLs do not
 reproduce the original request.
 
-Fetch/configuration errors leave stdout empty and report the error on stderr.
+Page-fetch/configuration errors leave stdout empty and report the error on stderr.
 Output-write failures also return a nonzero exit code, but may leave a partial
 report at the destination. Help and version requests remain plain text even
 with `--json`; `--techs --json` uses its separate catalog contract.
@@ -200,8 +205,9 @@ with `--json`; `--techs --json` uses its separate catalog contract.
 
 - Supply an explicit `http://` or `https://` URL. Shorthand hostnames and URLs
   containing credentials are rejected. Fragments are removed before fetching.
-- The default timeout is 15 seconds for the entire operation, including
-  redirects and reading the response body. Override it with `--timeout`.
+- The default timeout is 15 seconds shared across page redirects, body reading,
+  and optional asset requests. Override it with `--timeout`; assets do not each
+  receive a fresh timeout. Bounded local parsing/rendering is not preempted.
 - Follow up to five redirects by default. `--max-redirects 0` rejects redirects;
   exceeding the configured limit is an error, rather than a truncated scan.
 - HTTPS-to-HTTP redirects are blocked by default before requesting the HTTP
@@ -232,22 +238,57 @@ with `--json`; `--techs --json` uses its separate catalog contract.
   deflate), repeated encoding fields, and encoding lists fail explicitly; no
   fallback request is made. Encoding metadata on bodyless 204/304 responses is
   not decoded. Redirect bodies are not detection inputs.
-- Incomplete/corrupt bodies, decoding failures, cancellation, and exceeded limits
+- Incomplete/corrupt page bodies, decoding failures, cancellation, and exceeded limits
   fail without a partial scan report. Body errors use safe summaries while keeping
   their underlying causes available internally.
 - Response headers are capped at 1 MiB per response. Normal TLS certificate
   verification and Go's standard environment proxy support remain enabled.
-- Requests use GET and the `webscan` user agent. No assets or other pages are
-  fetched beyond the redirect chain, and cookies are not replayed.
+- Requests use GET and the `webscan` user agent. Without `--assets`, nothing is
+  fetched beyond the page redirect chain. Cookies are never replayed.
 - The internal response snapshot stores final-page headers, cookie names,
   and body content. Cookie values in `Set-Cookie` are discarded; redirect
   metadata is separate from the final page's detection inputs.
 
+## Optional asset collection
+
+```sh
+./bin/webscan --assets --redact-query --json https://example.com
+```
+
+This checkpoint collects and reports assets only; it adds no fingerprints and
+does not execute JavaScript. Default scans are unchanged. The optional `assets`
+JSON object and terminal section expose complete/incomplete/skipped collection,
+safe failure reasons, counts, and per-asset metadata. `complete` means only the
+selected, bounded same-origin scope, not complete coverage of the site.
+
+- Inspect direct script/stylesheet references in the final UTF-8 HTML page only.
+  Resolve references using its first base declaration according to the [extraction policy](internal/assets/README.md),
+  deduplicate, and retain the first five eligible URLs. Third-party/CDN origins,
+  nested imports, source maps, guessed paths and other linked pages are excluded.
+- Attempt at most five assets sequentially, including failed attempts, without
+  application retries. No asset redirects are followed, even with
+  `--allow-http-downgrade`. Asset requests send no cookies, authorization or Referer.
+- Require successful, non-partial responses and explicit appropriate JS/CSS
+  MIME types. Missing/mismatched MIME types and HTML error pages are not assets.
+- Cap each asset at 512 KiB decoded / 1 MiB encoded, and combined asset payload
+  reads at 2 MiB decoded / 4 MiB encoded. Failed reads count. Per-asset limits may
+  read one overflow-probe byte; aggregate limits include probes, reserving one
+  byte of remaining budget (an exact aggregate-boundary asset may be rejected).
+  These are payload-read bounds, not wire-byte or transport-buffer caps.
+- Asset limits are fixed in this checkpoint. `--max-body` and
+  `--max-encoded-body` still control the page only; extraction itself is capped
+  at 2 MiB HTML. Unsupported page types/charsets, invalid UTF-8, and extraction
+  failures skip collection with a reason, without discarding page findings.
+
+Asset headers are never attributed to the page's server, and asset bodies are
+neither combined with HTML nor printed. See the [collection policy](internal/assets/README.md)
+and [report contract](internal/output/README.md#optional-asset-collection).
+
 ## Structure
 
-`internal/assets` contains offline JS/CSS reference-extraction groundwork using
-a pinned HTML parser. It is not connected to scanning yet: no `--assets` flag
-or asset requests are available. See its [scope and limits](internal/assets/README.md).
+`internal/assets` extracts JS/CSS references with a pinned HTML parser and
+coordinates optional bounded collection. It keeps each captured asset separate.
+See its [scope and limits](internal/assets/README.md).
 
 `main.go` only connects process arguments, output streams, and the exit code
 to `internal/cli`. `internal/fetch` handles URL validation and bounded HTTP
@@ -305,7 +346,9 @@ members, unsupported/ambiguous encodings, malformed chunking, active cancellatio
 and a shared deadline across redirects and body reading. CLI checks assert empty
 stdout on failure in both formats; successful gzip reports use decoded byte counts.
 The fixture integration checks exercise both output formats, detected/inferred
-state handling, redirect isolation, and the absence of asset/link fetching.
+state handling, redirect isolation, and default absence of asset/link fetching.
+Dedicated opt-in checks cover asset limits, MIME validation, no asset redirects,
+shared deadlines, failure accounting, query redaction, and page-result preservation.
 The synthetic mixed-stack fixture also combines application, CDN, load-balancer,
 and WAF signals to check evidence preservation, duplicate signals, misleading
 near-matches, challenge/error responses, and body-limit failures without partial
@@ -378,7 +421,8 @@ Stop the Python server with Ctrl-C when finished.
 
 - The CLI inspects one final HTTP response, not the whole site's stack. HTTP error
   pages and intermediaries can expose different technologies from the application.
-- External CSS/JS contents are not downloaded. JavaScript is not executed, so
+- CSS/JS contents are downloaded only with `--assets`, within its narrow limits;
+  asset-content detection is not implemented yet. JavaScript is not executed, so
   runtime variables, dynamically added DOM content, and browser-triggered
   requests are unavailable. There is no crawling, path guessing, or port scanning.
 - HTML rules use raw-text patterns, not a DOM parser. Copied markup or comments
@@ -397,6 +441,6 @@ Stop the Python server with Ctrl-C when finished.
 
 Possible later increments include more infrastructure fingerprints from exposed
 response signals (additional CDN/edge, load-balancer, and WAF coverage), broader curated
-coverage, bounded asset inspection, and an optional browser-backed mode. These
+coverage, asset-specific fingerprints, and an optional browser-backed mode. These
 are directions, not implemented features or a promise of Wappalyzer coverage parity.
 Go and the CLI interface do not impose the current collection limits.

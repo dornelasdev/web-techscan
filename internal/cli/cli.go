@@ -10,6 +10,7 @@ import (
 	"mime"
 	"net/http"
 
+	"webscan/internal/assets"
 	"webscan/internal/detect"
 	"webscan/internal/fetch"
 	"webscan/internal/output"
@@ -33,9 +34,10 @@ Options:
   --techs                   List supported technologies without fetching a URL
   --json                    Print a JSON scan report or technology catalog
   --redact-query            Redact URL queries in scan reports (default false)
+  --assets                  Collect bounded same-origin JS/CSS (no asset fingerprints yet)
   --color mode              Color: auto, always, never (default auto)
   --no-color                Disable color, overriding --color
-  --timeout duration        Total fetch timeout (default 15s)
+  --timeout duration        Total page-and-assets timeout (default 15s)
   --max-redirects n          Maximum followed redirects (default 5; 0 disallows redirects)
   --max-body bytes           Maximum decoded response body size (default 2097152)
   --max-encoded-body bytes   Maximum body size before decoding (default 4194304)
@@ -52,6 +54,7 @@ func Run(args []string, stdout, stderr io.Writer, version string) int {
 	flags.SetOutput(io.Discard)
 	showVersion := flags.Bool("version", false, "Show version")
 	showTechs := flags.Bool("techs", false, "List supported technologies")
+	collectAssets := flags.Bool("assets", false, "Collect bounded same-origin JS/CSS")
 	presentation := outputOptions{}
 	flags.BoolVar(&presentation.json, "json", false, "Print a JSON scan report or technology catalog")
 	flags.StringVar(&presentation.color, "color", "auto", "Color: auto, always, never")
@@ -90,7 +93,7 @@ func Run(args []string, stdout, stderr io.Writer, version string) int {
 				redactionFlag = true
 			}
 			switch f.Name {
-			case "timeout", "max-redirects", "max-body", "max-encoded-body", "allow-http-downgrade":
+			case "timeout", "max-redirects", "max-body", "max-encoded-body", "allow-http-downgrade", "assets":
 				if fetchFlag == "" {
 					fetchFlag = f.Name
 				}
@@ -121,7 +124,7 @@ func Run(args []string, stdout, stderr io.Writer, version string) int {
 		if flags.Arg(0) == "" {
 			return usageError(stderr, "URL must not be empty")
 		}
-		return fetchPage(flags.Arg(0), options, presentation, stdout, stderr)
+		return fetchPage(flags.Arg(0), options, presentation, *collectAssets, stdout, stderr)
 	default:
 		return usageError(stderr, "expected a single URL; place options before the URL")
 	}
@@ -146,7 +149,7 @@ func listTechnologies(asJSON bool, stdout, stderr io.Writer) int {
 	return exitOK
 }
 
-func fetchPage(target string, options fetch.Options, presentation outputOptions, stdout, stderr io.Writer) int {
+func fetchPage(target string, options fetch.Options, presentation outputOptions, collectAssets bool, stdout, stderr io.Writer) int {
 	client, err := fetch.New(options)
 	if err != nil {
 		return usageError(stderr, err.Error())
@@ -157,7 +160,9 @@ func fetchPage(target string, options fetch.Options, presentation outputOptions,
 		fmt.Fprintf(stderr, "webscan: load fingerprints: %s\n", err)
 		return exitError
 	}
-	snapshot, err := client.Fetch(context.Background(), target)
+	ctx, cancel := context.WithTimeout(context.Background(), options.Timeout)
+	defer cancel()
+	snapshot, err := client.Fetch(ctx, target)
 	if err != nil {
 		if errors.Is(err, fetch.ErrInvalidURL) {
 			return usageError(stderr, err.Error())
@@ -171,6 +176,10 @@ func fetchPage(target string, options fetch.Options, presentation outputOptions,
 		HTML:        htmlForDetection(snapshot.Headers, snapshot.Body),
 	})
 	report := output.NewReport(*snapshot, findings, engine.Len())
+	if collectAssets {
+		collection := assets.Collect(ctx, client, *snapshot)
+		report.Assets = output.NewAssetReport(collection)
+	}
 	if presentation.redactQuery {
 		report = report.RedactQueries()
 	}

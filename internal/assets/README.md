@@ -1,14 +1,13 @@
-# Asset-reference extraction
+# Bounded asset collection
 
-This package is offline groundwork for optional bounded asset inspection. It is
-not wired into the CLI yet: there is no `--assets` flag, asset downloading, or
-asset-content fingerprint source in this checkpoint. Existing HTML fingerprints
-and default scan/report behavior are unchanged.
+`Extract` is offline reference discovery. `Collect` connects it to opt-in
+`--assets` collection, preserving each captured body separately. This checkpoint
+has no asset-content fingerprints: default scanning and all findings are unchanged.
 
 ## Parser and inputs
 
 `Extract(finalURL, body, options)` takes the final page URL and UTF-8 HTML bytes.
-The future caller must select an HTML response; this function does not infer
+The caller must select an HTML response; this function does not infer
 content type or decode legacy character encodings. Invalid URLs, invalid UTF-8,
 exceeded input limits, and parser failures return no references and safe errors.
 
@@ -75,17 +74,63 @@ the cap are not stored merely to count their duplicates. No excluded URL/raw
 attribute text is copied into diagnostics. An empty successful result has a
 non-nil empty reference slice.
 
-Reference URLs can still contain sensitive queries. Future reporting must apply
-the existing report-redaction and terminal-sanitization policies to asset URLs.
+Reference URLs can still contain sensitive queries. Reporting applies existing
+query-redaction and terminal-sanitization policies to all asset URLs.
 
-## Next checkpoints (not implemented here)
+## Collection policy
 
-1. Opt-in, sequential collection: five attempts including failures; no asset
-   redirects or third-party origins; 512 KiB decoded/1 MiB encoded per asset,
-   2 MiB decoded/4 MiB encoded combined, under the page-and-assets shared deadline.
-   Preserve page results while marking incomplete asset inspection explicitly.
-2. Asset-specific detection/evidence with reviewed initial JS/CSS fingerprints.
-   Keep each asset separate; do not treat asset headers as the page server's
-   identity or concatenate asset text into HTML.
+`Collect` takes a final-page snapshot and the same context/deadline used for its
+fetch. The CLI starts that context before requesting the page. Sequential asset
+requests never reset the deadline; no requests start after observed cancellation
+or aggregate exhaustion. Parsing is input-bounded, not forcibly preempted.
 
-User-run checks: `go test ./...`. Tests use inline offline fixtures, not live sites.
+Page selection requires `text/html`, with absent charset, UTF-8 or US-ASCII,
+and valid UTF-8 bytes. An absent/empty Content-Type uses Go's bounded sniffing;
+ambiguous/repeated Content-Type is rejected. XHTML and legacy declared charsets
+are skipped rather than interpreted with HTML5 semantics/transcoded. In-document
+encoding declarations are not browser-emulated. The fixed 2 MiB extractor cap
+still applies even if the page fetch limit is increased. HTTP error pages remain
+eligible HTML, with their existing page response scope.
+
+At most five selected URLs are attempted, including failures. There is no retry
+loop, cookie jar, authentication, Referer, recursive discovery or script execution.
+Go's transport retains its standard connection handling. Asset redirects are
+never followed, even same-origin redirects or when page downgrade opt-in is set.
+Normal TLS and proxy behavior remain unchanged; same-origin private/local targets
+are allowed, just like page fetching. This is not a public untrusted-URL service.
+
+The fetch layer rejects non-2xx, 206 and Content-Range responses before reading
+their bodies. It requires exactly one valid Content-Type: `text/css` for styles,
+or `text/javascript`, `application/javascript`, `text/ecmascript`, or
+`application/ecmascript` for scripts. MIME parameters are parsed, but collection
+does not transcode or interpret asset contents. No MIME sniffing or file-extension
+fallback. Successful bodyless responses can yield empty captures. Missing or
+unsupported MIME, unsupported content encoding, corruption and truncation are
+reported, not silently treated as successful captures. Bodies are always closed.
+
+Per asset: 512 KiB decoded / 1 MiB encoded, plus at most one overflow probe in
+each dimension. Combined: 2 MiB decoded / 4 MiB encoded, **including** failed
+reads/probes. Before each request, the body limits are clamped to the remaining
+aggregate budget minus one reserved probe byte. Remaining budgets of one byte
+or less stop further requests. This conservative boundary policy can reject an
+asset that exactly fills the aggregate budget. Counts describe payload reads,
+not headers, HTTP framing, TLS or transport buffering. Gzip input accounting
+starts before the header parser, including read-ahead and empty members.
+
+Only completely accepted bodies enter `Captures`; failure accounting survives
+discarding partial bodies. Captures are not serialized. Item statuses are
+`collected`, `failed` (attempted), or `skipped` (not attempted). Collection is
+`incomplete` if selection truncates or any selected item fails/is skipped;
+`skipped` means the whole pass could not begin; otherwise `complete` means only
+the bounded eligible scope. Off-origin/ineligible declarations are counted,
+not coverage failures. Zero eligible assets can be complete. Page findings
+survive all optional failures; JSON/terminal metadata makes limitations explicit.
+
+## Next checkpoint (not implemented here)
+
+Asset-specific detection/evidence with reviewed initial JS/CSS fingerprints.
+Keep each asset separate; do not treat asset headers as the page server's
+identity or concatenate asset text into HTML.
+
+User-run checks: `go test ./...`. Tests use inline fixtures and local servers,
+not live third-party sites.

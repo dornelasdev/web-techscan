@@ -1,6 +1,5 @@
-// Package assets discovers asset references offline. It never fetches URLs or
-// executes scripts. The caller must supply the final page's HTML, not arbitrary
-// response bodies or redirect-hop content.
+// Package assets extracts static references and optionally collects bounded,
+// same-origin assets. It never executes scripts or follows nested references.
 package assets
 
 import (

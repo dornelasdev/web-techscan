@@ -2,11 +2,18 @@
 
 ## Unreleased
 
+- Added opt-in `--assets` collection/reporting: up to five sequential same-origin
+  direct JS/CSS assets, no asset redirects, one page-and-assets deadline, per-asset
+  and aggregate decoded/encoded budgets including failed reads. MIME/status checks
+  and safe per-item failure/skip reasons preserve page findings on optional failure.
+  Added optional schema-1 `assets` metadata, asset URL query redaction and terminal
+  sanitization. Default scans and findings are unchanged; asset fingerprints are
+  deferred. Added local collection, accounting, privacy and integration regressions.
 - Added offline asset-reference extraction groundwork using a pinned Go HTML
   parser: same-origin JS/CSS references, base resolution, deduplication, and
   bounded candidates/input, with positive/negative regression fixtures. This is
-  not yet wired into the CLI; no asset fetching, new fingerprints, or report
-  changes. Added the first module dependency, `golang.org/x/net v0.61.0`.
+  initially separate from the CLI (now connected by the collection checkpoint
+  above). Added the first module dependency, `golang.org/x/net v0.61.0`.
 - Added optional `--redact-query` for scan reports: replace entire queries in
   original/final/redirect URLs with `?[redacted]`, with a terminal policy note
   and optional `query_redacted: true` JSON metadata. Default output, actual

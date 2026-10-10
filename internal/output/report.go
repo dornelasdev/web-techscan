@@ -11,16 +11,17 @@ import (
 
 // Report is the versioned JSON contract, independent of internal detector types.
 type Report struct {
-	SchemaVersion int        `json:"schema_version"`
-	URL           string     `json:"url"`
-	FinalURL      string     `json:"final_url"`
-	QueryRedacted bool       `json:"query_redacted,omitempty"`
-	HTTPStatus    int        `json:"http_status"`
-	ResponseScope string     `json:"response_scope"`
-	BodyBytes     int        `json:"body_bytes"`
-	CatalogSize   int        `json:"catalog_size"`
-	Redirects     []Redirect `json:"redirects"`
-	Findings      []Finding  `json:"findings"`
+	SchemaVersion int          `json:"schema_version"`
+	URL           string       `json:"url"`
+	FinalURL      string       `json:"final_url"`
+	QueryRedacted bool         `json:"query_redacted,omitempty"`
+	HTTPStatus    int          `json:"http_status"`
+	ResponseScope string       `json:"response_scope"`
+	BodyBytes     int          `json:"body_bytes"`
+	CatalogSize   int          `json:"catalog_size"`
+	Redirects     []Redirect   `json:"redirects"`
+	Findings      []Finding    `json:"findings"`
+	Assets        *AssetReport `json:"assets,omitempty"`
 }
 
 type Redirect struct {
@@ -102,6 +103,14 @@ func (r Report) RedactQueries() Report {
 	for i := range r.Redirects {
 		r.Redirects[i].FromURL = redactURLQuery(r.Redirects[i].FromURL)
 		r.Redirects[i].ToURL = redactURLQuery(r.Redirects[i].ToURL)
+	}
+	if r.Assets != nil {
+		copy := *r.Assets
+		copy.Items = slices.Clone(copy.Items)
+		for i := range copy.Items {
+			copy.Items[i].URL = redactURLQuery(copy.Items[i].URL)
+		}
+		r.Assets = &copy
 	}
 	return r
 }

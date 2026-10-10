@@ -29,6 +29,25 @@ func Terminal(w io.Writer, report Report, color bool) error {
 	if report.ResponseScope == "http_error_response" {
 		fmt.Fprintln(&text, "Findings describe the returned HTTP error page.")
 	}
+	if assets := report.Assets; assets != nil {
+		fmt.Fprintf(&text, "Assets: %s — %d collected / %d attempted (direct same-origin scope)\n",
+			plain(assets.Status), assets.Collected, assets.Attempted)
+		if assets.Reason != "" {
+			fmt.Fprintf(&text, "  Reason: %s\n", plain(assets.Reason))
+		}
+		fmt.Fprintf(&text, "  Payload read: %d decoded / %d encoded bytes (includes failed reads/probes)\n", assets.DecodedBytes, assets.EncodedBytes)
+		fmt.Fprintf(&text, "  Excluded declarations: %d; retained duplicates: %d; reference limit reached: %t\n",
+			assets.SkippedDeclarations, assets.Duplicates, assets.Truncated)
+		for _, item := range assets.Items {
+			fmt.Fprintf(&text, "  - %s [%s] %s", plain(item.Status), plain(item.Kind), plain(item.URL))
+			if item.Reason != "" {
+				fmt.Fprintf(&text, " (%s)", plain(item.Reason))
+			}
+			fmt.Fprintln(&text)
+		}
+		fmt.Fprintln(&text, "  Collection only; asset contents do not contribute findings yet.")
+		fmt.Fprintln(&text)
+	}
 	if report.CatalogSize == 0 {
 		fmt.Fprintln(&text, "No fingerprints bundled; technology detection coverage is unavailable.")
 	} else if len(report.Findings) == 0 {
