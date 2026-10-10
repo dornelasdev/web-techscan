@@ -13,10 +13,15 @@ import (
 	"testing"
 
 	"webscan/internal/cli"
+	"webscan/internal/detect"
 	"webscan/internal/output"
 )
 
 func TestCLIBootstrapCSS(t *testing.T) {
+	engine, err := detect.LoadBundled()
+	if err != nil {
+		t.Fatal(err)
+	}
 	for _, fixture := range []string{"bootstrap-5.2.css", "bootstrap-5.3.min.css"} {
 		body, err := os.ReadFile("../detect/testdata/coverage/" + fixture)
 		if err != nil {
@@ -79,7 +84,7 @@ func TestCLIBootstrapCSS(t *testing.T) {
 						if err := json.Unmarshal(stdout.Bytes(), &report); err != nil {
 							t.Fatal(err)
 						}
-						if report.CatalogSize != 19 {
+						if report.CatalogSize != engine.Len() {
 							t.Errorf("catalog size=%d", report.CatalogSize)
 						}
 						if !enabled {

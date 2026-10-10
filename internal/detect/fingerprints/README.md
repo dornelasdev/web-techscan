@@ -107,9 +107,10 @@ markers should not become findings without sufficient supporting conditions.
 Raw HTML regexes can also match comments or examples, so choose distinctive
 patterns and document those limitations when reviewing coverage.
 The same limitation applies to asset regexes: code-shaped text may be copied or
-commented out. Asset coverage includes inferred Next.js JS manifest rules and a
-Bootstrap CSS banner/button rule. No asset-based language implication or version
-extraction is added. The UI-framework category is `ui_framework`.
+commented out. Asset coverage includes inferred Next.js JS manifest rules,
+React client runtime markers, and a Bootstrap CSS banner/button rule. No
+asset-based language implication or version extraction is added. The UI-framework
+category is `ui_framework`.
 
 Unknown JSON fields, unsupported schema versions, and invalid relationships
 fail catalog loading instead of silently reducing coverage. Changes to this

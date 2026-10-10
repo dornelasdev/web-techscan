@@ -7,8 +7,9 @@
 - Added AWS WAF action-header detection.
 - Added Nuxt header/HTML detection, Django CSRF cookie/input inference, and
   Ruby on Rails CSRF metadata inference.
-- Added Bootstrap CSS inference under UI frameworks. The catalog now has
-  19 technologies.
+- Added Bootstrap CSS inference under UI frameworks.
+- Added paired React 19-shaped client runtime inference in captured JavaScript.
+  The catalog now has 20 technologies.
 - Added opt-in `--assets` inspection of direct same-origin JS/CSS, with fixed
   attempt/body budgets, a shared deadline, MIME/status validation, and per-item
   collection metadata. Optional failures preserve page findings.

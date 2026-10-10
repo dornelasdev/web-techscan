@@ -13,6 +13,7 @@ import (
 	"testing"
 
 	"webscan/internal/cli"
+	"webscan/internal/detect"
 	"webscan/internal/output"
 )
 
@@ -20,6 +21,10 @@ const buildManifestFixture = `self.__BUILD_MANIFEST={"/fixture":["private-body.j
 const ssgManifestFixture = `self.__SSG_MANIFEST=new Set;self.__SSG_MANIFEST_CB&&self.__SSG_MANIFEST_CB();`
 
 func TestCLIAssetFindingsEvidenceAndPrivacy(t *testing.T) {
+	engine, err := detect.LoadBundled()
+	if err != nil {
+		t.Fatal(err)
+	}
 	for _, format := range []string{"json", "plain", "color"} {
 		for _, redacted := range []bool{false, true} {
 			for _, header := range []bool{false, true} {
@@ -97,7 +102,7 @@ func TestCLIAssetFindingsEvidenceAndPrivacy(t *testing.T) {
 						if err := json.Unmarshal(stdout.Bytes(), &report); err != nil {
 							t.Fatal(err)
 						}
-						if report.CatalogSize != 19 || len(report.Findings) != 2 || report.Findings[0].ID != "nextjs" || report.Findings[1].ID != "nginx" || report.Assets == nil || report.Assets.Status != "incomplete" || report.Assets.Collected != 2 {
+						if report.CatalogSize != engine.Len() || len(report.Findings) != 2 || report.Findings[0].ID != "nextjs" || report.Findings[1].ID != "nginx" || report.Assets == nil || report.Assets.Status != "incomplete" || report.Assets.Collected != 2 {
 							t.Fatalf("report=%+v assets=%+v", report, report.Assets)
 						}
 						next := report.Findings[0]

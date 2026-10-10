@@ -3,7 +3,7 @@
 [README](../README.md) · [Usage](usage.md) · [Policies](policies.md)
 
 Rules are embedded in the binary. Use `webscan --techs` to list its catalog.
-The development catalog contains 19 technologies; v0.2.0 contains 10.
+The development catalog contains 20 technologies; v0.2.0 contains 10.
 
 ## Evidence
 
@@ -30,8 +30,7 @@ origin or the complete stack.
 
 Rules and synthetic fixtures are authored for this project. No external
 fingerprint dataset or application bundle is imported. Review dates below
-record existing source reviews; this documentation rework did not revalidate
-upstream behavior. Branch links may change.
+identify provenance baselines, not exhaustive version coverage. Branch links may change.
 
 ## Web servers
 
@@ -161,6 +160,40 @@ text fallback, token validation, or security-posture assessment.
 Sources: [Django 5.2 CSRF](https://docs.djangoproject.com/en/5.2/ref/csrf/),
 [default settings](https://github.com/django/django/blob/5.2/django/conf/global_settings.py),
 [template renderer](https://github.com/django/django/blob/5.2/django/template/defaulttags.py).
+
+### React
+
+`asset-client-runtime`: paired markers in one accepted JavaScript capture.
+State: `inferred`. Requires both:
+
+- A dot-property assignment to
+  `__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE`.
+- An exact `Symbol.for("react.transitional.element")` call, with either quote style.
+
+Allow whitespace and renamed ASCII identifier receivers. The assignment accepts
+an identifier value followed by a semicolon, comma, closing brace, or end of body,
+or an object-literal start. Reads, comparisons, bare names, generic hooks, root
+elements, filenames, and either marker alone do not match. The Symbol call must
+be unqualified; bracket notation, escaped identifiers/strings, changed export
+shapes, and markers split across captures are outside this rule.
+
+The reviewed baseline is React 19.1.0's published client production runtime.
+Readable and compact synthetic fixtures test the accepted shapes; they are not
+full upstream bundles. React 18's older internals export plus `react.element`
+is not a fallback: Preact compatibility exposes older React API markers too.
+No version is reported, and the pattern does not establish a complete 19.x range.
+
+Inline scripts, off-origin assets, oversized/unselected bundles, and tree-shaken
+or split runtime output can be missed. Copied/commented code and forks retaining
+the pair can match; runtime execution/use is not established. Next.js does not
+automatically imply React. No backend language implication.
+
+Reviewed 2026-10-10. Sources:
+[v19.1.0 client exports](https://github.com/facebook/react/blob/v19.1.0/packages/react/src/ReactClient.js),
+[element symbols](https://github.com/facebook/react/blob/v19.1.0/packages/shared/ReactSymbols.js),
+[published production runtime](https://app.unpkg.com/react@19.1.0/files/cjs/react.production.js),
+[Preact 10.26.4 compatibility exports](https://github.com/preactjs/preact/blob/10.26.4/compat/src/index.js),
+[React MIT license](https://github.com/facebook/react/blob/v19.1.0/LICENSE).
 
 ### Ruby on Rails
 

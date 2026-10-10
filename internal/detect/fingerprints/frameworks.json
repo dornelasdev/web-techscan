@@ -124,6 +124,28 @@
       ]
     },
     {
+      "id": "react",
+      "name": "React",
+      "category": "framework",
+      "rules": [
+        {
+          "id": "asset-client-runtime",
+          "state": "inferred",
+          "description": "Paired React client-internals assignment and transitional element symbol suggest React",
+          "all": [
+            {
+              "source": "asset_javascript",
+              "pattern": "(?:^|[^A-Za-z0-9_$])[A-Za-z_$][A-Za-z0-9_$]*\\s*\\.\\s*__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE\\s*=\\s*(?:[A-Za-z_$][A-Za-z0-9_$]*\\s*(?:[;,}]|$)|\\{)"
+            },
+            {
+              "source": "asset_javascript",
+              "pattern": "(?:^|[^A-Za-z0-9_$\\.])Symbol\\s*\\.\\s*for\\s*\\(\\s*(?:\"react\\.transitional\\.element\"|'react\\.transitional\\.element')\\s*\\)"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "id": "rails",
       "name": "Ruby on Rails",
       "category": "framework",
