@@ -1,7 +1,7 @@
 # web-techscan
 
 A small Go CLI for identifying the likely web stack behind a single URL.
-Coverage includes web frameworks, web servers, CMSs, CDN/edge providers,
+Coverage includes web frameworks, UI frameworks, web servers, CMSs, CDN/edge providers,
 load balancers, WAFs, and supported programming-language inferences,
 with evidence attached to every finding.
 
@@ -18,11 +18,13 @@ v0.2.0 is the latest released baseline. Development since that tag adds
 Cloudflare and Amazon CloudFront header fingerprints plus AWS Application and
 Classic Load Balancer cookie-pair fingerprints, an AWS WAF action-header rule,
 Nuxt header/HTML fingerprints, Django cookie/HTML inference, and Rails paired
-CSRF metadata inference, bringing coverage to eighteen technologies.
+CSRF metadata inference, plus opt-in Bootstrap CSS inference, bringing coverage
+to nineteen technologies.
 These additions are unreleased;
 no new version is assigned. Default scans collect one final HTTP response;
 optional `--assets` adds bounded same-origin JS/CSS collection and reporting.
-Initial asset-content rules infer Next.js from paired generated-manifest markers.
+Asset-content rules infer Next.js from paired generated-manifest markers and
+Bootstrap from its identifying banner plus distinctive button CSS.
 
 ## Supported technologies
 
@@ -33,7 +35,7 @@ List the actual catalog bundled in your build without fetching a website:
 ./bin/webscan --techs --json
 ```
 
-Terminal output groups technologies under Web servers, Frameworks, CMS, Languages,
+Terminal output groups technologies under Web servers, Frameworks, UI frameworks, CMS, Languages,
 CDN/edge, Load balancers, and WAFs,
 with names sorted alphabetically (case-insensitive) within each category. The
 list updates automatically when fingerprints are added and the binary is rebuilt.
@@ -57,6 +59,7 @@ explicitly set to false.
 | Frameworks | Nuxt | Exact Nuxt X-Powered-By header; paired __NUXT_DATA__ script ID and /_nuxt/ script path support an inference |
 | Frameworks | Django | Default CSRF cookie name plus matching hidden-input markup support an inference |
 | Frameworks | Ruby on Rails | Paired CSRF meta tags support an inference |
+| UI frameworks | Bootstrap | Opt-in CSS inspection: identifying banner plus button variable declarations/usage support an inference; initial 5.2/5.3 coverage |
 | CMS | WordPress, Drupal, Joomla | Generator meta tags support an inference; Drupal's identifying X-Generator header supports detection |
 | Languages | PHP | Identifying X-Powered-By header or inference from Laravel |
 | CDN/edge | Cloudflare, Amazon CloudFront | Shaped CF-Ray header or identifying standalone CloudFront Via header, respectively |
@@ -65,7 +68,7 @@ explicitly set to false.
 
 This is a limited starting set. Missing or customized signals can produce no
 findings even when a supported technology is present. Header matches are
-direct evidence, not proof; cookie and HTML heuristics stay inferred. The
+direct evidence, not proof; cookie, HTML, and asset heuristics stay inferred. The
 initial catalog does not guess source languages from frontend assets or infer
 languages from web-server implementations. See the
 [coverage notes and official sources](internal/detect/fingerprints/SOURCES.md)
@@ -282,12 +285,14 @@ selected, bounded same-origin scope, not complete coverage of the site.
 
 Asset headers are never attributed to the page's server, and asset bodies are
 neither combined with HTML nor printed. All markers in an asset rule must match
-one file; findings retain that file's URL as evidence. Initial rules cover only
-Next.js build/SSG manifests and remain **inferred**: copied, cached or commented
-code can still match. They do not establish that a script ran or identify a
-backend language/version. CSS is collected but has no production fingerprints yet.
-Catalog size stays at eighteen; existing page/header rules remain available.
-See the [reviewed rules and limitations](internal/detect/fingerprints/SOURCES.md#nextjs-asset-manifests--reviewed-2026-10-10),
+one file; findings retain that file's URL as evidence. Rules cover Next.js
+build/SSG manifests and Bootstrap CSS and remain **inferred**: copied, cached or
+commented code can still match. They do not establish that a script ran or that
+styles were applied, or identify a backend language/version. Bootstrap coverage
+starts with 5.2/5.3 banner-and-button shapes; stripped banners, customized prefixes,
+older releases and component-only stylesheets may be missed. Off-origin CDN
+stylesheets are not fetched. Existing page/header rules remain available.
+See the [reviewed rules and limitations](internal/detect/fingerprints/SOURCES.md),
 [collection policy](internal/assets/README.md)
 and [report contract](internal/output/README.md#optional-asset-collection).
 
@@ -441,7 +446,7 @@ Stop the Python server with Ctrl-C when finished.
 - Nuxt HTML coverage requires the single-app JSON-payload script ID and a default
   `/_nuxt/` script path together. Legacy inline payloads, multi-app/custom markers,
   or renamed asset directories can be missed without the identifying header.
-- The development catalog contains eighteen technologies. No version extraction, confidence
+- The development catalog contains nineteen technologies. No version extraction, confidence
   percentages, or automatic fingerprint updates are included.
 - Reports retain URL query strings by default; `--redact-query` masks them in
   report output. Hostnames/paths may still contain sensitive data. Review reports

@@ -2,13 +2,20 @@
 
 ## Unreleased
 
+- Added opt-in Bootstrap CSS inference under the new `ui_framework` category,
+  bringing the catalog to nineteen technologies. Requires a reviewed 5.2/5.3
+  identifying banner plus button variable declaration/usage in one captured
+  stylesheet; no filename-only, inline CSS, or backend-language inference.
+  Added synthetic readable/minified fixtures, near-miss/source-isolation checks,
+  catalog grouping, and local terminal/JSON regressions. Collection policies,
+  dependencies, schema versions, and default page-only behavior are unchanged.
 - Added initial opt-in asset-content inference for Next.js build/SSG manifests,
   with separate JS/CSS matcher sources and same-file rule evaluation. Evidence
   retains each matching asset URL, covered by query redaction and terminal
   sanitization. Asset headers never become page findings; failed/partial captures
   are excluded. Existing header detections can upgrade findings without losing
-  asset evidence. The catalog remains at eighteen technologies; no CSS production
-  rules, language/version inference, JS execution or network-policy changes.
+  asset evidence. That checkpoint retained eighteen technologies without CSS
+  production rules, language/version inference, JS execution or network-policy changes.
   Added detector validation/isolation, provenance and local CLI regressions.
   Asset report mode is now `fingerprint_inspection`; default scans are unchanged.
 - Added opt-in `--assets` collection/reporting: up to five sequential same-origin

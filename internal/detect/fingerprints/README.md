@@ -4,7 +4,7 @@ JSON files in this directory are embedded at build time. Each file contains
 `schema_version: 1` and a `technologies` array. Files are loaded together, so
 inference relationships may reference technology IDs in another file.
 
-The catalog is split across `servers.json`, `frameworks.json`, `cms.json`,
+The catalog is split across `servers.json`, `frameworks.json`, `ui-frameworks.json`, `cms.json`,
 `languages.json`, `cdn.json`, `load-balancers.json`, and `waf.json`.
 See [coverage and sources](SOURCES.md) for the supported
 technologies, rule rationale, and limitations. Synthetic examples live under
@@ -107,8 +107,9 @@ markers should not become findings without sufficient supporting conditions.
 Raw HTML regexes can also match comments or examples, so choose distinctive
 patterns and document those limitations when reviewing coverage.
 The same limitation applies to asset regexes: code-shaped text may be copied or
-commented out. Initial asset coverage adds only two inferred Next.js JS manifest
-rules; no CSS production fingerprints, language implication or version extraction.
+commented out. Asset coverage includes inferred Next.js JS manifest rules and a
+Bootstrap CSS banner/button rule. No asset-based language implication or version
+extraction is added. The UI-framework category is `ui_framework`.
 
 Unknown JSON fields, unsupported schema versions, and invalid relationships
 fail catalog loading instead of silently reducing coverage. Changes to this

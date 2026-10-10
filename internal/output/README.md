@@ -24,9 +24,11 @@ exit code too.
 | `assets` | object, optional | Bounded collection metadata when `--assets` is enabled; omitted by default |
 
 Each finding contains `id`, `name`, `category`, `state`, and `evidence`.
-Categories currently include `framework`, `web_server`, `cms`, `language`, `cdn`,
+Categories currently include `framework`, `ui_framework`, `web_server`, `cms`, `language`, `cdn`,
 `load_balancer`, and `waf`.
 New category strings may be added; consumers should preserve unknown values.
+`ui_framework` is displayed as UI framework in findings and UI frameworks in the
+catalog. Bootstrap CSS evidence remains inferred, not proof of applied styles.
 `cdn` is displayed as CDN/edge. It describes identifying edge-provider evidence,
 not enabled security services, cache behavior, or the hidden origin's identity.
 `load_balancer` is displayed as `load balancer` in findings and Load balancers
@@ -85,8 +87,8 @@ those structures does not implicitly change the public JSON shape.
 `--assets` adds an `assets` object in schema 1; default JSON is unchanged.
 Captured bodies now contribute through supported asset rules
 (`mode: fingerprint_inspection`, replacing the unreleased `collection_only` mode).
-Initial production rules cover only Next.js JS manifests; CSS captures currently
-have no production fingerprints. Collection completeness is not detection coverage.
+Production asset rules cover Next.js JS manifests and Bootstrap CSS.
+Collection completeness is not detection coverage.
 Asset failures do not change successful page scans to exit 1; consumers needing
 all selected assets must check the collection status and individual items.
 
@@ -169,7 +171,7 @@ only `id`, `name`, and `category`; support does not assign a finding state or
 guarantee identification. Technologies supported only by inference are included.
 `catalog_size` equals the array length. An empty catalog uses `technologies: []`.
 
-Both catalog formats order categories as `web_server`, `framework`, `cms`,
+Both catalog formats order categories as `web_server`, `framework`, `ui_framework`, `cms`,
 `language`, `cdn`, `load_balancer`, `waf`,
 then names case-insensitively within each category, with ID as a tie-breaker.
 Terminal output uses friendly group headings and a coverage disclaimer. It is

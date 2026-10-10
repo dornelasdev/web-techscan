@@ -50,18 +50,20 @@ func categoryOrder(category string) int {
 		return 0
 	case "framework":
 		return 1
-	case "cms":
+	case "ui_framework":
 		return 2
-	case "language":
+	case "cms":
 		return 3
-	case "cdn":
+	case "language":
 		return 4
-	case "load_balancer":
+	case "cdn":
 		return 5
-	case "waf":
+	case "load_balancer":
 		return 6
-	default:
+	case "waf":
 		return 7
+	default:
+		return 8
 	}
 }
 
@@ -86,6 +88,8 @@ func CatalogTerminal(w io.Writer, report CatalogReport) error {
 				title = "Web servers"
 			case "framework":
 				title = "Frameworks"
+			case "ui_framework":
+				title = "UI frameworks"
 			case "cms":
 				title = "CMS"
 			case "language":

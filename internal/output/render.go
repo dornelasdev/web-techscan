@@ -57,6 +57,8 @@ func Terminal(w io.Writer, report Report, color bool) error {
 			category := finding.Category
 			if category == "web_server" {
 				category = "web server"
+			} else if category == "ui_framework" {
+				category = "UI framework"
 			} else if category == "cms" {
 				category = "CMS"
 			} else if category == "cdn" {

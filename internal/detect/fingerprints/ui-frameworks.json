@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "technologies": [
+    {
+      "id": "bootstrap",
+      "name": "Bootstrap",
+      "category": "ui_framework",
+      "rules": [
+        {
+          "id": "asset-css-banner-and-buttons",
+          "state": "inferred",
+          "description": "Bootstrap banner and button CSS variable declarations/usage suggest Bootstrap",
+          "all": [
+            {
+              "source": "asset_css",
+              "pattern": "(?s:/\\*![\\s*]*Bootstrap\\s+v5\\.[23]\\.[0-9]+\\s+\\(https://getbootstrap\\.com/\\).*?\\*/)"
+            },
+            {
+              "source": "asset_css",
+              "pattern": "(?:^|[{}]|\\*/)\\s*\\.btn\\s*\\{\\s*(?:[^{}]*;\\s*)?--bs-btn-padding-x\\s*:\\s*[^;{}\\s][^;{}]*;\\s*(?:[^{}]*;\\s*)?padding\\s*:\\s*var\\(\\s*--bs-btn-padding-y\\s*\\)\\s+var\\(\\s*--bs-btn-padding-x\\s*\\)\\s*(?:;[^{}]*)?\\}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

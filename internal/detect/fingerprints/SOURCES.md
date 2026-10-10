@@ -440,7 +440,7 @@ counts. Catalog tests cover WAF grouping and offline listing. Tests are user-run
 ## Next.js asset manifests — reviewed 2026-10-10
 
 Two additional rules for the existing Next.js entry, available only with
-`--assets`. The catalog remains at eighteen technologies.
+`--assets`. That checkpoint retained eighteen technologies.
 
 | Rule | Same-script evidence | State | Primary source |
 | --- | --- | --- | --- |
@@ -474,3 +474,49 @@ imported. Next.js publishes its source under the [MIT license](https://github.co
 Tests cover marker boundaries, same-file/source isolation, duplicate evidence,
 header upgrades, redaction, MIME/body failures and default-off behavior. They are
 authored for user execution, not evidence of measured real-world accuracy.
+
+## Bootstrap CSS — reviewed 2026-10-10
+
+Bootstrap is the first `ui_framework` entry and first production CSS rule,
+bringing the catalog to nineteen technologies. `asset-css-banner-and-buttons`
+requires both markers in one successfully captured CSS body:
+
+- A closed `/*! ... */` banner beginning with Bootstrap, a stable `v5.2.x` or
+  `v5.3.x` version, and the exact `https://getbootstrap.com/` project URL.
+- A standalone `.btn` rule with a `--bs-btn-padding-x` declaration followed by
+  `padding: var(--bs-btn-padding-y) var(--bs-btn-padding-x)` in the same closed
+  block. Allow CSS whitespace, other declarations, and customized values; do
+  not depend on default colors or dimensions. Matching is case-sensitive.
+
+Reviewed baselines: [Bootstrap v5.2.3 CSS](https://github.com/twbs/bootstrap/blob/v5.2.3/dist/css/bootstrap.css)
+and [v5.3.3 CSS](https://github.com/twbs/bootstrap/blob/v5.3.3/dist/css/bootstrap.css).
+The [button documentation](https://getbootstrap.com/docs/5.3/components/buttons/#variables)
+dates these local CSS variables to 5.2.0. This is a conservative shape baseline,
+not a claim to identify every Bootstrap build or validate its reported version.
+No version is extracted into findings. Readable and compact synthetic fixtures
+exercise the same markers without importing a distribution or fingerprint set.
+Bootstrap is [MIT-licensed](https://github.com/twbs/bootstrap/blob/v5.3.3/LICENSE).
+
+The rule remains inferred. Raw-text regexes do not parse CSS or distinguish
+active styles from copied/commented examples or unused bundles. Bootstrap-derived
+forks retaining these markers can match. Presence does not establish that the
+page applies the styles, uses Bootstrap JS, or has any particular backend.
+Evidence contains two `asset_css` signal locations and the captured asset URL,
+not CSS values or banner versions. Existing redaction and display policies apply.
+
+A filename, generic `.btn` class, bare `--bs-` prefix, banner alone, or markers
+split across files cannot match. HTML (including inline style blocks), JS bodies,
+headers and cookies are not CSS inputs. The initial rule intentionally misses
+older/prerelease/unreviewed version families, stripped banners, reordered button
+declarations, renamed/combined selectors, escaped identifiers and customized
+prefixes. Bootstrap supports [prefix customization](https://getbootstrap.com/docs/5.3/customize/css-variables/#prefix).
+Partial grid/reboot builds without button CSS are outside coverage. Minification
+retaining the banner and reviewed declaration shape is supported, not every
+possible optimizer transformation. No separate RTL coverage claim is made.
+
+Only `--assets` supplies CSS captures; same-origin selection, MIME/status checks,
+first-five attempts and existing body/deadline budgets remain unchanged. External
+CDN stylesheets and styles beyond those bounds may never reach detection.
+Focused detector and local CLI tests cover positive shapes, near misses, source
+and block/file isolation, evidence deduplication, both formats and default-off
+behavior. Tests are user-run; combined JS/CSS robustness is the next checkpoint.

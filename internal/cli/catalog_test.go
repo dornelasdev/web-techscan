@@ -67,6 +67,9 @@ func TestTechsCatalogOffline(t *testing.T) {
 				if !strings.Contains(stdout.String(), "  Nuxt\n  Ruby on Rails\n") {
 					t.Error("Rails must appear in the alphabetically ordered framework group")
 				}
+				if !strings.Contains(stdout.String(), "\nUI frameworks\n  Bootstrap\n") {
+					t.Error("Bootstrap must appear under UI frameworks")
+				}
 				return
 			}
 			var report output.CatalogReport
@@ -88,6 +91,9 @@ func TestTechsCatalogOffline(t *testing.T) {
 			}
 			if got := byID["rails"]; got.Name != "Ruby on Rails" || got.Category != "framework" {
 				t.Errorf("missing or incorrect Rails metadata: %+v", got)
+			}
+			if got := byID["bootstrap"]; got.Name != "Bootstrap" || got.Category != "ui_framework" {
+				t.Errorf("missing or incorrect Bootstrap metadata: %+v", got)
 			}
 			for _, tech := range engine.Technologies() {
 				if got := byID[tech.ID]; got.Name != tech.Name || got.Category != string(tech.Category) {

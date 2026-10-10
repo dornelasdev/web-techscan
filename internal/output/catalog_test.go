@@ -17,6 +17,7 @@ func TestCatalogOrderingAndRendering(t *testing.T) {
 		{ID: "php", Name: "PHP", Category: detect.Language},
 		{ID: "nginx", Name: "nginx", Category: detect.WebServer},
 		{ID: "nextjs", Name: "Next.js", Category: detect.Framework},
+		{ID: "bootstrap", Name: "Bootstrap", Category: detect.UIFramework},
 		{ID: "apache", Name: "Apache HTTP Server", Category: detect.WebServer},
 		{ID: "wordpress", Name: "WordPress", Category: detect.CMS},
 		{ID: "cloudflare", Name: "Cloudflare", Category: detect.CDN},
@@ -24,19 +25,19 @@ func TestCatalogOrderingAndRendering(t *testing.T) {
 	}
 	report := output.NewCatalogReport(items)
 	items[0].Name = "changed"
-	wantIDs := []string{"apache", "nginx", "nextjs", "wordpress", "php", "cloudfront", "cloudflare"}
+	wantIDs := []string{"apache", "nginx", "nextjs", "bootstrap", "wordpress", "php", "cloudfront", "cloudflare"}
 	var ids []string
 	for _, item := range report.Technologies {
 		ids = append(ids, item.ID)
 	}
-	if !reflect.DeepEqual(ids, wantIDs) || report.Technologies[4].Name != "PHP" {
+	if !reflect.DeepEqual(ids, wantIDs) || report.Technologies[5].Name != "PHP" {
 		t.Fatalf("unexpected ordering or shared metadata: %+v", report)
 	}
 	var terminal, json bytes.Buffer
 	if err := output.CatalogTerminal(&terminal, report); err != nil {
 		t.Fatal(err)
 	}
-	want := "Supported technologies (7)\n\nWeb servers\n  Apache HTTP Server\n  nginx\n\nFrameworks\n  Next.js\n\nCMS\n  WordPress\n\nLanguages\n  PHP\n\nCDN/edge\n  Amazon CloudFront\n  Cloudflare\n\nCoverage depends on exposed signals; identification is not guaranteed.\n"
+	want := "Supported technologies (8)\n\nWeb servers\n  Apache HTTP Server\n  nginx\n\nFrameworks\n  Next.js\n\nUI frameworks\n  Bootstrap\n\nCMS\n  WordPress\n\nLanguages\n  PHP\n\nCDN/edge\n  Amazon CloudFront\n  Cloudflare\n\nCoverage depends on exposed signals; identification is not guaranteed.\n"
 	if terminal.String() != want {
 		t.Errorf("terminal=%q, want %q", terminal.String(), want)
 	}

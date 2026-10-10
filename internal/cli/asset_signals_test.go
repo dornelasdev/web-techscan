@@ -97,7 +97,7 @@ func TestCLIAssetFindingsEvidenceAndPrivacy(t *testing.T) {
 						if err := json.Unmarshal(stdout.Bytes(), &report); err != nil {
 							t.Fatal(err)
 						}
-						if report.CatalogSize != 18 || len(report.Findings) != 2 || report.Findings[0].ID != "nextjs" || report.Findings[1].ID != "nginx" || report.Assets == nil || report.Assets.Status != "incomplete" || report.Assets.Collected != 2 {
+						if report.CatalogSize != 19 || len(report.Findings) != 2 || report.Findings[0].ID != "nextjs" || report.Findings[1].ID != "nginx" || report.Assets == nil || report.Assets.Status != "incomplete" || report.Assets.Collected != 2 {
 							t.Fatalf("report=%+v assets=%+v", report, report.Assets)
 						}
 						next := report.Findings[0]
