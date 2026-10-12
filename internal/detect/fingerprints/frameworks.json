@@ -7,6 +7,25 @@
       "category": "framework",
       "rules": [
         {
+          "id": "asset-component-runtime",
+          "state": "inferred",
+          "description": "Paired context-key, component-definition and host-version shapes in captured JavaScript suggest Angular",
+          "all": [
+            {
+              "source": "asset_javascript",
+              "pattern": "(?:^|[;,{}])\\s*(?:(?:var|let|const)\\s+)?[A-Za-z_$][A-Za-z0-9_$]*\\s*=\\s*(?:\"__ngContext__\"|'__ngContext__')\\s*(?:[;,}]|$)"
+            },
+            {
+              "source": "asset_javascript",
+              "pattern": "(?:^|[^A-Za-z0-9_$.\\\\ɵ])[A-Za-z_$][A-Za-z0-9_$]*\\s*\\.\\s*(?:ɵcmp|\\\\u0275cmp)\\s*=\\s*[A-Za-z_$][A-Za-z0-9_$]*(?:\\s*\\.\\s*[A-Za-z_$][A-Za-z0-9_$]*)*\\s*\\(\\s*\\{\\s*type\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*[,}]"
+            },
+            {
+              "source": "asset_javascript",
+              "pattern": "\\[\\s*(?:\"ng-version\"|'ng-version')\\s*,\\s*(?:\"(?:[2-9]|[1-9][0-9]+)\\.(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)\"|'(?:[2-9]|[1-9][0-9]+)\\.(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)')\\s*\\]"
+            }
+          ]
+        },
+        {
           "id": "server-host-attributes",
           "state": "inferred",
           "description": "Paired ng-version and ng-server-context attributes on one tag suggest Angular",

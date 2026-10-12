@@ -11,6 +11,9 @@
 - Added paired React 19-shaped client runtime inference in captured JavaScript.
 - Added Angular HTML inference from paired version/server-context attributes
   on one tag, with same-tag boundaries, source isolation and CLI regressions.
+- Added Angular component-runtime inference from three JS indicators in one
+  captured asset, including escaped component properties; collection limits
+  and version reporting are unchanged.
 - Added ReactDOM 18/19-shaped key/error-formatter inference for the existing React
   finding, accepting exact legacy/modern error URLs with compatibility decoys
   and client/renderer coexistence checks.

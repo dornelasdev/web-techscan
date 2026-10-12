@@ -78,7 +78,7 @@ Category: `framework`.
 
 Either attribute alone, separate tags, unquoted/empty/malformed values,
 `data-ng-*` lookalikes, a generic `app-root`, AngularJS `ng-app`, headers,
-cookie values and asset bodies do not independently identify Angular.
+cookie values and asset bodies do not satisfy this HTML rule.
 Prerelease/custom versions, source placeholders, encoded values and removed
 attributes are outside this initial rule. Duplicate pairs yield one evidence item.
 
@@ -86,14 +86,42 @@ Coverage targets server-rendered/prerendered HTML exposing both markers.
 Client-rendered shells can lack them until JavaScript runs; the tool does not
 execute it. The pair does not establish a particular rendering mode or server
 implementation. Copied/commented tags and string examples can match because
-HTML detection is raw-text matching, not DOM parsing. No AngularJS detection,
-version reporting, backend-language implication or Angular asset rule.
+HTML detection is raw-text matching, not DOM parsing.
 
-Reviewed 2026-10-12 against Angular 20.3.0 source and rendering documentation.
-Fixtures are authored marker scaffolds, not imported website captures. No
-compiled Angular bundle baseline was validated in this checkpoint.
+`asset-component-runtime`: all three code-shaped indicators in one captured
+JavaScript body. State: `inferred`.
+
+- An ASCII identifier assigned the exact quoted `__ngContext__` key, optionally
+  declared with `var`, `let`, or `const`, at a statement/declaration boundary.
+- A dot-property `ɵcmp` assignment (literal or `\u0275cmp`) on an ASCII identifier
+  receiver, including `this`. The value is an identifier/member call whose object
+  argument starts with `type: <identifier>` followed by a comma or closing brace.
+- A two-element array containing exact quoted `ng-version` and a quoted stable
+  `major.minor.patch` version, major 2 or later, without leading zeros.
+
+Single/double quotes, whitespace and renamed ASCII identifiers are supported.
+Reads, comparisons, directive-only `ɵdir`, bracket/static-field definitions,
+generic API names, filenames and partial/split-file triples are insufficient.
+Only the reviewed `\u0275cmp` escape is supported, not arbitrary JS escapes.
+The matchers do not validate full JS syntax, scope or linkage between variables.
+Copied/commented code can match; execution and application use are not established.
+
+JS review used Angular 20.3.0 package modules and a user-downloaded minified
+Ryanair main bundle whose bytes matched its page integrity hash. That bundle
+retains escaped component assignments and multiple host-version arrays; it is
+not evidence of one site-wide version or coverage across all Angular releases.
+The 3,151,142-byte main exceeds the fixed 512 KiB per-asset and 2 MiB combined
+decoded budgets. Its small loader lacks the triple. Larger, split, off-origin,
+tree-shaken or differently compiled bundles can be missed; imports are not followed.
+
+Both rules produce one Angular finding with independent HTML/asset evidence.
+Neither reports versions, identifies AngularJS, implies a backend language,
+or executes JavaScript. Fixtures are authored scaffolds, not imported runtimes
+or website captures. Reviewed 2026-10-12.
 Sources:
 [host attributes](https://github.com/angular/angular/blob/20.3.0/packages/core/src/render3/component_ref.ts),
+[runtime context](https://github.com/angular/angular/blob/20.3.0/packages/core/src/render3/context_discovery.ts),
+[published runtime module](https://unpkg.com/@angular/core@20.3.0/fesm2022/debug_node.mjs),
 [server context and serialization](https://github.com/angular/angular/blob/20.3.0/packages/platform-server/src/utils.ts),
 [rendering modes](https://angular.dev/guide/ssr),
 [MIT license](https://angular.dev/license).

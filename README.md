@@ -42,7 +42,7 @@ UI frameworks, CMSs, languages, CDN/edge providers, load balancers, and WAFs.
 Default scans inspect the final response. `--assets` also inspects bounded,
 directly referenced same-origin JS/CSS. Asset rules currently cover Next.js
 manifests, React client/ReactDOM runtime markers, Vue 3-shaped renderer markers,
-and Bootstrap CSS.
+Angular component-runtime markers, and Bootstrap CSS.
 
 There is no crawling, JavaScript execution, version extraction, bulk scanning,
 or vulnerability testing. Findings describe exposed signals; intermediaries
