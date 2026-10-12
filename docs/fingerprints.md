@@ -3,7 +3,7 @@
 [README](../README.md) · [Usage](usage.md) · [Policies](policies.md)
 
 Rules are embedded in the binary. Use `webscan --techs` to list its catalog.
-The development catalog contains 21 technologies; v0.2.0 contains 10.
+The development catalog contains 22 technologies; v0.2.0 contains 10.
 
 ## Evidence
 
@@ -63,6 +63,40 @@ Sources: [nginx server_tokens](https://nginx.org/en/docs/http/ngx_http_core_modu
 ## Frameworks
 
 Category: `framework`.
+
+### Angular
+
+`server-host-attributes`: a complete opening tag containing both quoted
+`ng-version` and `ng-server-context` attributes. State: `inferred`.
+
+- Version: stable `major.minor.patch`, major 2 or later, no leading zeros.
+- Server context: one or more ASCII letters, digits, or hyphens; case-sensitive.
+- Both attributes must be on the same tag, in either order. Tag and attribute
+  names are case-insensitive; unrelated attributes and whitespace are allowed.
+- Evidence has one HTML signal location because one compound matcher binds
+  the pair. Attribute values are not extracted or reported.
+
+Either attribute alone, separate tags, unquoted/empty/malformed values,
+`data-ng-*` lookalikes, a generic `app-root`, AngularJS `ng-app`, headers,
+cookie values and asset bodies do not independently identify Angular.
+Prerelease/custom versions, source placeholders, encoded values and removed
+attributes are outside this initial rule. Duplicate pairs yield one evidence item.
+
+Coverage targets server-rendered/prerendered HTML exposing both markers.
+Client-rendered shells can lack them until JavaScript runs; the tool does not
+execute it. The pair does not establish a particular rendering mode or server
+implementation. Copied/commented tags and string examples can match because
+HTML detection is raw-text matching, not DOM parsing. No AngularJS detection,
+version reporting, backend-language implication or Angular asset rule.
+
+Reviewed 2026-10-12 against Angular 20.3.0 source and rendering documentation.
+Fixtures are authored marker scaffolds, not imported website captures. No
+compiled Angular bundle baseline was validated in this checkpoint.
+Sources:
+[host attributes](https://github.com/angular/angular/blob/20.3.0/packages/core/src/render3/component_ref.ts),
+[server context and serialization](https://github.com/angular/angular/blob/20.3.0/packages/platform-server/src/utils.ts),
+[rendering modes](https://angular.dev/guide/ssr),
+[MIT license](https://angular.dev/license).
 
 ### Express
 

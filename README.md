@@ -36,7 +36,7 @@ guarantees. Missing findings do not establish that a technology is absent.
 
 ## Coverage
 
-The development catalog includes 21 technologies across web servers, frameworks,
+The development catalog includes 22 technologies across web servers, frameworks,
 UI frameworks, CMSs, languages, CDN/edge providers, load balancers, and WAFs.
 
 Default scans inspect the final response. `--assets` also inspects bounded,

@@ -61,8 +61,8 @@ func TestTechsCatalogOffline(t *testing.T) {
 				if !strings.Contains(stdout.String(), "  Next.js\n  Nuxt\n") {
 					t.Error("Nuxt must appear in the alphabetically ordered framework group")
 				}
-				if !strings.Contains(stdout.String(), "Frameworks\n  Django\n  Express\n") {
-					t.Error("Django must appear in the alphabetically ordered framework group")
+				if !strings.Contains(stdout.String(), "Frameworks\n  Angular\n  Django\n  Express\n") {
+					t.Error("Angular and Django must appear in the alphabetically ordered framework group")
 				}
 				if !strings.Contains(stdout.String(), "  Nuxt\n  React\n  Ruby on Rails\n") {
 					t.Error("React and Rails must appear in the alphabetically ordered framework group")
@@ -85,6 +85,9 @@ func TestTechsCatalogOffline(t *testing.T) {
 			byID := make(map[string]output.Technology)
 			for _, tech := range report.Technologies {
 				byID[tech.ID] = tech
+			}
+			if got := byID["angular"]; got.Name != "Angular" || got.Category != "framework" {
+				t.Errorf("missing or incorrect Angular metadata: %+v", got)
 			}
 			if got := byID["nuxt"]; got.Name != "Nuxt" || got.Category != "framework" {
 				t.Errorf("missing or incorrect Nuxt metadata: %+v", got)
