@@ -92,7 +92,7 @@ func Collect(ctx context.Context, client Fetcher, page fetch.Snapshot) Collectio
 		default:
 			mediaTypes := []string{"text/css"}
 			if ref.Kind == JavaScript {
-				mediaTypes = []string{"text/javascript", "application/javascript", "text/ecmascript", "application/ecmascript"}
+				mediaTypes = []string{"text/javascript", "application/javascript", "text/ecmascript", "application/ecmascript", "application/x-javascript"}
 			}
 			// Reserve one byte in each remaining aggregate budget for the
 			// overflow probe. Even failed reads cannot exceed combined caps.

@@ -38,7 +38,7 @@ func TestCollectBoundedReferencesAndSeparateBodies(t *testing.T) {
 		urls = append(urls, url)
 		wantTypes := []string{"text/css"}
 		if len(urls) == 1 {
-			wantTypes = []string{"text/javascript", "application/javascript", "text/ecmascript", "application/ecmascript"}
+			wantTypes = []string{"text/javascript", "application/javascript", "text/ecmascript", "application/ecmascript", "application/x-javascript"}
 		}
 		if !reflect.DeepEqual(options.MediaTypes, wantTypes) || options.MaxBodyBytes != assets.MaxAssetDecodedBytes || options.MaxEncodedBodyBytes != assets.MaxAssetEncodedBytes {
 			t.Errorf("unexpected request options: %+v", options)

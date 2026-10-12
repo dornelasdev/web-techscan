@@ -104,8 +104,10 @@ are allowed, just like page fetching. This is not a public untrusted-URL service
 
 The fetch layer rejects non-2xx, 206 and Content-Range responses before reading
 their bodies. It requires exactly one valid Content-Type: `text/css` for styles,
-or `text/javascript`, `application/javascript`, `text/ecmascript`, or
-`application/ecmascript` for scripts. MIME parameters are parsed, but collection
+or `text/javascript`, `application/javascript`, `text/ecmascript`,
+`application/ecmascript`, or `application/x-javascript` for scripts. This response
+alias does not change the HTML declaration types accepted by `Extract` above.
+MIME parameters are parsed, but collection
 does not transcode or interpret asset contents. No MIME sniffing or file-extension
 fallback. Successful bodyless responses can yield empty captures. Missing or
 unsupported MIME, unsupported content encoding, corruption and truncation are

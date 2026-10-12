@@ -101,9 +101,13 @@ authorization, Referer, asset redirects, or application retries. Page downgrade
 permission does not allow asset redirects.
 
 Accept successful, non-partial responses with an explicit matching MIME type:
-`text/css`, `text/javascript`, `application/javascript`, `text/ecmascript`, or
-`application/ecmascript`, as appropriate for the reference kind. Reject missing
-or mismatched MIME, HTTP 206, and Content-Range responses. Do not sniff asset MIME.
+`text/css` for stylesheets; `text/javascript`, `application/javascript`,
+`text/ecmascript`, `application/ecmascript`, or `application/x-javascript` for
+scripts. The added alias is a [recognized JavaScript MIME type](https://mimesniff.spec.whatwg.org/#javascript-mime-type).
+Require one valid Content-Type; media-type casing and valid parameters are handled
+by the MIME parser. Reject missing, repeated, malformed or mismatched MIME,
+HTTP 206, and Content-Range responses. Do not sniff asset MIME or trust extensions.
+This response allowlist does not expand the extractor's HTML script-type hints.
 
 ### Detection and failures
 

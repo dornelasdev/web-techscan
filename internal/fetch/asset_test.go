@@ -25,6 +25,14 @@ func TestFetchAssetResponsePolicyAndCleanup(t *testing.T) {
 	}{
 		{"javascript", 200, []string{"application/javascript; charset=utf-8"}, "", nil},
 		{"case-insensitive-mime", 200, []string{"TEXT/JAVASCRIPT"}, "", nil},
+		{"legacy-javascript", 200, []string{"application/x-javascript"}, "", nil},
+		{"legacy-case-and-parameters", 200, []string{"APPLICATION/X-JAVASCRIPT; charset=UTF-8"}, "", nil},
+		{"legacy-lookalike", 200, []string{"application/x-javascript-extra"}, "", ErrAssetMediaType},
+		{"legacy-malformed", 200, []string{"application/x-javascript; broken"}, "", ErrAssetMediaType},
+		{"legacy-repeated", 200, []string{"application/x-javascript", "application/x-javascript"}, "", ErrAssetMediaType},
+		{"other-legacy-not-enabled", 200, []string{"application/x-ecmascript"}, "", ErrAssetMediaType},
+		{"plain-is-not-js", 200, []string{"text/plain"}, "", ErrAssetMediaType},
+		{"binary-is-not-js", 200, []string{"application/octet-stream"}, "", ErrAssetMediaType},
 		{"redirect", 302, []string{"text/javascript"}, "/private-target?secret", ErrAssetRedirect},
 		{"cross-origin-redirect", 307, []string{"text/javascript"}, "http://other.invalid/private", ErrAssetRedirect},
 		{"downgrade", 301, []string{"text/javascript"}, "http://fixture.invalid/private", ErrAssetRedirect},
@@ -64,7 +72,7 @@ func TestFetchAssetResponsePolicyAndCleanup(t *testing.T) {
 					close: func() error { closed = true; return nil },
 				}}, nil
 			}))
-			got, err := c.FetchAsset(context.Background(), "https://fixture.invalid/file?private-query", AssetOptions{32, 64, []string{"text/javascript", "application/javascript"}})
+			got, err := c.FetchAsset(context.Background(), "https://fixture.invalid/file?private-query", AssetOptions{32, 64, []string{"text/javascript", "application/javascript", "application/x-javascript"}})
 			if !errors.Is(err, tc.wantErr) || got.StatusCode != tc.status || !closed || calls != 1 {
 				t.Fatalf("result=%+v err=%v closed=%t calls=%d", got, err, closed, calls)
 			}

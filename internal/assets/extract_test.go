@@ -121,6 +121,8 @@ func TestMarkupDecoysAndTypes(t *testing.T) {
 		`<link rel=notstylesheet href=/fake.css><link rel=stylesheet-extra href=/fake.css>`,
 		"<link rel='preload\u00a0stylesheet' href=/fake.css>",
 		`<script>import '/fake.js'</script><style>@import '/fake.css';</style>`,
+		// Response MIME compatibility does not expand HTML type hints.
+		`<script type="application/x-javascript" src=/fake.js></script>`,
 	} {
 		t.Run(markup, func(t *testing.T) {
 			if got := extract(t, markup); len(got.References) != 0 {

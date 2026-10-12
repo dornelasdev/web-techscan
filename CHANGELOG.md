@@ -19,6 +19,9 @@
 - Added opt-in `--assets` inspection of direct same-origin JS/CSS, with fixed
   attempt/body budgets, a shared deadline, MIME/status validation, and per-item
   collection metadata. Optional failures preserve page findings.
+- Accepted explicit `application/x-javascript` responses for selected scripts,
+  with MIME rejection, gzip/size-limit and detection regressions; no sniffing
+  or collection-limit changes.
 - Added Next.js build/SSG manifest inference and asset URL evidence.
 - Added bounded HTML reference extraction using `golang.org/x/net v0.61.0`.
 - Added `--redact-query` for page, redirect, asset, and evidence report URLs.
