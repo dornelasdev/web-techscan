@@ -15,26 +15,34 @@ func TestFrontendFindingCombinations(t *testing.T) {
 	css := bootstrapBanner + bootstrapButtons
 	react := reactClientAssignment + reactElementSymbol + ";"
 	vue := vueRuntimeFlag + vueAppAssignment + vueFragmentSymbol
+	dom := strings.Join(reactDOMMarkers, "\n")
+	angular := angularContextKey + angularComponentDefinition + angularHostVersionArray
 	jsOne, jsTwo, cssURL := "https://example.test/z", "https://example.test/a", "https://example.test/style"
 	type expectedEvidence struct {
 		rule, url string
 		source    detect.Source
 		count     int
 	}
-	// All 32 technology subsets, with independent Next.js/Nuxt header
-	// upgrades and reversed capture order. This is synthetic coexistence,
-	// not a claim about real application architecture.
-	for mask := 0; mask < 32; mask++ {
+	// All 256 signal-family subsets, including independent React client/DOM
+	// and Angular HTML/JS evidence. Header upgrades and capture order stay
+	// independent. This is synthetic coexistence, not real-site architecture.
+	for mask := 0; mask < 256; mask++ {
 		for headers := 0; headers < 4; headers++ {
 			for _, reverse := range []bool{false, true} {
 				t.Run(fmt.Sprintf("subset=%d/headers=%d/reverse=%t", mask, headers, reverse), func(t *testing.T) {
 					bootstrap, next, nuxt, hasReact, hasVue := mask&1 != 0, mask&2 != 0, mask&4 != 0, mask&8 != 0, mask&16 != 0
+					hasDOM, angularJS, angularHTML := mask&32 != 0, mask&64 != 0, mask&128 != 0
 					nextHeader, nuxtHeader := headers&1 != 0, headers&2 != 0
+					domText, angularText := dom, angular
+					if reverse {
+						domText = modernReactDOMText(domText)
+						angularText = strings.ReplaceAll(angularText, "ɵcmp", `\u0275cmp`)
+					}
 					input := detect.Input{Headers: make(http.Header)}
 					// Bootstrap text in JS must not supply a CSS finding, and
 					// complete JS markers in CSS must not supply JS findings.
 					jsBody := css + "\n"
-					cssBody := "/* " + nextBuildAsset + react + vue + " */"
+					cssBody := "/* " + nextBuildAsset + react + vue + domText + angularText + angularHostTag + " */"
 					if bootstrap {
 						cssBody = css + cssBody
 					}
@@ -51,6 +59,17 @@ func TestFrontendFindingCombinations(t *testing.T) {
 					if hasVue {
 						jsBody += vue
 					}
+					if hasDOM {
+						jsBody += domText
+					}
+					if angularJS {
+						jsBody += angularText
+					}
+					if angularHTML {
+						input.HTML = append(input.HTML, []byte(angularHostTag)...)
+					}
+					// HTML text in accepted JS must not satisfy the host rule.
+					jsBody += "/* " + angularHostTag + " */"
 					if nextHeader {
 						input.Headers.Add("X-Powered-By", "Next.js")
 					}
@@ -65,7 +84,7 @@ func TestFrontendFindingCombinations(t *testing.T) {
 					want := make(map[string][]expectedEvidence)
 					states := make(map[string]detect.State)
 					assetEvidence := func(id, rule string, count int) {
-						want[id] = []expectedEvidence{{rule, first, detect.AssetJavaScript, count}, {rule, second, detect.AssetJavaScript, count}}
+						want[id] = append(want[id], expectedEvidence{rule, first, detect.AssetJavaScript, count}, expectedEvidence{rule, second, detect.AssetJavaScript, count})
 					}
 					if bootstrap {
 						want["bootstrap"] = []expectedEvidence{{"asset-css-banner-and-buttons", cssURL, detect.AssetCSS, 2}}
@@ -87,6 +106,15 @@ func TestFrontendFindingCombinations(t *testing.T) {
 					}
 					if hasReact {
 						assetEvidence("react", "asset-client-runtime", 2)
+					}
+					if hasDOM {
+						assetEvidence("react", "asset-dom-runtime", 5)
+					}
+					if angularJS {
+						assetEvidence("angular", "asset-component-runtime", 3)
+					}
+					if angularHTML {
+						want["angular"] = append(want["angular"], expectedEvidence{"server-host-attributes", "", detect.HTML, 1})
 					}
 					if hasVue {
 						assetEvidence("vue", "asset-renderer-runtime", 3)

@@ -134,7 +134,8 @@ go test ./...
 Tests use synthetic fixtures and local servers. They cover fetch boundaries,
 rule validation, positive/near-miss detections, inference, redirects, mixed
 frontend/network stacks, JS/CSS isolation, optional failures, privacy, and output
-contracts.
+contracts. Combined frontend checks include Angular HTML/JS and React
+client/ReactDOM evidence, split indicators and oversized captures.
 Passing fixtures are not a measurement of real-world detection accuracy.
 
 Optional checks, after building to create `bin/`:

@@ -16,6 +16,8 @@ import (
 func TestMixedAssetRedactionCopiesAllProvenance(t *testing.T) {
 	cssURL := "https://example.test/style%3Fname?private-css=1"
 	jsURL := "https://example.test/script?private-js=1"
+	domURL := "https://example.test/renderer%3Fname?private-dom=1"
+	angularURL := "https://example.test/component?private-angular=1"
 	findings := []detect.Finding{
 		{ID: "bootstrap", Name: "Bootstrap", Category: detect.UIFramework, State: detect.Inferred,
 			Evidence: []detect.Evidence{{RuleID: "asset-css-banner-and-buttons", Description: "CSS evidence", AssetURL: cssURL, Signals: []detect.Signal{{Source: detect.AssetCSS}}}}},
@@ -30,25 +32,53 @@ func TestMixedAssetRedactionCopiesAllProvenance(t *testing.T) {
 				{RuleID: "powered-by-header", Description: "Nuxt header evidence", Signals: []detect.Signal{{Source: detect.Header, Name: "X-Powered-By"}}},
 			}},
 		{ID: "react", Name: "React", Category: detect.Framework, State: detect.Inferred,
-			Evidence: []detect.Evidence{{RuleID: "asset-client-runtime", Description: "React runtime evidence", AssetURL: jsURL, Signals: []detect.Signal{{Source: detect.AssetJavaScript}, {Source: detect.AssetJavaScript}}}}},
+			Evidence: []detect.Evidence{
+				{RuleID: "asset-client-runtime", Description: "React runtime evidence", AssetURL: jsURL, Signals: []detect.Signal{{Source: detect.AssetJavaScript}, {Source: detect.AssetJavaScript}}},
+				{RuleID: "asset-dom-runtime", Description: "ReactDOM evidence", AssetURL: jsURL, Signals: []detect.Signal{{Source: detect.AssetJavaScript}, {Source: detect.AssetJavaScript}, {Source: detect.AssetJavaScript}, {Source: detect.AssetJavaScript}, {Source: detect.AssetJavaScript}}},
+				{RuleID: "asset-dom-runtime", Description: "Separate ReactDOM evidence", AssetURL: domURL, Signals: []detect.Signal{{Source: detect.AssetJavaScript}, {Source: detect.AssetJavaScript}, {Source: detect.AssetJavaScript}, {Source: detect.AssetJavaScript}, {Source: detect.AssetJavaScript}}},
+			}},
 		{ID: "vue", Name: "Vue", Category: detect.Framework, State: detect.Inferred,
 			Evidence: []detect.Evidence{{RuleID: "asset-renderer-runtime", Description: "Vue runtime evidence", AssetURL: jsURL, Signals: []detect.Signal{{Source: detect.AssetJavaScript}, {Source: detect.AssetJavaScript}, {Source: detect.AssetJavaScript}}}}},
+		{ID: "angular", Name: "Angular", Category: detect.Framework, State: detect.Inferred,
+			Evidence: []detect.Evidence{
+				{RuleID: "asset-component-runtime", Description: "Angular runtime evidence", AssetURL: angularURL, Signals: []detect.Signal{{Source: detect.AssetJavaScript}, {Source: detect.AssetJavaScript}, {Source: detect.AssetJavaScript}}},
+				{RuleID: "server-host-attributes", Description: "Angular host evidence", Signals: []detect.Signal{{Source: detect.HTML}}},
+			}},
 	}
 	// Synthetic catalog metadata, independent of the bundled catalog total.
 	report := output.NewReport(fetch.Snapshot{OriginalURL: "https://example.test/", FinalURL: "https://example.test/"}, findings, len(findings))
-	report.Assets = output.NewAssetReport(assets.Collection{Status: "complete", Attempted: 2, Collected: 2, Items: []assets.Item{
+	report.Assets = output.NewAssetReport(assets.Collection{Status: "complete", Attempted: 4, Collected: 4, Items: []assets.Item{
 		{Reference: assets.Reference{URL: cssURL, Kind: assets.Stylesheet}, Status: "collected"},
 		{Reference: assets.Reference{URL: jsURL, Kind: assets.JavaScript}, Status: "collected"},
+		{Reference: assets.Reference{URL: domURL, Kind: assets.JavaScript}, Status: "collected"},
+		{Reference: assets.Reference{URL: angularURL, Kind: assets.JavaScript}, Status: "collected"},
 	}})
 	before, err := json.Marshal(report)
 	if err != nil {
 		t.Fatal(err)
 	}
 	redacted := report.RedactQueries()
-	wantURLs := []string{"https://example.test/style%3Fname?[redacted]", "https://example.test/script?[redacted]"}
+	wantURLs := []string{"https://example.test/style%3Fname?[redacted]", "https://example.test/script?[redacted]", "https://example.test/renderer%3Fname?[redacted]", "https://example.test/component?[redacted]"}
 	for i, want := range wantURLs {
-		if redacted.Findings[i].Evidence[0].AssetURL != want || redacted.Assets.Items[i].URL != want {
+		if redacted.Assets.Items[i].URL != want {
 			t.Fatalf("redacted report=%+v", redacted)
+		}
+	}
+	// Every rule/URL record must retain its location and state, including
+	// duplicate renderer rule IDs on different URLs and empty HTML URLs.
+	for i, finding := range report.Findings {
+		if redacted.Findings[i].ID != finding.ID || redacted.Findings[i].State != finding.State || len(redacted.Findings[i].Evidence) != len(finding.Evidence) {
+			t.Fatalf("finding provenance changed: %+v", redacted.Findings[i])
+		}
+		for j, evidence := range finding.Evidence {
+			want, _, hasQuery := strings.Cut(evidence.AssetURL, "?")
+			if hasQuery {
+				want += "?[redacted]"
+			}
+			got := redacted.Findings[i].Evidence[j]
+			if got.AssetURL != want || got.RuleID != evidence.RuleID || got.Description != evidence.Description || got.InferredFrom != evidence.InferredFrom || !reflect.DeepEqual(got.Signals, evidence.Signals) {
+				t.Fatalf("evidence provenance changed: got=%+v source=%+v", got, evidence)
+			}
 		}
 	}
 	if redacted.Findings[1].Evidence[1].AssetURL != "" || redacted.Findings[1].State != "detected" || redacted.Findings[0].State != "inferred" || !reflect.DeepEqual(redacted.RedactQueries(), redacted) {
@@ -90,7 +120,7 @@ func TestMixedAssetRedactionCopiesAllProvenance(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !bytes.Equal(before, after) || findings[0].Evidence[0].AssetURL != cssURL || findings[1].Evidence[0].AssetURL != jsURL || findings[3].Evidence[0].AssetURL != jsURL || findings[4].Evidence[0].AssetURL != jsURL {
+	if !bytes.Equal(before, after) || findings[0].Evidence[0].AssetURL != cssURL || findings[1].Evidence[0].AssetURL != jsURL || findings[3].Evidence[0].AssetURL != jsURL || findings[3].Evidence[2].AssetURL != domURL || findings[4].Evidence[0].AssetURL != jsURL || findings[5].Evidence[0].AssetURL != angularURL {
 		t.Fatal("redaction shares source provenance")
 	}
 }

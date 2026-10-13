@@ -34,7 +34,8 @@
 - Hardened terminal text handling for Unicode bidi and line/paragraph controls.
 - Tightened nginx/Apache banner patterns.
 - Added mixed-stack, fetch-failure, privacy, combined JS/CSS and independent
-  frontend-finding regressions.
+  frontend-finding regressions, including Angular/ReactDOM coexistence,
+  split indicators, oversized captures and report-provenance redaction.
 - Reorganized documentation into usage, policies, and fingerprint references.
 
 ## v0.2.0 — 2026-10-06

@@ -12,6 +12,7 @@ import (
 	"sync"
 	"testing"
 
+	"webscan/internal/assets"
 	"webscan/internal/cli"
 	"webscan/internal/detect"
 	"webscan/internal/output"
@@ -29,20 +30,27 @@ func TestCLICombinedFrontendAssets(t *testing.T) {
 	css := read("bootstrap-5.3.min.css")
 	react := read("react-19-client.min.js")
 	vue := read("vue-3-renderer.min.js")
+	dom := read("react-dom-18.min.js") + "\n" + read("react-dom-19.min.js")
+	angular := read("angular-component.min.js")
+	const domKeys = `var f="__reactFiber$"+k,p="__reactProps$"+k,c="__reactContainer$"+k;`
+	const domErrors = `var u="https://react.dev/errors/"+n;var m="Minified React error #"+n+"; visit "+u;`
 	// Valid marker text deliberately appears in the wrong asset kinds too.
-	nextBody := buildManifestFixture + "\n" + react + "\n" + css
+	nextBody := buildManifestFixture + "\n" + react + "\n" + dom + "\n" + css
 	vueBody := vue + "\n" + css
-	cssBody := css + "\n/* " + buildManifestFixture + react + vue + " */"
+	cssBody := css + "\n/* " + buildManifestFixture + react + vue + dom + angular + " */"
 	engine, err := detect.LoadBundled()
 	if err != nil {
 		t.Fatal(err)
 	}
 	nextPath, vuePath, cssPath := "/_next/static/runtime?private-react=1", "/_nuxt/runtime?private-vue=1", "/style?private-css=1"
+	angularPath := "/component?private-angular=1"
 	for _, scenario := range []struct {
 		name                                                   string
 		disabled, reverse, lateFailure, reactFailed, cssFailed bool
 		nextHeader, nuxtHeader                                 bool
 		vueReason                                              string
+		angularReason                                          string
+		noAngularHTML, splitNewRules                           bool
 	}{
 		{name: "complete"},
 		{name: "default-off", disabled: true},
@@ -55,16 +63,33 @@ func TestCLICombinedFrontendAssets(t *testing.T) {
 		{name: "vue-wrong-mime", vueReason: "unsuitable_content_type"},
 		{name: "vue-truncated", vueReason: "request_or_body_error"},
 		{name: "css-failure-after-js", cssFailed: true},
+		{name: "angular-asset-only", noAngularHTML: true},
+		{name: "angular-status-failure", angularReason: "unsuccessful_status"},
+		{name: "angular-wrong-mime", angularReason: "unsuitable_content_type"},
+		{name: "angular-oversized", angularReason: "decoded_body_limit"},
+		{name: "split-new-rules", noAngularHTML: true, splitNewRules: true},
+		{name: "react-and-angular-failures", reactFailed: true, angularReason: "unsuccessful_status"},
 	} {
 		for _, format := range []string{"json", "plain", "color"} {
 			for _, redact := range []bool{false, true} {
 				t.Run(fmt.Sprintf("%s/%s/redact=%t", scenario.name, format, redact), func(t *testing.T) {
-					refs := []string{nextPath, vuePath, cssPath}
+					refs := []string{nextPath, vuePath, angularPath, cssPath}
 					if scenario.reverse {
-						refs = []string{cssPath, vuePath, nextPath}
+						refs = []string{cssPath, angularPath, vuePath, nextPath}
 					}
 					if scenario.lateFailure {
 						refs = append(refs, "/late?private-late=1")
+					}
+					nextContent, vueContent, angularContent := nextBody, vueBody, angular
+					if scenario.splitNewRules {
+						// Both new rules have their conditions split across accepted
+						// JS bodies; unrelated complete rules must still match.
+						nextContent = buildManifestFixture + "\n" + react + "\n" + domKeys + "\n" + css
+						angularContent = strings.ReplaceAll(angular, "ng-version", "fixture-version")
+						vueContent += "\n" + domErrors + `const attrs=["ng-version","20.3.0"];`
+					}
+					if scenario.angularReason == "decoded_body_limit" {
+						angularContent += strings.Repeat(" ", int(assets.MaxAssetDecodedBytes)+1)
 					}
 					var mu sync.Mutex
 					var requests []string
@@ -89,7 +114,10 @@ func TestCLICombinedFrontendAssets(t *testing.T) {
 							if scenario.nuxtHeader {
 								w.Header().Add("X-Powered-By", "Nuxt")
 							}
-							fmt.Fprintf(w, `<script id="__NEXT_DATA__" type="application/json">{}</script><script id="__NUXT_DATA__" type="application/json">[]</script><script>%s%s</script><style>%s</style>`, react, vue, css)
+							fmt.Fprintf(w, `<script id="__NEXT_DATA__" type="application/json">{}</script><script id="__NUXT_DATA__" type="application/json">[]</script><script>%s%s%s%s</script><style>%s</style>`, react, vue, dom, angular, css)
+							if !scenario.noAngularHTML {
+								fmt.Fprint(w, `<app-shell ng-version="20.3.0" ng-server-context="ssg"></app-shell>`)
+							}
 							for _, ref := range refs {
 								if ref == cssPath {
 									fmt.Fprintf(w, `<link rel="stylesheet" href="%s">`, ref)
@@ -98,9 +126,9 @@ func TestCLICombinedFrontendAssets(t *testing.T) {
 								}
 							}
 							fmt.Fprintf(w, `<link rel="stylesheet" href="%s#duplicate">`, cssPath)
-						case "/_next/static/runtime", "/_nuxt/runtime", "/style", "/late":
-							if r.Header.Get("Referer") != "" {
-								t.Error("asset request included a referrer")
+						case "/_next/static/runtime", "/_nuxt/runtime", "/component", "/style", "/late":
+							if r.Header.Get("Referer") != "" || r.Header.Get("Accept-Encoding") != "gzip" {
+								t.Error("unexpected asset referrer/encoding headers")
 							}
 							w.Header().Set("X-Powered-By", "Express")
 							w.Header().Set("Server", "Apache")
@@ -110,15 +138,24 @@ func TestCLICombinedFrontendAssets(t *testing.T) {
 								if scenario.reactFailed {
 									w.WriteHeader(http.StatusForbidden)
 								}
-								fmt.Fprint(w, nextBody)
+								fmt.Fprint(w, nextContent)
 							case "/_nuxt/runtime":
 								if scenario.vueReason == "unsuitable_content_type" {
 									w.Header().Set("Content-Type", "text/css")
 								}
 								if scenario.vueReason == "request_or_body_error" {
-									w.Header().Set("Content-Length", fmt.Sprint(len(vueBody)+100))
+									w.Header().Set("Content-Length", fmt.Sprint(len(vueContent)+100))
 								}
-								fmt.Fprint(w, vueBody)
+								fmt.Fprint(w, vueContent)
+							case "/component":
+								w.Header().Set("Content-Type", "application/x-javascript")
+								if scenario.angularReason == "unsuitable_content_type" {
+									w.Header().Set("Content-Type", "text/plain")
+								}
+								if scenario.angularReason == "unsuccessful_status" {
+									w.WriteHeader(http.StatusForbidden)
+								}
+								fmt.Fprint(w, angularContent)
 							case "/style":
 								w.Header().Set("Content-Type", "text/css")
 								if scenario.cssFailed {
@@ -127,7 +164,7 @@ func TestCLICombinedFrontendAssets(t *testing.T) {
 								fmt.Fprint(w, cssBody)
 							case "/late":
 								w.WriteHeader(http.StatusForbidden)
-								fmt.Fprint(w, nextBody+vueBody)
+								fmt.Fprint(w, nextBody+vueBody+angular)
 							}
 						default:
 							t.Errorf("unexpected request: %s", r.RequestURI)
@@ -164,7 +201,7 @@ func TestCLICombinedFrontendAssets(t *testing.T) {
 					if !reflect.DeepEqual(gotRequests, wantRequests) {
 						t.Errorf("requests=%v want=%v", gotRequests, wantRequests)
 					}
-					for _, secret := range []string{"private-cookie-value", "private-runtime-body", "private-vue-body", "private-body.js", "__CLIENT_INTERNALS", "__vue_app__", "--bs-btn-", "Express", "Apache"} {
+					for _, secret := range []string{"private-cookie-value", "private-runtime-body", "private-vue-body", "private-angular-body", "private-body.js", "__CLIENT_INTERNALS", "__vue_app__", "__reactFiber$", "__ngContext__", "20.3.0", "--bs-btn-", "Express", "Apache"} {
 						if strings.Contains(stdout.String(), secret) {
 							t.Errorf("raw/other-response data leaked: %s", secret)
 						}
@@ -180,10 +217,14 @@ func TestCLICombinedFrontendAssets(t *testing.T) {
 						return server.URL + path
 					}
 					wantReact := !scenario.disabled && !scenario.reactFailed
+					wantDOM := wantReact && !scenario.splitNewRules
 					wantVue := !scenario.disabled && scenario.vueReason == ""
 					wantCSS := !scenario.disabled && !scenario.cssFailed
+					angularCollected := !scenario.disabled && scenario.angularReason == ""
+					wantAngularJS := angularCollected && !scenario.splitNewRules
+					wantAngularHTML := !scenario.noAngularHTML
 					status, reason := "complete", ""
-					if scenario.reactFailed || scenario.vueReason != "" || scenario.cssFailed || scenario.lateFailure {
+					if scenario.reactFailed || scenario.vueReason != "" || scenario.angularReason != "" || scenario.cssFailed || scenario.lateFailure {
 						status, reason = "incomplete", "asset_failures_or_skips"
 					}
 					if format != "json" {
@@ -191,7 +232,7 @@ func TestCLICombinedFrontendAssets(t *testing.T) {
 						for _, want := range []struct {
 							name, category    string
 							present, detected bool
-						}{{"Bootstrap", "UI framework", wantCSS, false}, {"Next.js", "framework", true, scenario.nextHeader}, {"Nuxt", "framework", true, scenario.nuxtHeader}, {"React", "framework", wantReact, false}, {"Vue", "framework", wantVue, false}} {
+						}{{"Angular", "framework", wantAngularHTML || wantAngularJS, false}, {"Bootstrap", "UI framework", wantCSS, false}, {"Next.js", "framework", true, scenario.nextHeader}, {"Nuxt", "framework", true, scenario.nuxtHeader}, {"React", "framework", wantReact, false}, {"Vue", "framework", wantVue, false}} {
 							label := " " + want.name + " [" + want.category + "]"
 							inferred := strings.Contains(text, "?"+label)
 							detected := strings.Contains(text, "✓"+label)
@@ -202,7 +243,7 @@ func TestCLICombinedFrontendAssets(t *testing.T) {
 						for _, want := range []struct {
 							path    string
 							present bool
-						}{{nextPath, wantReact}, {vuePath, wantVue}, {cssPath, wantCSS}} {
+						}{{nextPath, wantReact}, {vuePath, wantVue}, {angularPath, wantAngularJS}, {cssPath, wantCSS}} {
 							if strings.Contains(text, "    Asset: "+url(want.path)+"\n") != want.present {
 								t.Errorf("unexpected asset evidence for %s: %s", want.path, text)
 							}
@@ -237,6 +278,15 @@ func TestCLICombinedFrontendAssets(t *testing.T) {
 					if wantReact {
 						want["react"] = []expectedEvidence{{"asset-client-runtime", url(nextPath), "asset_javascript", 2}}
 						want["nextjs"] = append([]expectedEvidence{{"asset-build-manifest", url(nextPath), "asset_javascript", 2}}, want["nextjs"]...)
+					}
+					if wantDOM {
+						want["react"] = append(want["react"], expectedEvidence{"asset-dom-runtime", url(nextPath), "asset_javascript", 5})
+					}
+					if wantAngularJS {
+						want["angular"] = []expectedEvidence{{"asset-component-runtime", url(angularPath), "asset_javascript", 3}}
+					}
+					if wantAngularHTML {
+						want["angular"] = append(want["angular"], expectedEvidence{"server-host-attributes", "", "html", 1})
 					}
 					if wantVue {
 						want["vue"] = []expectedEvidence{{"asset-renderer-runtime", url(vuePath), "asset_javascript", 3}}
@@ -287,7 +337,7 @@ func TestCLICombinedFrontendAssets(t *testing.T) {
 						return
 					}
 					collected := 0
-					for _, present := range []bool{wantReact, wantVue, wantCSS} {
+					for _, present := range []bool{wantReact, wantVue, angularCollected, wantCSS} {
 						if present {
 							collected++
 						}
@@ -303,8 +353,14 @@ func TestCLICombinedFrontendAssets(t *testing.T) {
 						if refs[i] == vuePath && scenario.vueReason != "" {
 							wantStatus, wantReason = "failed", scenario.vueReason
 						}
+						if refs[i] == angularPath && scenario.angularReason != "" {
+							wantStatus, wantReason = "failed", scenario.angularReason
+						}
 						if item.URL != url(refs[i]) || item.Status != wantStatus || item.Reason != wantReason {
 							t.Errorf("item=%+v", item)
+						}
+						if refs[i] == angularPath && scenario.angularReason == "decoded_body_limit" && (item.DecodedBytes <= assets.MaxAssetDecodedBytes || item.DecodedBytes > assets.MaxAssetDecodedBytes+1) {
+							t.Errorf("oversized prefix accounting=%+v", item)
 						}
 					}
 				})
