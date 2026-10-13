@@ -12,7 +12,8 @@ import (
 )
 
 const (
-	MaxAttempts                = 5
+	MaxAttempts = 5
+	// Standard profile defaults; expanded limits are selected explicitly.
 	MaxAssetDecodedBytes int64 = 512 << 10
 	MaxAssetEncodedBytes int64 = 1 << 20
 	MaxTotalDecodedBytes int64 = 2 << 20
@@ -39,6 +40,7 @@ type Capture struct {
 }
 
 type Collection struct {
+	Budget              Budget
 	Status              string // complete within the bounded scope, incomplete, or skipped.
 	Reason              string
 	Truncated           bool
@@ -55,7 +57,20 @@ type Collection struct {
 // same deadline used for page fetching; it is never reset per asset. Failures
 // remain metadata, so valid page findings can still be reported.
 func Collect(ctx context.Context, client Fetcher, page fetch.Snapshot) Collection {
-	result := Collection{Status: "complete", Items: make([]Item, 0), Captures: make([]Capture, 0)}
+	return collect(ctx, client, page, standardBudget())
+}
+
+// CollectWithBudget applies one supported profile without changing selection,
+// attempts, deadline or fetch policies. Invalid budgets fail before any I/O.
+func CollectWithBudget(ctx context.Context, client Fetcher, page fetch.Snapshot, budget Budget) (Collection, error) {
+	if err := budget.validate(); err != nil {
+		return Collection{}, err
+	}
+	return collect(ctx, client, page, budget), nil
+}
+
+func collect(ctx context.Context, client Fetcher, page fetch.Snapshot, budget Budget) Collection {
+	result := Collection{Budget: budget, Status: "complete", Items: make([]Item, 0), Captures: make([]Capture, 0)}
 	if ctx.Err() != nil {
 		result.Status, result.Reason = "skipped", failureReason(ctx.Err())
 		return result
@@ -82,8 +97,8 @@ func Collect(ctx context.Context, client Fetcher, page fetch.Snapshot) Collectio
 	}
 	for _, ref := range refs.References {
 		item := Item{Reference: ref, Status: "skipped"}
-		decodedLeft := MaxTotalDecodedBytes - result.Usage.Decoded
-		encodedLeft := MaxTotalEncodedBytes - result.Usage.Encoded
+		decodedLeft := budget.MaxTotalDecodedBytes - result.Usage.Decoded
+		encodedLeft := budget.MaxTotalEncodedBytes - result.Usage.Encoded
 		switch {
 		case ctx.Err() != nil:
 			item.Reason = failureReason(ctx.Err())
@@ -97,8 +112,8 @@ func Collect(ctx context.Context, client Fetcher, page fetch.Snapshot) Collectio
 			// Reserve one byte in each remaining aggregate budget for the
 			// overflow probe. Even failed reads cannot exceed combined caps.
 			response, err := client.FetchAsset(ctx, ref.URL, fetch.AssetOptions{
-				MaxBodyBytes:        min(MaxAssetDecodedBytes, decodedLeft-1),
-				MaxEncodedBodyBytes: min(MaxAssetEncodedBytes, encodedLeft-1),
+				MaxBodyBytes:        min(budget.MaxAssetDecodedBytes, decodedLeft-1),
+				MaxEncodedBodyBytes: min(budget.MaxAssetEncodedBytes, encodedLeft-1),
 				MediaTypes:          mediaTypes,
 			})
 			result.Attempted++

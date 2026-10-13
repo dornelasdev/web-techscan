@@ -82,16 +82,21 @@ handling, URL normalization, and parser limits.
 
 ### Requests and limits
 
-| Limit | Value |
-| --- | --- |
-| HTML extraction input | 2 MiB |
-| Asset attempts, including failures | 5, sequential |
-| Decoded bytes per asset | 512 KiB |
-| Encoded bytes per asset | 1 MiB |
-| Combined decoded asset reads | 2 MiB |
-| Combined encoded asset reads | 4 MiB |
+HTML extraction remains limited to 2 MiB; at most five assets are attempted,
+sequentially, including failures. `--asset-budget` selects payload bounds:
 
-Asset limits are fixed and independent of page body settings.
+| Payload limit | Standard (default) | Expanded |
+| --- | ---: | ---: |
+| Decoded bytes per asset | 512 KiB | 4 MiB |
+| Encoded bytes per asset | 1 MiB | 8 MiB |
+| Combined decoded asset reads | 2 MiB | 8 MiB |
+| Combined encoded asset reads | 4 MiB | 16 MiB |
+
+Expanded is explicit opt-in with `--assets --asset-budget expanded`.
+Profiles do not change page-body limits, attempts, origins or the shared timeout.
+Both encoded and decoded bounds apply. Larger captures can increase bandwidth,
+retained data and fingerprint-matching work; these are not hard memory limits.
+The network timeout does not preempt local parsing or fingerprint matching.
 Failed reads and overflow probes count toward the combined budgets. Each request
 reserves one remaining aggregate byte for a probe; an asset at the exact combined
 boundary can be rejected. These limits cover payload reads, not wire overhead.
@@ -118,7 +123,8 @@ This response allowlist does not expand the extractor's HTML script-type hints.
 - Continue after optional failures while time and byte budgets permit.
 
 Collection reports use `complete`, `incomplete`, or `skipped`, with safe reason
-codes and per-item metadata. `complete` means the selected bounded scope, not
+codes, per-item metadata and the configured budget profile/four limits, including
+for skipped or empty scopes. `complete` means the selected bounded scope, not
 all resources or complete technology coverage. Optional failures preserve exit
 0; page failures remain fatal. See the [asset output contract](../internal/output/README.md#optional-asset-collection).
 

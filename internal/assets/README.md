@@ -82,9 +82,14 @@ query-redaction and terminal-sanitization policies to all asset URLs.
 
 ## Collection policy
 
-`Collect` takes a final-page snapshot and the same context/deadline used for its
-fetch. The CLI starts that context before requesting the page. Sequential asset
-requests never reset the deadline; no requests start after observed cancellation
+`Collect` retains the standard profile. `BudgetForProfile` resolves exact
+`standard`/`expanded` names to independent value copies; `CollectWithBudget`
+accepts only an unchanged supported budget and rejects invalid configuration
+before selection or I/O. Both collection paths take a final-page snapshot and
+the same context/deadline used for its fetch. Budget metadata survives canceled,
+unsupported and empty scopes. The CLI starts that context before requesting the
+page. Sequential asset requests never reset the deadline; no requests start
+after observed cancellation
 or aggregate exhaustion. Parsing is input-bounded, not forcibly preempted.
 
 Page selection requires `text/html`, with absent charset, UTF-8 or US-ASCII,
@@ -113,9 +118,12 @@ fallback. Successful bodyless responses can yield empty captures. Missing or
 unsupported MIME, unsupported content encoding, corruption and truncation are
 reported, not silently treated as successful captures. Bodies are always closed.
 
-Per asset: 512 KiB decoded / 1 MiB encoded, plus at most one overflow probe in
-each dimension. Combined: 2 MiB decoded / 4 MiB encoded, **including** failed
-reads/probes. Before each request, the body limits are clamped to the remaining
+Payload bounds use the selected profile; see the
+[profile table](../../docs/policies.md#requests-and-limits). Standard defaults
+remain 512 KiB decoded / 1 MiB encoded per asset and 2 MiB decoded / 4 MiB encoded
+combined. Per-asset reads can consume one extra probe byte in each dimension;
+aggregate bounds **include** failed reads/probes. Before each request, the body
+limits are clamped to the remaining
 aggregate budget minus one reserved probe byte. Remaining budgets of one byte
 or less stop further requests. This conservative boundary policy can reject an
 asset that exactly fills the aggregate budget. Counts describe payload reads,
@@ -140,8 +148,8 @@ and bodies are never concatenated with each other or HTML. Rules cannot combine
 markers across files. No character transcoding, JS/CSS parsing or execution is
 introduced; raw text can include copied/commented examples.
 
-Production asset rules infer Next.js from paired build/SSG manifest markers and
-Bootstrap from paired banner/button CSS markers. Evidence retains
+Production asset rules cover Next.js manifests, React client/ReactDOM, Vue,
+Angular component-runtime shapes and Bootstrap CSS. Evidence retains
 each matched asset URL, subject to report redaction and display sanitization.
 See [rule rationale and sources](../../docs/fingerprints.md).
 

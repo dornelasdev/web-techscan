@@ -35,6 +35,7 @@ updates, and prebuilt distribution are not provided.
 ./bin/webscan --no-color https://example.com
 ./bin/webscan --json https://example.com
 ./bin/webscan --assets --redact-query --json https://example.com
+./bin/webscan --assets --asset-budget expanded --json https://example.com
 ./bin/webscan --timeout 10s --max-redirects 3 --max-body 1048576 https://example.com
 ./bin/webscan --redact-query --json 'https://example.com/page?token=secret'
 ./bin/webscan --techs
@@ -53,6 +54,7 @@ help. URLs containing credentials are rejected; fragments are removed.
 | `--techs` | false | List bundled technologies without network access. |
 | `--json` | false | Render a scan report or catalog as JSON. |
 | `--assets` | false | Inspect eligible same-origin JS/CSS. |
+| `--asset-budget standard\|expanded` | standard | Select asset payload limits; requires `--assets`. |
 | `--redact-query` | false | Replace queries in report URLs. |
 | `--color auto\|always\|never` | auto | Set terminal color behavior. |
 | `--no-color` | false | Disable color, overriding `--color`. |
@@ -63,7 +65,9 @@ help. URLs containing credentials are rejected; fragments are removed.
 | `--allow-http-downgrade` | false | Permit HTTPS-to-HTTP page redirects. |
 
 Timeout and byte limits must be positive. Redirect count must be nonnegative.
-Asset limits are fixed; the page body flags do not change them.
+Asset budgets are independent of page-body flags. Explicit `--asset-budget`
+requires enabled `--assets` and cannot be used with `--version` or `--techs`.
+Profile names are exact and case-sensitive; there is no unlimited/custom profile.
 See [policies](policies.md) for exact scope and limits.
 
 ### Catalog mode
@@ -74,7 +78,7 @@ Catalog entries have no scan state and do not guarantee identification.
 
 `--techs` rejects a URL, `--version`, and explicitly supplied scan options:
 `--timeout`, `--max-redirects`, `--max-body`, `--max-encoded-body`,
-`--allow-http-downgrade`, `--assets`, and `--redact-query`.
+`--allow-http-downgrade`, `--assets`, `--asset-budget`, and `--redact-query`.
 Explicit false values are also rejected. Color options are accepted; catalog
 output always remains plain.
 

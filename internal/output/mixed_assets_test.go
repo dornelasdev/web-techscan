@@ -47,7 +47,7 @@ func TestMixedAssetRedactionCopiesAllProvenance(t *testing.T) {
 	}
 	// Synthetic catalog metadata, independent of the bundled catalog total.
 	report := output.NewReport(fetch.Snapshot{OriginalURL: "https://example.test/", FinalURL: "https://example.test/"}, findings, len(findings))
-	report.Assets = output.NewAssetReport(assets.Collection{Status: "complete", Attempted: 4, Collected: 4, Items: []assets.Item{
+	report.Assets = output.NewAssetReport(assets.Collection{Budget: outputBudget(t, "standard"), Status: "complete", Attempted: 4, Collected: 4, Items: []assets.Item{
 		{Reference: assets.Reference{URL: cssURL, Kind: assets.Stylesheet}, Status: "collected"},
 		{Reference: assets.Reference{URL: jsURL, Kind: assets.JavaScript}, Status: "collected"},
 		{Reference: assets.Reference{URL: domURL, Kind: assets.JavaScript}, Status: "collected"},

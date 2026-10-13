@@ -5,6 +5,7 @@ import "webscan/internal/assets"
 // AssetReport is collection metadata only. Bodies and response headers are
 // deliberately absent. Complete means the selected bounded scope, not a site.
 type AssetReport struct {
+	Budget              AssetBudget `json:"budget"`
 	Mode                string      `json:"mode"`
 	Status              string      `json:"status"`
 	Reason              string      `json:"reason,omitempty"`
@@ -16,6 +17,15 @@ type AssetReport struct {
 	DecodedBytes        int64       `json:"decoded_bytes"`
 	EncodedBytes        int64       `json:"encoded_bytes"`
 	Items               []AssetItem `json:"items"`
+}
+
+// AssetBudget records configured bounds, not remaining bytes or memory limits.
+type AssetBudget struct {
+	Profile              string `json:"profile"`
+	MaxAssetDecodedBytes int64  `json:"max_asset_decoded_bytes"`
+	MaxAssetEncodedBytes int64  `json:"max_asset_encoded_bytes"`
+	MaxTotalDecodedBytes int64  `json:"max_total_decoded_bytes"`
+	MaxTotalEncodedBytes int64  `json:"max_total_encoded_bytes"`
 }
 
 type AssetItem struct {
@@ -30,6 +40,13 @@ type AssetItem struct {
 
 func NewAssetReport(collection assets.Collection) *AssetReport {
 	report := &AssetReport{
+		Budget: AssetBudget{
+			Profile:              collection.Budget.Profile,
+			MaxAssetDecodedBytes: collection.Budget.MaxAssetDecodedBytes,
+			MaxAssetEncodedBytes: collection.Budget.MaxAssetEncodedBytes,
+			MaxTotalDecodedBytes: collection.Budget.MaxTotalDecodedBytes,
+			MaxTotalEncodedBytes: collection.Budget.MaxTotalEncodedBytes,
+		},
 		Mode: "fingerprint_inspection", Status: collection.Status, Reason: collection.Reason,
 		Truncated: collection.Truncated, SkippedDeclarations: collection.SkippedDeclarations,
 		Duplicates: collection.Duplicates, Attempted: collection.Attempted, Collected: collection.Collected,

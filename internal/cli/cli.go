@@ -35,6 +35,7 @@ Options:
   --json                    Print a JSON scan report or technology catalog
   --redact-query            Redact URL queries in scan reports (default false)
   --assets                  Inspect bounded same-origin JS/CSS with asset fingerprints
+  --asset-budget profile    Asset budget: standard or expanded (default standard; requires --assets)
   --color mode              Color: auto, always, never (default auto)
   --no-color                Disable color, overriding --color
   --timeout duration        Total page-and-assets timeout (default 15s)
@@ -55,6 +56,7 @@ func Run(args []string, stdout, stderr io.Writer, version string) int {
 	showVersion := flags.Bool("version", false, "Show version")
 	showTechs := flags.Bool("techs", false, "List supported technologies")
 	collectAssets := flags.Bool("assets", false, "Collect bounded same-origin JS/CSS")
+	assetBudgetProfile := flags.String("asset-budget", "standard", "Asset budget profile: standard or expanded")
 	presentation := outputOptions{}
 	flags.BoolVar(&presentation.json, "json", false, "Print a JSON scan report or technology catalog")
 	flags.StringVar(&presentation.color, "color", "auto", "Color: auto, always, never")
@@ -93,7 +95,7 @@ func Run(args []string, stdout, stderr io.Writer, version string) int {
 				redactionFlag = true
 			}
 			switch f.Name {
-			case "timeout", "max-redirects", "max-body", "max-encoded-body", "allow-http-downgrade", "assets":
+			case "timeout", "max-redirects", "max-body", "max-encoded-body", "allow-http-downgrade", "assets", "asset-budget":
 				if fetchFlag == "" {
 					fetchFlag = f.Name
 				}
@@ -106,6 +108,20 @@ func Run(args []string, stdout, stderr io.Writer, version string) int {
 			return usageError(stderr, "--techs cannot be combined with --"+fetchFlag)
 		}
 		return listTechnologies(presentation.json, stdout, stderr)
+	}
+
+	budget, err := assets.BudgetForProfile(*assetBudgetProfile)
+	if err != nil {
+		return usageError(stderr, err.Error())
+	}
+	budgetExplicit := false
+	flags.Visit(func(f *flag.Flag) {
+		if f.Name == "asset-budget" {
+			budgetExplicit = true
+		}
+	})
+	if budgetExplicit && (!*collectAssets || *showVersion) {
+		return usageError(stderr, "--asset-budget requires a scan with --assets")
 	}
 
 	if *showVersion {
@@ -124,7 +140,7 @@ func Run(args []string, stdout, stderr io.Writer, version string) int {
 		if flags.Arg(0) == "" {
 			return usageError(stderr, "URL must not be empty")
 		}
-		return fetchPage(flags.Arg(0), options, presentation, *collectAssets, stdout, stderr)
+		return fetchPage(flags.Arg(0), options, presentation, *collectAssets, budget, stdout, stderr)
 	default:
 		return usageError(stderr, "expected a single URL; place options before the URL")
 	}
@@ -149,7 +165,7 @@ func listTechnologies(asJSON bool, stdout, stderr io.Writer) int {
 	return exitOK
 }
 
-func fetchPage(target string, options fetch.Options, presentation outputOptions, collectAssets bool, stdout, stderr io.Writer) int {
+func fetchPage(target string, options fetch.Options, presentation outputOptions, collectAssets bool, budget assets.Budget, stdout, stderr io.Writer) int {
 	client, err := fetch.New(options)
 	if err != nil {
 		return usageError(stderr, err.Error())
@@ -177,7 +193,10 @@ func fetchPage(target string, options fetch.Options, presentation outputOptions,
 	}
 	var assetReport *output.AssetReport
 	if collectAssets {
-		collection := assets.Collect(ctx, client, *snapshot)
+		collection, err := assets.CollectWithBudget(ctx, client, *snapshot, budget)
+		if err != nil {
+			return usageError(stderr, err.Error())
+		}
 		for _, capture := range collection.Captures {
 			source := detect.AssetJavaScript
 			if capture.Kind == assets.Stylesheet {

@@ -19,9 +19,12 @@
   and client/renderer coexistence checks.
 - Added Vue 3-shaped renderer runtime inference from three paired JS markers.
 - The development catalog now has 22 technologies.
-- Added opt-in `--assets` inspection of direct same-origin JS/CSS, with fixed
+- Added opt-in `--assets` inspection of direct same-origin JS/CSS, with bounded
   attempt/body budgets, a shared deadline, MIME/status validation, and per-item
   collection metadata. Optional failures preserve page findings.
+- Added `--assets --asset-budget expanded` for larger bounded captures while
+  retaining standard defaults, with profile/limit reporting and gzip, overflow,
+  aggregate-budget and CLI regressions. No new discovery or JS execution.
 - Accepted explicit `application/x-javascript` responses for selected scripts,
   with MIME rejection, gzip/size-limit and detection regressions; no sniffing
   or collection-limit changes.

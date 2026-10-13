@@ -90,7 +90,8 @@ those structures does not implicitly change the public JSON shape.
 `--assets` adds an `assets` object in schema 1; default JSON is unchanged.
 Captured bodies now contribute through supported asset rules
 (`mode: fingerprint_inspection`, replacing the unreleased `collection_only` mode).
-Production asset rules cover Next.js JS manifests and Bootstrap CSS.
+Production asset rules cover Next.js JS manifests, React client/ReactDOM, Vue,
+Angular component-runtime shapes and Bootstrap CSS.
 Collection completeness is not detection coverage.
 Asset failures do not change successful page scans to exit 1; consumers needing
 all selected assets must check the collection status and individual items.
@@ -98,6 +99,7 @@ all selected assets must check the collection status and individual items.
 | Field | Meaning |
 | --- | --- |
 | `mode` | Currently `fingerprint_inspection`; supported rules inspect captured content without execution |
+| `budget` | Configured profile and four payload limits, including for skipped/empty collection scopes |
 | `status` | `complete` within bounded eligible scope, `incomplete`, or whole-pass `skipped` |
 | `reason` | Optional safe summary code |
 | `truncated` | More eligible distinct references existed than the five retained |
@@ -114,6 +116,13 @@ attempted; skipped items were not. Bodies, header values, redirect targets and
 raw error messages are never serialized. Queries remain present by default;
 `--redact-query` covers every item, even failed/skipped ones.
 
+`budget` contains `profile` (`standard`/`expanded`), `max_asset_decoded_bytes`,
+`max_asset_encoded_bytes`, `max_total_decoded_bytes`, and
+`max_total_encoded_bytes`. Values are configured bounds, not remaining budgets,
+body sizes, wire traffic or memory caps. This is an additive schema-1 field;
+default page-only reports still omit `assets`. Terminal asset summaries show
+the same profile and limits. Redaction copies budget metadata without changing it.
+
 Whole-pass reason codes include `unsupported_page_type`, `invalid_utf8_html`,
 `html_limit`, `extraction_failed`, `timeout` and `canceled`. Incomplete summaries
 use `reference_limit` or `asset_failures_or_skips`. Item reasons include
@@ -127,7 +136,7 @@ policy reason; neither exposes its raw destination.
 `complete` does not mean complete site coverage: third-party assets and nested
 references are out of scope, and no eligible assets is also complete. Truncation
 or a failed/skipped selected asset makes the pass incomplete. See the
-[fixed limits and conservative aggregate-boundary policy](../assets/README.md#collection-policy).
+[profile limits and conservative aggregate-boundary policy](../assets/README.md#collection-policy).
 Byte counts are not file sizes or total wire traffic; they exclude transport
 buffers, framing and headers, and can exceed accepted body size by a probe.
 

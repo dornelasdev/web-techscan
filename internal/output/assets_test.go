@@ -15,7 +15,7 @@ import (
 
 func TestAssetReportRedactionSafetyAndNoBodies(t *testing.T) {
 	url := "https://example.test/a%3Fb?private-query=café\u202e\u2028"
-	collection := assets.Collection{Status: "incomplete", Attempted: 1, Collected: 1,
+	collection := assets.Collection{Budget: outputBudget(t, "standard"), Status: "incomplete", Attempted: 1, Collected: 1,
 		Items: []assets.Item{
 			{Reference: assets.Reference{URL: url, Kind: assets.JavaScript}, Status: "collected", HTTPStatus: 200, Usage: fetch.BodyUsage{Decoded: 4, Encoded: 4}},
 			{Reference: assets.Reference{URL: "https://example.test/b?private-skipped", Kind: assets.Stylesheet}, Status: "skipped", Reason: "timeout"},
@@ -136,7 +136,7 @@ func TestEmptyAssetReportArrayAndDefaultOmission(t *testing.T) {
 	if strings.Contains(data.String(), `"assets"`) {
 		t.Fatal("default report gained assets")
 	}
-	report.Assets = output.NewAssetReport(assets.Collection{Status: "complete"})
+	report.Assets = output.NewAssetReport(assets.Collection{Budget: outputBudget(t, "standard"), Status: "complete"})
 	for _, r := range []output.Report{report, report.RedactQueries()} {
 		data.Reset()
 		if err := output.JSON(&data, r); err != nil {

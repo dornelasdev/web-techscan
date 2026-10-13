@@ -32,6 +32,9 @@ func Terminal(w io.Writer, report Report, color bool) error {
 	if assets := report.Assets; assets != nil {
 		fmt.Fprintf(&text, "Assets: %s — %d collected / %d attempted (direct same-origin scope)\n",
 			plain(assets.Status), assets.Collected, assets.Attempted)
+		budget := assets.Budget
+		fmt.Fprintf(&text, "  Budget: %s; per asset %d decoded / %d encoded bytes; combined %d decoded / %d encoded bytes\n",
+			plain(budget.Profile), budget.MaxAssetDecodedBytes, budget.MaxAssetEncodedBytes, budget.MaxTotalDecodedBytes, budget.MaxTotalEncodedBytes)
 		if assets.Reason != "" {
 			fmt.Fprintf(&text, "  Reason: %s\n", plain(assets.Reason))
 		}

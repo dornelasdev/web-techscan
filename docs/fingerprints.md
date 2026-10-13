@@ -110,8 +110,10 @@ JS review used Angular 20.3.0 package modules and a user-downloaded minified
 Ryanair main bundle whose bytes matched its page integrity hash. That bundle
 retains escaped component assignments and multiple host-version arrays; it is
 not evidence of one site-wide version or coverage across all Angular releases.
-The 3,151,142-byte main exceeds the fixed 512 KiB per-asset and 2 MiB combined
-decoded budgets. Its small loader lacks the triple. Larger, split, off-origin,
+The 3,151,142-byte main exceeds the standard 512 KiB per-asset and 2 MiB combined
+decoded budgets; expanded budgets accommodate that decoded size, but successful
+collection/detection still depends on encoded input, response policies and time.
+Its small loader lacks the triple. Larger, split, off-origin,
 tree-shaken or differently compiled bundles can be missed; imports are not followed.
 
 Both rules produce one Angular finding with independent HTML/asset evidence.
@@ -282,7 +284,7 @@ or split runtime output can be missed. Copied/commented code and forks retaining
 the marker sets can match; runtime execution/use is not established. Next.js
 does not automatically imply React. No backend language implication.
 
-The ReactDOM 19 reference is listed at about 515 kB, close to the 512 KiB decoded
+The ReactDOM 19 reference is listed at about 515 kB, close to the standard 512 KiB decoded
 asset cap; the exact byte count was not verified. Site bundles can differ in
 size and shape, and oversized captures remain rejected. Collection limits are
 unchanged; no imports are followed or package dependencies executed.
