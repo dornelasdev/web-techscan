@@ -78,12 +78,13 @@ case-insensitively within each category:
 
 | Group | Categories |
 | --- | --- |
-| Web development | Web frameworks, JavaScript frameworks, UI frameworks, CMS, languages. |
+| Web development | Web frameworks, JavaScript frameworks, JavaScript libraries, UI frameworks, CMS, languages. |
 | Infrastructure | Web servers, CDN/edge, load balancers, WAFs. |
 
 Angular, React, and Vue use `javascript_framework`. Django, Express, Laravel,
 Next.js, Nuxt, and Rails retain `framework` (web frameworks, including full-stack
 frameworks). Groups are static organization, not additional detections.
+jQuery uses `javascript_library`; its content rule requires `--assets`.
 Catalog JSON remains a flat array with `id`, `name`, and `category`; no `group`
 field is added. Use technology IDs for automation, not category assignments.
 
@@ -153,6 +154,8 @@ rule validation, positive/near-miss detections, inference, redirects, mixed
 frontend/network stacks, JS/CSS isolation, optional failures, privacy, and output
 contracts. Combined frontend checks include Angular HTML/JS and React
 client/ReactDOM evidence, split indicators and oversized captures.
+jQuery checks include core-indicator pairs, plugin-style decoys, source isolation,
+gzip, incomplete/oversized captures and evidence URL redaction.
 Passing fixtures are not a measurement of real-world detection accuracy.
 
 Optional checks, after building to create `bin/`:

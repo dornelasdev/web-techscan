@@ -16,6 +16,7 @@ var categoryMetadata = [...]struct {
 }{
 	{Framework, CategoryInfo{Group: "Web development", Label: "framework", Heading: "Web frameworks"}},
 	{JSFramework, CategoryInfo{Group: "Web development", Label: "JavaScript framework", Heading: "JavaScript frameworks"}},
+	{JSLibrary, CategoryInfo{Group: "Web development", Label: "JavaScript library", Heading: "JavaScript libraries"}},
 	{UIFramework, CategoryInfo{Group: "Web development", Label: "UI framework", Heading: "UI frameworks"}},
 	{CMS, CategoryInfo{Group: "Web development", Label: "CMS", Heading: "CMS"}},
 	{Language, CategoryInfo{Group: "Web development", Label: "language", Heading: "Languages"}},

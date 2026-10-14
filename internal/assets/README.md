@@ -4,7 +4,7 @@
 `--assets` collection, preserving each captured body separately. The CLI passes
 accepted captures to the offline detector's separate JS/CSS inputs. Current
 content fingerprints cover Next.js manifests, React client/ReactDOM, Vue and
-Angular runtime markers, and Bootstrap CSS.
+Angular runtime markers, jQuery core indicators, and Bootstrap CSS.
 See [user policies](../../docs/policies.md#asset-inspection) for scan scope and limits.
 
 ## Parser and inputs
@@ -149,7 +149,7 @@ markers across files. No character transcoding, JS/CSS parsing or execution is
 introduced; raw text can include copied/commented examples.
 
 Production asset rules cover Next.js manifests, React client/ReactDOM, Vue,
-Angular component-runtime shapes and Bootstrap CSS. Evidence retains
+Angular component-runtime shapes, jQuery core indicators and Bootstrap CSS. Evidence retains
 each matched asset URL, subject to report redaction and display sanitization.
 See [rule rationale and sources](../../docs/fingerprints.md).
 

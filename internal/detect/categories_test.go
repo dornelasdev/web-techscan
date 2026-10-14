@@ -16,6 +16,7 @@ func TestCategoryMetadataAndValidation(t *testing.T) {
 	}{
 		{detect.Framework, "Web development", "framework", "Web frameworks"},
 		{detect.JSFramework, "Web development", "JavaScript framework", "JavaScript frameworks"},
+		{detect.JSLibrary, "Web development", "JavaScript library", "JavaScript libraries"},
 		{detect.UIFramework, "Web development", "UI framework", "UI frameworks"},
 		{detect.CMS, "Web development", "CMS", "CMS"},
 		{detect.Language, "Web development", "language", "Languages"},
@@ -45,9 +46,9 @@ func TestCategoryMetadataAndValidation(t *testing.T) {
 			}
 		})
 	}
-	for _, category := range []detect.Category{"", "unknown", "Framework", "javascript_library"} {
+	for _, category := range []detect.Category{"", "unknown", "Framework", "javascript_libraries"} {
 		info, ok := category.Info()
-		if ok || info.Group != "Other" || info.Label != string(category) || info.Heading != string(category) || info.Order != 9 {
+		if ok || info.Group != "Other" || info.Label != string(category) || info.Heading != string(category) || info.Order != 10 {
 			t.Errorf("unexpected unknown-category fallback: %+v known=%t", info, ok)
 		}
 	}
@@ -61,6 +62,8 @@ func TestBundledTaxonomy(t *testing.T) {
 		switch tech.ID {
 		case "angular", "react", "vue":
 			want = detect.JSFramework
+		case "jquery":
+			want = detect.JSLibrary
 		case "django", "express", "laravel", "nextjs", "nuxt", "rails":
 		default:
 			want = tech.Category
@@ -73,7 +76,7 @@ func TestBundledTaxonomy(t *testing.T) {
 		}
 		counts[tech.Category]++
 	}
-	if engine.Len() != 22 || len(counts) != 9 || counts[detect.Framework] != 6 || counts[detect.JSFramework] != 3 {
+	if engine.Len() != 23 || len(counts) != 10 || counts[detect.Framework] != 6 || counts[detect.JSFramework] != 3 || counts[detect.JSLibrary] != 1 {
 		t.Fatalf("unexpected catalog taxonomy: size=%d counts=%v", engine.Len(), counts)
 	}
 }

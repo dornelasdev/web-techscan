@@ -3,7 +3,8 @@
 [README](../README.md) · [Usage](usage.md) · [Policies](policies.md)
 
 Rules are embedded in the binary. Use `webscan --techs` to list its catalog.
-The development catalog contains 22 technologies; v0.2.0 contains 10.
+The development catalog contains 23 technologies across ten categories;
+v0.2.0 contains 10 technologies.
 
 ## Evidence
 
@@ -365,6 +366,45 @@ Reviewed 2026-10-10. Sources:
 [runtime global production build](https://unpkg.com/vue@3.5.13/dist/vue.runtime.global.prod.js),
 [runtime ESM-browser production build](https://unpkg.com/vue@3.5.13/dist/vue.runtime.esm-browser.prod.js),
 [MIT license](https://github.com/vuejs/core/blob/v3.5.13/LICENSE).
+
+## JavaScript libraries
+
+### jQuery
+
+Category: `javascript_library`. Rule: `asset-core-runtime`. State: `inferred`.
+Require both code-shaped indicators in one accepted JavaScript capture:
+
+- A dot-property chain assigning `fn` and `prototype` to an object whose first
+  fields are unquoted `jquery: <identifier>`, `constructor: <identifier>` and
+  `length: 0`, in that order.
+- An unquoted `expando` field constructing the exact quoted `jQuery` prefix plus
+  a parenthesized identifier + zero-argument `Math.random()` expression, followed
+  by `.replace(/\D/g, "")` with an empty replacement.
+
+Allow whitespace, single/double string quotes and renamed ASCII identifiers.
+The engine does not check identifier equality, scope, version-variable values or
+execution. Copied/commented code and forks retaining the pair can match.
+
+Banner/filename-only clues, `$` usage, generic APIs, plugin-style assignments,
+either indicator alone and split-file pairs do not match. Quoted/bracket keys,
+reordered properties, escaped product strings, comments between required tokens,
+different initialization/serialization shapes and tree-shaken/split builds can be missed.
+There is no version reporting, full/slim classification or backend implication.
+Off-origin, inline, oversized and unselected assets remain outside coverage.
+
+Reviewed full/slim minified distributions for 3.7.1 and 4.0.0; both indicators
+occur in all four, independently of their banners. These are provenance baselines,
+not a claim of coverage across every release/build. Fixtures are authored compact
+and whitespace-formatted scaffolds, not imported library bundles.
+
+Reviewed 2026-10-14. Sources:
+[3.7.1 core](https://github.com/jquery/jquery/blob/3.7.1/src/core.js),
+[4.0.0 core](https://github.com/jquery/jquery/blob/4.0.0/src/core.js),
+[3.7.1 full production build](https://code.jquery.com/jquery-3.7.1.min.js),
+[3.7.1 slim production build](https://code.jquery.com/jquery-3.7.1.slim.min.js),
+[4.0.0 full production build](https://code.jquery.com/jquery-4.0.0.min.js),
+[4.0.0 slim production build](https://code.jquery.com/jquery-4.0.0.slim.min.js),
+[MIT license](https://jquery.com/license/).
 
 ## UI frameworks
 

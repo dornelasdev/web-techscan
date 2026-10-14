@@ -48,7 +48,7 @@ func TestTechsCatalogOffline(t *testing.T) {
 				t.Error("catalog should remain unstyled")
 			}
 			if !strings.Contains(strings.Join(args, " "), "--json") {
-				for _, want := range []string{"Supported technologies (", "Web development", "Infrastructure", "Web servers", "Web frameworks", "JavaScript frameworks", "UI frameworks", "CMS", "Languages", "CDN/edge", "Load balancers", "WAFs", "identification is not guaranteed"} {
+				for _, want := range []string{"Supported technologies (", "Web development", "Infrastructure", "Web servers", "Web frameworks", "JavaScript frameworks", "JavaScript libraries", "UI frameworks", "CMS", "Languages", "CDN/edge", "Load balancers", "WAFs", "identification is not guaranteed"} {
 					if !strings.Contains(stdout.String(), want) {
 						t.Errorf("missing %q in %s", want, &stdout)
 					}
@@ -67,7 +67,7 @@ func TestTechsCatalogOffline(t *testing.T) {
 				if !strings.Contains(stdout.String(), "    Nuxt\n    Ruby on Rails\n  JavaScript frameworks\n") {
 					t.Error("Rails must end the web-framework category before JavaScript frameworks")
 				}
-				if !strings.Contains(stdout.String(), "JavaScript frameworks\n    Angular\n    React\n    Vue\n  UI frameworks\n") {
+				if !strings.Contains(stdout.String(), "JavaScript frameworks\n    Angular\n    React\n    Vue\n  JavaScript libraries\n    jQuery\n  UI frameworks\n") {
 					t.Error("Angular, React and Vue must be ordered under JavaScript frameworks")
 				}
 				if !strings.Contains(stdout.String(), "\n  UI frameworks\n    Bootstrap\n") {
@@ -109,6 +109,9 @@ func TestTechsCatalogOffline(t *testing.T) {
 			}
 			if got := byID["bootstrap"]; got.Name != "Bootstrap" || got.Category != "ui_framework" {
 				t.Errorf("missing or incorrect Bootstrap metadata: %+v", got)
+			}
+			if got := byID["jquery"]; got.Name != "jQuery" || got.Category != "javascript_library" {
+				t.Errorf("missing or incorrect jQuery metadata: %+v", got)
 			}
 			for _, tech := range engine.Technologies() {
 				if got := byID[tech.ID]; got.Name != tech.Name || got.Category != string(tech.Category) {

@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "technologies": [
+    {
+      "id": "jquery",
+      "name": "jQuery",
+      "category": "javascript_library",
+      "rules": [
+        {
+          "id": "asset-core-runtime",
+          "state": "inferred",
+          "description": "Paired prototype initialization and expando construction in captured JavaScript suggest jQuery",
+          "all": [
+            {
+              "source": "asset_javascript",
+              "pattern": "(?:^|[^A-Za-z0-9_$.\\\\])[A-Za-z_$][A-Za-z0-9_$]*\\s*\\.\\s*fn\\s*=\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*\\.\\s*prototype\\s*=\\s*\\{\\s*jquery\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*,\\s*constructor\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*,\\s*length\\s*:\\s*0\\s*[,}]"
+            },
+            {
+              "source": "asset_javascript",
+              "pattern": "(?:\\{|,)\\s*expando\\s*:\\s*(?:\"jQuery\"|'jQuery')\\s*\\+\\s*\\(\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*\\+\\s*Math\\s*\\.\\s*random\\s*\\(\\s*\\)\\s*\\)\\s*\\.\\s*replace\\s*\\(\\s*/\\\\D/g\\s*,\\s*(?:\"\"|'')\\s*\\)\\s*[,}]"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -27,8 +27,8 @@ exit code too.
 | `assets` | object, optional | Bounded collection metadata when `--assets` is enabled; omitted by default |
 
 Each finding contains `id`, `name`, `category`, `state`, and `evidence`.
-Categories currently include `framework`, `javascript_framework`, `ui_framework`,
-`cms`, `language`, `web_server`, `cdn`, `load_balancer`, and `waf`.
+Categories currently include `framework`, `javascript_framework`, `javascript_library`,
+`ui_framework`, `cms`, `language`, `web_server`, `cdn`, `load_balancer`, and `waf`.
 New category strings may be added; consumers should preserve unknown values.
 Category assignments are catalog metadata and may be refined between releases;
 use technology IDs as identity keys. The unreleased taxonomy refinement moves
@@ -37,6 +37,9 @@ catalog JSON. `framework` continues to cover web/full-stack frameworks, includin
 Next.js and Nuxt. IDs, states, evidence, field types and schema versions are unchanged.
 No `group` field is added. `javascript_framework` is displayed as JavaScript
 framework in findings and JavaScript frameworks in the catalog.
+`javascript_library` is displayed as JavaScript library in findings and
+JavaScript libraries in the catalog. jQuery content evidence remains inferred;
+it does not establish execution or report a version.
 `ui_framework` is displayed as UI framework in findings and UI frameworks in the
 catalog. Bootstrap CSS evidence remains inferred, not proof of applied styles.
 `cdn` is displayed as CDN/edge. It describes identifying edge-provider evidence,
@@ -98,7 +101,7 @@ those structures does not implicitly change the public JSON shape.
 Captured bodies now contribute through supported asset rules
 (`mode: fingerprint_inspection`, replacing the unreleased `collection_only` mode).
 Production asset rules cover Next.js JS manifests, React client/ReactDOM, Vue,
-Angular component-runtime shapes and Bootstrap CSS.
+Angular component-runtime shapes, jQuery core indicators and Bootstrap CSS.
 Collection completeness is not detection coverage.
 Asset failures do not change successful page scans to exit 1; consumers needing
 all selected assets must check the collection status and individual items.
@@ -191,9 +194,9 @@ guarantee identification. Technologies supported only by inference are included.
 `catalog_size` equals the array length. An empty catalog uses `technologies: []`.
 
 Both catalog formats order categories as `framework`, `javascript_framework`,
-`ui_framework`, `cms`, `language`, `web_server`, `cdn`, `load_balancer`, `waf`,
+`javascript_library`, `ui_framework`, `cms`, `language`, `web_server`, `cdn`, `load_balancer`, `waf`,
 then names case-insensitively within each category, with ID as a tie-breaker.
-Terminal output nests categories under Web development (the first five) and
+Terminal output nests categories under Web development (the first six) and
 Infrastructure (the remaining four), with technologies below their category.
 Only nonempty groups/categories are displayed. Groups derive from shared category
 metadata; they are presentation headings, not scan evidence or JSON fields.

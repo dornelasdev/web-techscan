@@ -22,6 +22,7 @@ func TestCatalogTaxonomyOrderingAndUnknownCategories(t *testing.T) {
 		{ID: "language", Name: "Language", Category: detect.Language},
 		{ID: "cms", Name: "CMS", Category: detect.CMS},
 		{ID: "ui", Name: "UI", Category: detect.UIFramework},
+		{ID: "library", Name: "Library", Category: detect.JSLibrary},
 		{ID: "js-z", Name: "same", Category: detect.JSFramework},
 		{ID: "js-a", Name: "Same", Category: detect.JSFramework},
 		{ID: "framework", Name: "Framework", Category: detect.Framework},
@@ -32,7 +33,7 @@ func TestCatalogTaxonomyOrderingAndUnknownCategories(t *testing.T) {
 	for _, tech := range report.Technologies {
 		ids = append(ids, tech.ID)
 	}
-	wantIDs := []string{"framework", "js-a", "js-z", "ui", "cms", "language", "server", "cdn", "lb", "waf", "unknown-a", "unknown-z"}
+	wantIDs := []string{"framework", "js-a", "js-z", "library", "ui", "cms", "language", "server", "cdn", "lb", "waf", "unknown-a", "unknown-z"}
 	if !reflect.DeepEqual(ids, wantIDs) {
 		t.Fatalf("catalog order=%v want=%v", ids, wantIDs)
 	}

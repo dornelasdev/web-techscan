@@ -4,8 +4,9 @@ JSON files in this directory are embedded at build time. Each file contains
 `schema_version: 1` and a `technologies` array. Files are loaded together, so
 inference relationships may reference technology IDs in another file.
 
-The catalog is split across `servers.json`, `frameworks.json`, `ui-frameworks.json`, `cms.json`,
-`languages.json`, `cdn.json`, `load-balancers.json`, and `waf.json`.
+The catalog is split across `servers.json`, `frameworks.json`,
+`javascript-libraries.json`, `ui-frameworks.json`, `cms.json`, `languages.json`,
+`cdn.json`, `load-balancers.json`, and `waf.json`.
 See [coverage and sources](../../../docs/fingerprints.md) for the supported
 technologies, rule rationale, and limitations. Synthetic examples live under
 `../testdata/` and are never embedded.
@@ -49,7 +50,7 @@ This illustrates the format, not a real detection rule:
 - Technology IDs are unique across files. Rule IDs are unique within a
   technology. IDs use lowercase letters, digits, and single separating hyphens.
 - Categories are `framework` (web/full-stack frameworks), `javascript_framework`,
-  `ui_framework`, `cms`, `language`, `web_server`, `cdn` (CDN/edge),
+  `javascript_library`, `ui_framework`, `cms`, `language`, `web_server`, `cdn` (CDN/edge),
   `load_balancer`, and `waf`. Category validation and display metadata are
   maintained in `../categories.go`. Organization groups are derived from
   categories; do not add a `group` field to fingerprint JSON.
@@ -111,8 +112,8 @@ Raw HTML regexes can also match comments or examples, so choose distinctive
 patterns and document those limitations when reviewing coverage.
 The same limitation applies to asset regexes: code-shaped text may be copied or
 commented out. Asset coverage includes inferred Next.js JS manifest rules,
-React client/ReactDOM, Vue renderer and Angular component-runtime markers, and a
-Bootstrap CSS banner/button rule. No asset-based language implication or version
+React client/ReactDOM, Vue renderer, Angular component-runtime and jQuery core
+markers, and a Bootstrap CSS banner/button rule. No asset-based language implication or version
 extraction is added. The UI-framework category is `ui_framework`.
 
 Unknown JSON fields, unsupported schema versions, and invalid relationships

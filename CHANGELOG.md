@@ -2,12 +2,15 @@
 
 ## Unreleased
 
+- Added inferred jQuery core-runtime detection from paired prototype/expando
+  indicators in one captured JS asset, under JavaScript libraries. Reviewed
+  3.7.1/4.0.0 full/slim minified baselines; no version reporting or collection changes.
 - Organized terminal `--techs` output as group → category → technology under
   Web development and Infrastructure, with shared category validation/display metadata.
 - Moved Angular, React, and Vue from `framework` to `javascript_framework` in
   scan and catalog output. Next.js/Nuxt retain `framework`; technology IDs,
   rules, states and evidence are unchanged. Both JSON contracts retain their
-  schema-1 structures without a `group` field. The catalog has nine categories.
+  schema-1 structures without a `group` field. The catalog has ten categories.
 - Added Cloudflare and Amazon CloudFront header fingerprints under CDN/edge.
 - Added AWS Application and Classic Load Balancer cookie-pair inference.
 - Added AWS WAF action-header detection.
@@ -24,7 +27,7 @@
   finding, accepting exact legacy/modern error URLs with compatibility decoys
   and client/renderer coexistence checks.
 - Added Vue 3-shaped renderer runtime inference from three paired JS markers.
-- The development catalog now has 22 technologies.
+- The development catalog now has 23 technologies.
 - Added opt-in `--assets` inspection of direct same-origin JS/CSS, with bounded
   attempt/body budgets, a shared deadline, MIME/status validation, and per-item
   collection metadata. Optional failures preserve page findings.

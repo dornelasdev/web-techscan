@@ -15,6 +15,7 @@ type Category string
 const (
 	Framework    Category = "framework"
 	JSFramework  Category = "javascript_framework"
+	JSLibrary    Category = "javascript_library"
 	UIFramework  Category = "ui_framework"
 	WebServer    Category = "web_server"
 	Language     Category = "language"
