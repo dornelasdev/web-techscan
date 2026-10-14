@@ -31,15 +31,15 @@ func TestMixedAssetRedactionCopiesAllProvenance(t *testing.T) {
 				{RuleID: "payload-html-markers", Description: "Nuxt HTML evidence", Signals: []detect.Signal{{Source: detect.HTML}, {Source: detect.HTML}}},
 				{RuleID: "powered-by-header", Description: "Nuxt header evidence", Signals: []detect.Signal{{Source: detect.Header, Name: "X-Powered-By"}}},
 			}},
-		{ID: "react", Name: "React", Category: detect.Framework, State: detect.Inferred,
+		{ID: "react", Name: "React", Category: detect.JSFramework, State: detect.Inferred,
 			Evidence: []detect.Evidence{
 				{RuleID: "asset-client-runtime", Description: "React runtime evidence", AssetURL: jsURL, Signals: []detect.Signal{{Source: detect.AssetJavaScript}, {Source: detect.AssetJavaScript}}},
 				{RuleID: "asset-dom-runtime", Description: "ReactDOM evidence", AssetURL: jsURL, Signals: []detect.Signal{{Source: detect.AssetJavaScript}, {Source: detect.AssetJavaScript}, {Source: detect.AssetJavaScript}, {Source: detect.AssetJavaScript}, {Source: detect.AssetJavaScript}}},
 				{RuleID: "asset-dom-runtime", Description: "Separate ReactDOM evidence", AssetURL: domURL, Signals: []detect.Signal{{Source: detect.AssetJavaScript}, {Source: detect.AssetJavaScript}, {Source: detect.AssetJavaScript}, {Source: detect.AssetJavaScript}, {Source: detect.AssetJavaScript}}},
 			}},
-		{ID: "vue", Name: "Vue", Category: detect.Framework, State: detect.Inferred,
+		{ID: "vue", Name: "Vue", Category: detect.JSFramework, State: detect.Inferred,
 			Evidence: []detect.Evidence{{RuleID: "asset-renderer-runtime", Description: "Vue runtime evidence", AssetURL: jsURL, Signals: []detect.Signal{{Source: detect.AssetJavaScript}, {Source: detect.AssetJavaScript}, {Source: detect.AssetJavaScript}}}}},
-		{ID: "angular", Name: "Angular", Category: detect.Framework, State: detect.Inferred,
+		{ID: "angular", Name: "Angular", Category: detect.JSFramework, State: detect.Inferred,
 			Evidence: []detect.Evidence{
 				{RuleID: "asset-component-runtime", Description: "Angular runtime evidence", AssetURL: angularURL, Signals: []detect.Signal{{Source: detect.AssetJavaScript}, {Source: detect.AssetJavaScript}, {Source: detect.AssetJavaScript}}},
 				{RuleID: "server-host-attributes", Description: "Angular host evidence", Signals: []detect.Signal{{Source: detect.HTML}}},

@@ -73,7 +73,20 @@ See [policies](policies.md) for exact scope and limits.
 ### Catalog mode
 
 `--techs` lists the catalog bundled in the binary. Rebuild after changing rules.
-Entries are grouped by category and sorted by name, case-insensitively.
+Terminal entries use group → category → technology, with names sorted
+case-insensitively within each category:
+
+| Group | Categories |
+| --- | --- |
+| Web development | Web frameworks, JavaScript frameworks, UI frameworks, CMS, languages. |
+| Infrastructure | Web servers, CDN/edge, load balancers, WAFs. |
+
+Angular, React, and Vue use `javascript_framework`. Django, Express, Laravel,
+Next.js, Nuxt, and Rails retain `framework` (web frameworks, including full-stack
+frameworks). Groups are static organization, not additional detections.
+Catalog JSON remains a flat array with `id`, `name`, and `category`; no `group`
+field is added. Use technology IDs for automation, not category assignments.
+
 Catalog entries have no scan state and do not guarantee identification.
 
 `--techs` rejects a URL, `--version`, and explicitly supplied scan options:

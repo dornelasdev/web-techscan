@@ -4,7 +4,7 @@
     {
       "id": "angular",
       "name": "Angular",
-      "category": "framework",
+      "category": "javascript_framework",
       "rules": [
         {
           "id": "asset-component-runtime",
@@ -163,7 +163,7 @@
     {
       "id": "react",
       "name": "React",
-      "category": "framework",
+      "category": "javascript_framework",
       "rules": [
         {
           "id": "asset-client-runtime",
@@ -234,7 +234,7 @@
     {
       "id": "vue",
       "name": "Vue",
-      "category": "framework",
+      "category": "javascript_framework",
       "rules": [
         {
           "id": "asset-renderer-runtime",

@@ -166,7 +166,7 @@ func TestAngularThroughCLI(t *testing.T) {
 						if tc.want {
 							count = 1
 						}
-						if strings.Count(stdout.String(), marker+" Angular [framework]") != count {
+						if strings.Count(stdout.String(), marker+" Angular [JavaScript framework]") != count {
 							t.Errorf("terminal=%s", &stdout)
 						}
 						if strings.Contains(stdout.String(), "Paired ng-version and ng-server-context attributes on one tag") != tc.want {
@@ -214,7 +214,7 @@ func TestAngularThroughCLI(t *testing.T) {
 					}
 					if tc.want {
 						f := report.Findings[0]
-						if f.Name != "Angular" || f.Category != "framework" || f.State != "inferred" || len(f.Evidence) != 1 {
+						if f.Name != "Angular" || f.Category != "javascript_framework" || f.State != "inferred" || len(f.Evidence) != 1 {
 							t.Fatalf("finding=%+v", f)
 						}
 						e := f.Evidence[0]

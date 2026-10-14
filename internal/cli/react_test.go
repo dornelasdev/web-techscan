@@ -154,7 +154,7 @@ func TestCLIReactRuntimeAssets(t *testing.T) {
 						for i := range wantSignals {
 							wantSignals[i].Source = "asset_javascript"
 						}
-						if f.ID != "react" || f.Category != "framework" || f.State != "inferred" || len(f.Evidence) != 1 || f.Evidence[0].RuleID != fixture.ruleID || f.Evidence[0].AssetURL != assetURL || !reflect.DeepEqual(f.Evidence[0].Signals, wantSignals) {
+						if f.ID != "react" || f.Category != "javascript_framework" || f.State != "inferred" || len(f.Evidence) != 1 || f.Evidence[0].RuleID != fixture.ruleID || f.Evidence[0].AssetURL != assetURL || !reflect.DeepEqual(f.Evidence[0].Signals, wantSignals) {
 							t.Fatalf("finding=%+v", f)
 						}
 					} else if tc.wantFinding {
@@ -162,10 +162,10 @@ func TestCLIReactRuntimeAssets(t *testing.T) {
 						if format == "color" {
 							marker = "\x1b[33m?\x1b[0m"
 						}
-						if !strings.Contains(stdout.String(), marker+" React [framework]") || !strings.Contains(stdout.String(), "Asset: "+assetURL) {
+						if !strings.Contains(stdout.String(), marker+" React [JavaScript framework]") || !strings.Contains(stdout.String(), "Asset: "+assetURL) {
 							t.Errorf("terminal=%s", &stdout)
 						}
-					} else if strings.Contains(stdout.String(), "React [framework]") {
+					} else if strings.Contains(stdout.String(), "React [JavaScript framework]") {
 						t.Errorf("unexpected terminal finding: %s", &stdout)
 					}
 				})

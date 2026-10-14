@@ -6,6 +6,8 @@ import (
 	"io"
 	"strings"
 	"unicode"
+
+	"webscan/internal/detect"
 )
 
 // JSON writes one document followed by a newline, with no terminal styling.
@@ -57,21 +59,8 @@ func Terminal(w io.Writer, report Report, color bool) error {
 		fmt.Fprintln(&text, "No technologies detected.")
 	} else {
 		for _, finding := range report.Findings {
-			category := finding.Category
-			if category == "web_server" {
-				category = "web server"
-			} else if category == "ui_framework" {
-				category = "UI framework"
-			} else if category == "cms" {
-				category = "CMS"
-			} else if category == "cdn" {
-				category = "CDN/edge"
-			} else if category == "load_balancer" {
-				category = "load balancer"
-			} else if category == "waf" {
-				category = "WAF"
-			}
-			fmt.Fprintf(&text, "%s %s [%s]\n", marker(finding.State, color), plain(finding.Name), plain(category))
+			info, _ := detect.Category(finding.Category).Info()
+			fmt.Fprintf(&text, "%s %s [%s]\n", marker(finding.State, color), plain(finding.Name), plain(info.Label))
 			for _, evidence := range finding.Evidence {
 				fmt.Fprintf(&text, "  - %s\n", plain(evidence.Description))
 				if evidence.AssetURL != "" {

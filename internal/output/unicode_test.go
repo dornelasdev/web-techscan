@@ -68,7 +68,7 @@ func TestUnicodeDisplayControls(t *testing.T) {
 			if err := output.CatalogTerminal(&terminal, catalog); err != nil {
 				t.Fatal(err)
 			}
-			want := "Supported technologies (1)\n\nbefore�after\n  before�after\n\nCoverage depends on exposed signals; identification is not guaranteed.\n"
+			want := "Supported technologies (1)\n\nOther\n  before�after\n    before�after\n\nCoverage depends on exposed signals; identification is not guaranteed.\n"
 			if terminal.String() != want {
 				t.Errorf("catalog=%q want=%q", terminal.String(), want)
 			}

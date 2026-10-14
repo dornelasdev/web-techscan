@@ -133,6 +133,8 @@ func TestFrontendFindingCombinations(t *testing.T) {
 						category := detect.Framework
 						if finding.ID == "bootstrap" {
 							category = detect.UIFramework
+						} else if finding.ID == "angular" || finding.ID == "react" || finding.ID == "vue" {
+							category = detect.JSFramework
 						}
 						if !ok || finding.ID <= previous || finding.State != state || finding.Category != category || len(finding.Evidence) != len(expected) {
 							t.Fatalf("finding=%+v want=%+v", finding, expected)

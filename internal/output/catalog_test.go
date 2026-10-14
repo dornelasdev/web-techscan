@@ -18,6 +18,7 @@ func TestCatalogOrderingAndRendering(t *testing.T) {
 		{ID: "nginx", Name: "nginx", Category: detect.WebServer},
 		{ID: "nextjs", Name: "Next.js", Category: detect.Framework},
 		{ID: "bootstrap", Name: "Bootstrap", Category: detect.UIFramework},
+		{ID: "react", Name: "React", Category: detect.JSFramework},
 		{ID: "apache", Name: "Apache HTTP Server", Category: detect.WebServer},
 		{ID: "wordpress", Name: "WordPress", Category: detect.CMS},
 		{ID: "cloudflare", Name: "Cloudflare", Category: detect.CDN},
@@ -25,19 +26,19 @@ func TestCatalogOrderingAndRendering(t *testing.T) {
 	}
 	report := output.NewCatalogReport(items)
 	items[0].Name = "changed"
-	wantIDs := []string{"apache", "nginx", "nextjs", "bootstrap", "wordpress", "php", "cloudfront", "cloudflare"}
+	wantIDs := []string{"nextjs", "react", "bootstrap", "wordpress", "php", "apache", "nginx", "cloudfront", "cloudflare"}
 	var ids []string
 	for _, item := range report.Technologies {
 		ids = append(ids, item.ID)
 	}
-	if !reflect.DeepEqual(ids, wantIDs) || report.Technologies[5].Name != "PHP" {
+	if !reflect.DeepEqual(ids, wantIDs) || report.Technologies[4].Name != "PHP" {
 		t.Fatalf("unexpected ordering or shared metadata: %+v", report)
 	}
 	var terminal, json bytes.Buffer
 	if err := output.CatalogTerminal(&terminal, report); err != nil {
 		t.Fatal(err)
 	}
-	want := "Supported technologies (8)\n\nWeb servers\n  Apache HTTP Server\n  nginx\n\nFrameworks\n  Next.js\n\nUI frameworks\n  Bootstrap\n\nCMS\n  WordPress\n\nLanguages\n  PHP\n\nCDN/edge\n  Amazon CloudFront\n  Cloudflare\n\nCoverage depends on exposed signals; identification is not guaranteed.\n"
+	want := "Supported technologies (9)\n\nWeb development\n  Web frameworks\n    Next.js\n  JavaScript frameworks\n    React\n  UI frameworks\n    Bootstrap\n  CMS\n    WordPress\n  Languages\n    PHP\n\nInfrastructure\n  Web servers\n    Apache HTTP Server\n    nginx\n  CDN/edge\n    Amazon CloudFront\n    Cloudflare\n\nCoverage depends on exposed signals; identification is not guaranteed.\n"
 	if terminal.String() != want {
 		t.Errorf("terminal=%q, want %q", terminal.String(), want)
 	}
@@ -68,10 +69,13 @@ func TestInfrastructureCatalogOrdering(t *testing.T) {
 	if err := output.CatalogTerminal(&terminal, report); err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(terminal.String(), "\nLoad balancers\n  AWS Application Load Balancer\n  AWS Classic Load Balancer\n") {
+	if strings.Contains(terminal.String(), "Web development") || strings.Count(terminal.String(), "\nInfrastructure\n") != 1 {
+		t.Errorf("infrastructure-only catalog has incorrect group headings: %s", &terminal)
+	}
+	if !strings.Contains(terminal.String(), "\n  Load balancers\n    AWS Application Load Balancer\n    AWS Classic Load Balancer\n") {
 		t.Errorf("missing load balancer group: %s", &terminal)
 	}
-	if !strings.Contains(terminal.String(), "\nWAFs\n  AWS WAF\n") {
+	if !strings.Contains(terminal.String(), "\n  WAFs\n    AWS WAF\n") {
 		t.Errorf("missing WAF group: %s", &terminal)
 	}
 }

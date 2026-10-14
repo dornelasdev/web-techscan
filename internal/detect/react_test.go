@@ -31,7 +31,7 @@ func TestReactClientRuntime(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			url := "https://example.test/renamed?private-token=1"
 			got := engine.Detect(detect.Input{Assets: []detect.Asset{scriptAsset(url, body)}})
-			if len(got) != 1 || got[0].ID != "react" || got[0].Name != "React" || got[0].Category != detect.Framework || got[0].State != detect.Inferred || len(got[0].Evidence) != 1 {
+			if len(got) != 1 || got[0].ID != "react" || got[0].Name != "React" || got[0].Category != detect.JSFramework || got[0].State != detect.Inferred || len(got[0].Evidence) != 1 {
 				t.Fatalf("findings=%+v", got)
 			}
 			e := got[0].Evidence[0]

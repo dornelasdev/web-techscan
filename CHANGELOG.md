@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Organized terminal `--techs` output as group → category → technology under
+  Web development and Infrastructure, with shared category validation/display metadata.
+- Moved Angular, React, and Vue from `framework` to `javascript_framework` in
+  scan and catalog output. Next.js/Nuxt retain `framework`; technology IDs,
+  rules, states and evidence are unchanged. Both JSON contracts retain their
+  schema-1 structures without a `group` field. The catalog has nine categories.
 - Added Cloudflare and Amazon CloudFront header fingerprints under CDN/edge.
 - Added AWS Application and Classic Load Balancer cookie-pair inference.
 - Added AWS WAF action-header detection.

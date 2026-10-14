@@ -164,7 +164,7 @@ func TestCLIAngularComponentAssets(t *testing.T) {
 						if format == "color" {
 							marker = "\x1b[33m?\x1b[0m"
 						}
-						if strings.Contains(stdout.String(), marker+" Angular [framework]") != wantAngular || !strings.Contains(stdout.String(), "nginx [web server]") {
+						if strings.Contains(stdout.String(), marker+" Angular [JavaScript framework]") != wantAngular || !strings.Contains(stdout.String(), "nginx [web server]") {
 							t.Errorf("terminal=%s", &stdout)
 						}
 						if tc.wantRuntime && !strings.Contains(stdout.String(), "Asset: "+assetURL) {
@@ -196,7 +196,7 @@ func TestCLIAngularComponentAssets(t *testing.T) {
 						if tc.html {
 							evidence = append(evidence, output.Evidence{RuleID: "server-host-attributes", Signals: []output.Signal{{Source: "html"}}})
 						}
-						if f.ID != "angular" || f.State != "inferred" || f.Category != "framework" || len(f.Evidence) != len(evidence) {
+						if f.ID != "angular" || f.State != "inferred" || f.Category != "javascript_framework" || len(f.Evidence) != len(evidence) {
 							t.Fatalf("finding=%+v", f)
 						}
 						for i, e := range f.Evidence {

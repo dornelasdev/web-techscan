@@ -45,26 +45,8 @@ func NewCatalogReport(items []detect.TechnologyInfo) CatalogReport {
 }
 
 func categoryOrder(category string) int {
-	switch category {
-	case "web_server":
-		return 0
-	case "framework":
-		return 1
-	case "ui_framework":
-		return 2
-	case "cms":
-		return 3
-	case "language":
-		return 4
-	case "cdn":
-		return 5
-	case "load_balancer":
-		return 6
-	case "waf":
-		return 7
-	default:
-		return 8
-	}
+	info, _ := detect.Category(category).Info()
+	return info.Order
 }
 
 func CatalogJSON(w io.Writer, report CatalogReport) error {
@@ -79,32 +61,18 @@ func CatalogJSON(w io.Writer, report CatalogReport) error {
 func CatalogTerminal(w io.Writer, report CatalogReport) error {
 	var text strings.Builder
 	fmt.Fprintf(&text, "Supported technologies (%d)\n", report.CatalogSize)
-	lastCategory := ""
+	lastGroup, lastCategory := "", ""
 	for i, tech := range report.Technologies {
+		info, _ := detect.Category(tech.Category).Info()
+		if i == 0 || info.Group != lastGroup {
+			fmt.Fprintf(&text, "\n%s\n", plain(info.Group))
+			lastGroup = info.Group
+		}
 		if i == 0 || tech.Category != lastCategory {
-			title := tech.Category
-			switch tech.Category {
-			case "web_server":
-				title = "Web servers"
-			case "framework":
-				title = "Frameworks"
-			case "ui_framework":
-				title = "UI frameworks"
-			case "cms":
-				title = "CMS"
-			case "language":
-				title = "Languages"
-			case "cdn":
-				title = "CDN/edge"
-			case "load_balancer":
-				title = "Load balancers"
-			case "waf":
-				title = "WAFs"
-			}
-			fmt.Fprintf(&text, "\n%s\n", plain(title))
+			fmt.Fprintf(&text, "  %s\n", plain(info.Heading))
 			lastCategory = tech.Category
 		}
-		fmt.Fprintf(&text, "  %s\n", plain(tech.Name))
+		fmt.Fprintf(&text, "    %s\n", plain(tech.Name))
 	}
 	if len(report.Technologies) == 0 {
 		fmt.Fprintln(&text, "\nNo technologies bundled.")

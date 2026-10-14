@@ -36,8 +36,10 @@ guarantees. Missing findings do not establish that a technology is absent.
 
 ## Coverage
 
-The development catalog includes 22 technologies across web servers, frameworks,
-UI frameworks, CMSs, languages, CDN/edge providers, load balancers, and WAFs.
+The development catalog includes 22 technologies across nine categories:
+web frameworks, JavaScript frameworks, UI frameworks, CMSs, languages, web servers,
+CDN/edge providers, load balancers, and WAFs. `--techs` organizes these under
+Web development and Infrastructure.
 
 Default scans inspect the final response. `--assets` also inspects bounded,
 directly referenced same-origin JS/CSS. Asset rules currently cover Next.js

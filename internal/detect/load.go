@@ -85,9 +85,7 @@ func compileTechnology(tech technology) (*compiledTechnology, error) {
 	if !identifier.MatchString(tech.ID) || strings.TrimSpace(tech.Name) == "" {
 		return nil, fmt.Errorf("a lowercase hyphenated ID and nonempty name are required")
 	}
-	switch tech.Category {
-	case Framework, UIFramework, WebServer, Language, CMS, CDN, LoadBalancer, WAF:
-	default:
+	if _, ok := tech.Category.Info(); !ok {
 		return nil, fmt.Errorf("unknown category %q", tech.Category)
 	}
 	compiled := &compiledTechnology{id: tech.ID, name: tech.Name, category: tech.Category, implies: tech.Implies}

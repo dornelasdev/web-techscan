@@ -17,7 +17,7 @@ const angularHostVersionArray = `const attrs=["ng-version","20.3.0"];`
 
 func requireAngularRuntime(t *testing.T, got []detect.Finding, url string) {
 	t.Helper()
-	if len(got) != 1 || got[0].ID != "angular" || got[0].Name != "Angular" || got[0].Category != detect.Framework || got[0].State != detect.Inferred || len(got[0].Evidence) != 1 {
+	if len(got) != 1 || got[0].ID != "angular" || got[0].Name != "Angular" || got[0].Category != detect.JSFramework || got[0].State != detect.Inferred || len(got[0].Evidence) != 1 {
 		t.Fatalf("want only inferred Angular, findings=%+v", got)
 	}
 	e := got[0].Evidence[0]

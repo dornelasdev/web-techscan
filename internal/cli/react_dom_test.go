@@ -166,7 +166,7 @@ func testCLIReactRuntimeCoexistence(t *testing.T, fixture string) {
 							return
 						}
 						f := report.Findings[1]
-						if f.ID != "react" || f.Category != "framework" || f.State != "inferred" || len(f.Evidence) != len(tc.rules) {
+						if f.ID != "react" || f.Category != "javascript_framework" || f.State != "inferred" || len(f.Evidence) != len(tc.rules) {
 							t.Fatalf("finding=%+v", f)
 						}
 						for i, e := range f.Evidence {
@@ -189,11 +189,11 @@ func testCLIReactRuntimeCoexistence(t *testing.T, fixture string) {
 							marker = "\x1b[33m?\x1b[0m"
 						}
 						if len(tc.rules) == 0 {
-							if strings.Contains(stdout.String(), "React [framework]") {
+							if strings.Contains(stdout.String(), "React [JavaScript framework]") {
 								t.Error("unexpected React finding")
 							}
 						} else {
-							if strings.Count(stdout.String(), marker+" React [framework]") != 1 {
+							if strings.Count(stdout.String(), marker+" React [JavaScript framework]") != 1 {
 								t.Errorf("terminal=%s", &stdout)
 							}
 							for _, path := range tc.paths {

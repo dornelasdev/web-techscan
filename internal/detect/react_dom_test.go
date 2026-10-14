@@ -255,7 +255,7 @@ func TestReactDOMURLFormsShareEvidence(t *testing.T) {
 
 func assertReactDOMEvidence(t *testing.T, got []detect.Finding, urls []string) {
 	t.Helper()
-	if len(got) != 1 || got[0].ID != "react" || got[0].Name != "React" || got[0].Category != detect.Framework || got[0].State != detect.Inferred || len(got[0].Evidence) != len(urls) {
+	if len(got) != 1 || got[0].ID != "react" || got[0].Name != "React" || got[0].Category != detect.JSFramework || got[0].State != detect.Inferred || len(got[0].Evidence) != len(urls) {
 		t.Fatalf("findings=%+v", got)
 	}
 	wantSignals := make([]detect.Signal, 5)

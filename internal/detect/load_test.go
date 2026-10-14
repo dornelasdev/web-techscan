@@ -26,6 +26,7 @@ func TestCatalogValidation(t *testing.T) {
 	for _, tc := range []struct{ name, data, want string }{
 		{"invalid JSON", `{`, "unexpected EOF"},
 		{"unknown field", strings.Replace(validDoc, `"name":"Example"`, `"name":"Example","typo":true`, 1), "unknown field"},
+		{"organization group is not fingerprint data", strings.Replace(validDoc, `"name":"Example"`, `"name":"Example","group":"Web development"`, 1), "unknown field"},
 		{"unknown matcher field", strings.Replace(validDoc, `"pattern":`, `"value":"Example","pattern":`, 1), "unknown field"},
 		{"multiple documents", validDoc + validDoc, "single JSON document"},
 		{"schema version", strings.Replace(validDoc, `"schema_version":1`, `"schema_version":2`, 1), "unsupported schema_version"},

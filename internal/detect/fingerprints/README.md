@@ -48,8 +48,11 @@ This illustrates the format, not a real detection rule:
 
 - Technology IDs are unique across files. Rule IDs are unique within a
   technology. IDs use lowercase letters, digits, and single separating hyphens.
-- Categories are `framework`, `ui_framework`, `web_server`, `cms`, `language`, `cdn` (CDN/edge),
-  `load_balancer`, and `waf`.
+- Categories are `framework` (web/full-stack frameworks), `javascript_framework`,
+  `ui_framework`, `cms`, `language`, `web_server`, `cdn` (CDN/edge),
+  `load_balancer`, and `waf`. Category validation and display metadata are
+  maintained in `../categories.go`. Organization groups are derived from
+  categories; do not add a `group` field to fingerprint JSON.
 - Every rule needs an ID, a description, an explicit `detected` or `inferred`
   state, and at least one matcher in `all`. Every matcher must succeed for the
   rule to match. Any matching rule produces a finding for its technology.
@@ -108,9 +111,9 @@ Raw HTML regexes can also match comments or examples, so choose distinctive
 patterns and document those limitations when reviewing coverage.
 The same limitation applies to asset regexes: code-shaped text may be copied or
 commented out. Asset coverage includes inferred Next.js JS manifest rules,
-React client/ReactDOM and Vue renderer runtime markers, and a Bootstrap CSS banner/button
-rule. No asset-based language implication or version extraction is added. The
-UI-framework category is `ui_framework`.
+React client/ReactDOM, Vue renderer and Angular component-runtime markers, and a
+Bootstrap CSS banner/button rule. No asset-based language implication or version
+extraction is added. The UI-framework category is `ui_framework`.
 
 Unknown JSON fields, unsupported schema versions, and invalid relationships
 fail catalog loading instead of silently reducing coverage. Changes to this

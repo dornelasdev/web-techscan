@@ -27,9 +27,16 @@ exit code too.
 | `assets` | object, optional | Bounded collection metadata when `--assets` is enabled; omitted by default |
 
 Each finding contains `id`, `name`, `category`, `state`, and `evidence`.
-Categories currently include `framework`, `ui_framework`, `web_server`, `cms`, `language`, `cdn`,
-`load_balancer`, and `waf`.
+Categories currently include `framework`, `javascript_framework`, `ui_framework`,
+`cms`, `language`, `web_server`, `cdn`, `load_balancer`, and `waf`.
 New category strings may be added; consumers should preserve unknown values.
+Category assignments are catalog metadata and may be refined between releases;
+use technology IDs as identity keys. The unreleased taxonomy refinement moves
+Angular, React, and Vue from `framework` to `javascript_framework` in scan and
+catalog JSON. `framework` continues to cover web/full-stack frameworks, including
+Next.js and Nuxt. IDs, states, evidence, field types and schema versions are unchanged.
+No `group` field is added. `javascript_framework` is displayed as JavaScript
+framework in findings and JavaScript frameworks in the catalog.
 `ui_framework` is displayed as UI framework in findings and UI frameworks in the
 catalog. Bootstrap CSS evidence remains inferred, not proof of applied styles.
 `cdn` is displayed as CDN/edge. It describes identifying edge-provider evidence,
@@ -183,14 +190,21 @@ only `id`, `name`, and `category`; support does not assign a finding state or
 guarantee identification. Technologies supported only by inference are included.
 `catalog_size` equals the array length. An empty catalog uses `technologies: []`.
 
-Both catalog formats order categories as `web_server`, `framework`, `ui_framework`, `cms`,
-`language`, `cdn`, `load_balancer`, `waf`,
+Both catalog formats order categories as `framework`, `javascript_framework`,
+`ui_framework`, `cms`, `language`, `web_server`, `cdn`, `load_balancer`, `waf`,
 then names case-insensitively within each category, with ID as a tie-breaker.
-Terminal output uses friendly group headings and a coverage disclaimer. It is
+Terminal output nests categories under Web development (the first five) and
+Infrastructure (the remaining four), with technologies below their category.
+Only nonempty groups/categories are displayed. Groups derive from shared category
+metadata; they are presentation headings, not scan evidence or JSON fields.
+Unknown output categories sort after known ones, by category string, and appear
+under Other with their original category label. Fingerprint loading still rejects
+unknown categories. Terminal output includes a coverage disclaimer. It is
 always plain text, regardless of color flags. JSON uses two-space indentation,
 a trailing newline, and no status text. Load/write errors use stderr and exit 1;
 invalid argument combinations use exit 2. Failed writes can leave partial output.
-The existing scan JSON schema is unchanged.
+Both JSON schemas retain version 1 and their existing field shapes; the three
+category reassignments described above also apply to scan findings.
 
 ## Terminal text safety
 

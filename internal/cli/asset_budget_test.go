@@ -251,7 +251,7 @@ func TestCLIAssetBudgetCollection(t *testing.T) {
 				assetURL := server.URL + "/main?[redacted]"
 				if format != "json" {
 					text := strings.NewReplacer("\x1b[33m", "", "\x1b[32m", "", "\x1b[0m", "").Replace(stdout.String())
-					if strings.Contains(text, "? Angular [framework]") != tc.wantFinding || !strings.Contains(text, "✓ nginx [web server]") {
+					if strings.Contains(text, "? Angular [JavaScript framework]") != tc.wantFinding || !strings.Contains(text, "✓ nginx [web server]") {
 						t.Errorf("terminal=%s", text)
 					}
 					line := fmt.Sprintf("Budget: %s; per asset %d decoded / %d encoded bytes; combined %d decoded / %d encoded bytes", profile, budget.MaxAssetDecodedBytes, budget.MaxAssetEncodedBytes, budget.MaxTotalDecodedBytes, budget.MaxTotalEncodedBytes)

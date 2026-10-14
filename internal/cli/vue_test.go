@@ -179,7 +179,7 @@ func TestCLIVueRendererAssets(t *testing.T) {
 							t.Fatalf("findings=%+v", report.Findings)
 						}
 						f := report.Findings[0]
-						if f.ID != "vue" || f.Category != "framework" || f.State != "inferred" || len(f.Evidence) != 1 || f.Evidence[0].RuleID != "asset-renderer-runtime" || f.Evidence[0].AssetURL != assetURL || f.Evidence[0].InferredFrom != "" || !reflect.DeepEqual(f.Evidence[0].Signals, []output.Signal{{Source: "asset_javascript"}, {Source: "asset_javascript"}, {Source: "asset_javascript"}}) {
+						if f.ID != "vue" || f.Category != "javascript_framework" || f.State != "inferred" || len(f.Evidence) != 1 || f.Evidence[0].RuleID != "asset-renderer-runtime" || f.Evidence[0].AssetURL != assetURL || f.Evidence[0].InferredFrom != "" || !reflect.DeepEqual(f.Evidence[0].Signals, []output.Signal{{Source: "asset_javascript"}, {Source: "asset_javascript"}, {Source: "asset_javascript"}}) {
 							t.Fatalf("finding=%+v", f)
 						}
 					} else if tc.wantFinding {
@@ -187,10 +187,10 @@ func TestCLIVueRendererAssets(t *testing.T) {
 						if format == "color" {
 							marker = "\x1b[33m?\x1b[0m"
 						}
-						if !strings.Contains(stdout.String(), marker+" Vue [framework]") || !strings.Contains(stdout.String(), "Asset: "+assetURL) {
+						if !strings.Contains(stdout.String(), marker+" Vue [JavaScript framework]") || !strings.Contains(stdout.String(), "Asset: "+assetURL) {
 							t.Errorf("terminal=%s", &stdout)
 						}
-					} else if strings.Contains(stdout.String(), "Vue [framework]") {
+					} else if strings.Contains(stdout.String(), "Vue [JavaScript framework]") {
 						t.Errorf("unexpected terminal finding: %s", &stdout)
 					}
 				})

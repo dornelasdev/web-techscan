@@ -232,7 +232,7 @@ func TestCLICombinedFrontendAssets(t *testing.T) {
 						for _, want := range []struct {
 							name, category    string
 							present, detected bool
-						}{{"Angular", "framework", wantAngularHTML || wantAngularJS, false}, {"Bootstrap", "UI framework", wantCSS, false}, {"Next.js", "framework", true, scenario.nextHeader}, {"Nuxt", "framework", true, scenario.nuxtHeader}, {"React", "framework", wantReact, false}, {"Vue", "framework", wantVue, false}} {
+						}{{"Angular", "JavaScript framework", wantAngularHTML || wantAngularJS, false}, {"Bootstrap", "UI framework", wantCSS, false}, {"Next.js", "framework", true, scenario.nextHeader}, {"Nuxt", "framework", true, scenario.nuxtHeader}, {"React", "JavaScript framework", wantReact, false}, {"Vue", "JavaScript framework", wantVue, false}} {
 							label := " " + want.name + " [" + want.category + "]"
 							inferred := strings.Contains(text, "?"+label)
 							detected := strings.Contains(text, "✓"+label)
@@ -309,6 +309,8 @@ func TestCLICombinedFrontendAssets(t *testing.T) {
 						}
 						if f.ID == "bootstrap" {
 							category = "ui_framework"
+						} else if f.ID == "angular" || f.ID == "react" || f.ID == "vue" {
+							category = "javascript_framework"
 						}
 						if !ok || f.ID <= previous || f.State != state || f.Category != category || len(f.Evidence) != len(expected) {
 							t.Fatalf("finding=%+v want=%+v", f, expected)

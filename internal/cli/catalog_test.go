@@ -48,30 +48,33 @@ func TestTechsCatalogOffline(t *testing.T) {
 				t.Error("catalog should remain unstyled")
 			}
 			if !strings.Contains(strings.Join(args, " "), "--json") {
-				for _, want := range []string{"Supported technologies (", "Web servers", "Frameworks", "CMS", "Languages", "CDN/edge", "Load balancers", "WAFs", "identification is not guaranteed"} {
+				for _, want := range []string{"Supported technologies (", "Web development", "Infrastructure", "Web servers", "Web frameworks", "JavaScript frameworks", "UI frameworks", "CMS", "Languages", "CDN/edge", "Load balancers", "WAFs", "identification is not guaranteed"} {
 					if !strings.Contains(stdout.String(), want) {
 						t.Errorf("missing %q in %s", want, &stdout)
 					}
 				}
 				for _, tech := range engine.Technologies() {
-					if !strings.Contains(stdout.String(), "  "+tech.Name+"\n") {
+					if !strings.Contains(stdout.String(), "    "+tech.Name+"\n") {
 						t.Errorf("missing bundled technology %s", tech.ID)
 					}
 				}
-				if !strings.Contains(stdout.String(), "  Next.js\n  Nuxt\n") {
+				if !strings.Contains(stdout.String(), "    Next.js\n    Nuxt\n") {
 					t.Error("Nuxt must appear in the alphabetically ordered framework group")
 				}
-				if !strings.Contains(stdout.String(), "Frameworks\n  Angular\n  Django\n  Express\n") {
-					t.Error("Angular and Django must appear in the alphabetically ordered framework group")
+				if !strings.Contains(stdout.String(), "Web frameworks\n    Django\n    Express\n") {
+					t.Error("Django and Express must appear under web frameworks")
 				}
-				if !strings.Contains(stdout.String(), "  Nuxt\n  React\n  Ruby on Rails\n") {
-					t.Error("React and Rails must appear in the alphabetically ordered framework group")
+				if !strings.Contains(stdout.String(), "    Nuxt\n    Ruby on Rails\n  JavaScript frameworks\n") {
+					t.Error("Rails must end the web-framework category before JavaScript frameworks")
 				}
-				if !strings.Contains(stdout.String(), "  Ruby on Rails\n  Vue\n\nUI frameworks\n") {
-					t.Error("Vue must appear last in the current framework group")
+				if !strings.Contains(stdout.String(), "JavaScript frameworks\n    Angular\n    React\n    Vue\n  UI frameworks\n") {
+					t.Error("Angular, React and Vue must be ordered under JavaScript frameworks")
 				}
-				if !strings.Contains(stdout.String(), "\nUI frameworks\n  Bootstrap\n") {
+				if !strings.Contains(stdout.String(), "\n  UI frameworks\n    Bootstrap\n") {
 					t.Error("Bootstrap must appear under UI frameworks")
+				}
+				if strings.Count(stdout.String(), "\nWeb development\n") != 1 || strings.Count(stdout.String(), "\nInfrastructure\n") != 1 {
+					t.Error("each nonempty organization group must have one heading")
 				}
 				return
 			}
@@ -86,7 +89,7 @@ func TestTechsCatalogOffline(t *testing.T) {
 			for _, tech := range report.Technologies {
 				byID[tech.ID] = tech
 			}
-			if got := byID["angular"]; got.Name != "Angular" || got.Category != "framework" {
+			if got := byID["angular"]; got.Name != "Angular" || got.Category != "javascript_framework" {
 				t.Errorf("missing or incorrect Angular metadata: %+v", got)
 			}
 			if got := byID["nuxt"]; got.Name != "Nuxt" || got.Category != "framework" {
@@ -98,10 +101,10 @@ func TestTechsCatalogOffline(t *testing.T) {
 			if got := byID["rails"]; got.Name != "Ruby on Rails" || got.Category != "framework" {
 				t.Errorf("missing or incorrect Rails metadata: %+v", got)
 			}
-			if got := byID["react"]; got.Name != "React" || got.Category != "framework" {
+			if got := byID["react"]; got.Name != "React" || got.Category != "javascript_framework" {
 				t.Errorf("missing or incorrect React metadata: %+v", got)
 			}
-			if got := byID["vue"]; got.Name != "Vue" || got.Category != "framework" {
+			if got := byID["vue"]; got.Name != "Vue" || got.Category != "javascript_framework" {
 				t.Errorf("missing or incorrect Vue metadata: %+v", got)
 			}
 			if got := byID["bootstrap"]; got.Name != "Bootstrap" || got.Category != "ui_framework" {
@@ -110,6 +113,17 @@ func TestTechsCatalogOffline(t *testing.T) {
 			for _, tech := range engine.Technologies() {
 				if got := byID[tech.ID]; got.Name != tech.Name || got.Category != string(tech.Category) {
 					t.Errorf("catalog mismatch for %s: %+v", tech.ID, got)
+				}
+			}
+			var raw struct {
+				Technologies []map[string]json.RawMessage `json:"technologies"`
+			}
+			if err := json.Unmarshal(stdout.Bytes(), &raw); err != nil {
+				t.Fatal(err)
+			}
+			for _, entry := range raw.Technologies {
+				if len(entry) != 3 || entry["id"] == nil || entry["name"] == nil || entry["category"] == nil {
+					t.Errorf("catalog JSON must retain flat id/name/category entries: %v", entry)
 				}
 			}
 		})
