@@ -1,54 +1,57 @@
 # Changelog
 
-## Unreleased
+## v0.3.0 — 2026-10-16
 
-- Added inferred jQuery core-runtime detection from paired prototype/expando
-  indicators in one captured JS asset, under JavaScript libraries. Reviewed
-  3.7.1/4.0.0 full/slim minified baselines; no version reporting or collection changes.
+Bounded asset inspection, broader frontend/infrastructure coverage, and fetching
+and reporting hardening. The catalog contains 23 technologies across ten categories.
+
+### Added
+
+- Opt-in `--assets` inspection of directly referenced same-origin JS/CSS, with
+  bounded requests/reads, a shared network deadline, MIME/status validation,
+  per-item collection metadata and asset URL evidence. Optional failures preserve
+  page findings.
+- `--asset-budget standard|expanded` profiles. Standard remains the default;
+  expanded permits larger bounded captures without changing discovery, origins,
+  attempt limits or execution behavior.
+- Inferred asset rules for Next.js manifests, React client/ReactDOM, Vue,
+  Angular component-runtime shapes, Bootstrap CSS and jQuery core indicators.
+  Added Angular HTML inference from paired attributes on one tag. No version reporting.
+- Nuxt header/HTML detection, Django CSRF cookie/input inference, and Ruby on
+  Rails CSRF metadata inference.
+- Cloudflare/CloudFront header fingerprints, AWS Application/Classic Load
+  Balancer cookie-pair inference, and independent AWS WAF action-header detection.
+- `--redact-query` for page, redirect, asset and evidence report URLs.
+
+### Changed
+
 - Organized terminal `--techs` output as group → category → technology under
-  Web development and Infrastructure, with shared category validation/display metadata.
-- Moved Angular, React, and Vue from `framework` to `javascript_framework` in
-  scan and catalog output. Next.js/Nuxt retain `framework`; technology IDs,
-  rules, states and evidence are unchanged. Both JSON contracts retain their
-  schema-1 structures without a `group` field. The catalog has ten categories.
-- Added Cloudflare and Amazon CloudFront header fingerprints under CDN/edge.
-- Added AWS Application and Classic Load Balancer cookie-pair inference.
-- Added AWS WAF action-header detection.
-- Added Nuxt header/HTML detection, Django CSRF cookie/input inference, and
-  Ruby on Rails CSRF metadata inference.
-- Added Bootstrap CSS inference under UI frameworks.
-- Added paired React 19-shaped client runtime inference in captured JavaScript.
-- Added Angular HTML inference from paired version/server-context attributes
-  on one tag, with same-tag boundaries, source isolation and CLI regressions.
-- Added Angular component-runtime inference from three JS indicators in one
-  captured asset, including escaped component properties; collection limits
-  and version reporting are unchanged.
-- Added ReactDOM 18/19-shaped key/error-formatter inference for the existing React
-  finding, accepting exact legacy/modern error URLs with compatibility decoys
-  and client/renderer coexistence checks.
-- Added Vue 3-shaped renderer runtime inference from three paired JS markers.
-- The development catalog now has 23 technologies.
-- Added opt-in `--assets` inspection of direct same-origin JS/CSS, with bounded
-  attempt/body budgets, a shared deadline, MIME/status validation, and per-item
-  collection metadata. Optional failures preserve page findings.
-- Added `--assets --asset-budget expanded` for larger bounded captures while
-  retaining standard defaults, with profile/limit reporting and gzip, overflow,
-  aggregate-budget and CLI regressions. No new discovery or JS execution.
-- Accepted explicit `application/x-javascript` responses for selected scripts,
-  with MIME rejection, gzip/size-limit and detection regressions; no sniffing
-  or collection-limit changes.
-- Added Next.js build/SSG manifest inference and asset URL evidence.
-- Added bounded HTML reference extraction using `golang.org/x/net v0.61.0`.
-- Added `--redact-query` for page, redirect, asset, and evidence report URLs.
+  Web development and Infrastructure.
+- Added `javascript_framework` for Angular/React/Vue and `javascript_library`
+  for jQuery. Next.js/Nuxt retain `framework`. Technology IDs and evidence states
+  remain stable; groups are presentation metadata, not additional findings.
+- Retained schema 1 for scan/catalog JSON, with additive asset, budget, provenance
+  and query-redaction fields. Catalog JSON remains flat, without a `group` field.
+- Added bounded HTML reference extraction using `golang.org/x/net v0.61.0`;
+  accepted explicit `application/x-javascript` responses without MIME sniffing.
+- Reorganized documentation into usage, policies and fingerprint references.
+
+### Hardened
+
 - Blocked HTTPS-to-HTTP page redirects by default; added `--allow-http-downgrade`.
-- Removed Referer on cross-origin redirects and raw rejected URLs from diagnostics.
-- Added explicit encoding validation and `--max-encoded-body` (4 MiB default).
-- Hardened terminal text handling for Unicode bidi and line/paragraph controls.
-- Tightened nginx/Apache banner patterns.
-- Added mixed-stack, fetch-failure, privacy, combined JS/CSS and independent
-  frontend-finding regressions, including Angular/ReactDOM coexistence,
-  split indicators, oversized captures and report-provenance redaction.
-- Reorganized documentation into usage, policies, and fingerprint references.
+  Removed cross-origin Referer and raw rejected URLs from diagnostics.
+- Added explicit content-encoding validation and `--max-encoded-body`
+  (4 MiB default), retaining normal TLS verification.
+- Tightened nginx/Apache banner patterns and terminal handling of Unicode bidi
+  and line/paragraph controls.
+- Expanded local regression coverage for mixed stacks, split/partial indicators,
+  source isolation, fetch/asset failures, byte budgets, privacy and output contracts.
+
+### Scope
+
+Single-URL inspection with optional direct same-origin assets. No crawling,
+JavaScript execution, version extraction, bulk scanning or vulnerability testing.
+Local-source builds remain the installation method.
 
 ## v0.2.0 — 2026-10-06
 

@@ -36,10 +36,10 @@ guarantees. Missing findings do not establish that a technology is absent.
 
 ## Coverage
 
-The development catalog includes 23 technologies across ten categories:
+The v0.3.0 catalog includes 23 technologies across ten categories:
 web frameworks, JavaScript frameworks, JavaScript libraries, UI frameworks, CMSs,
-languages, web servers, CDN/edge providers, load balancers, and WAFs. `--techs` organizes these under
-Web development and Infrastructure.
+languages, web servers, CDN/edge providers, load balancers, and WAFs.
+`--techs` organizes these under Web development and Infrastructure.
 
 Default scans inspect the final response. `--assets` also inspects bounded,
 directly referenced same-origin JS/CSS. Asset rules currently cover Next.js
@@ -50,8 +50,7 @@ There is no crawling, JavaScript execution, version extraction, bulk scanning,
 or vulnerability testing. Findings describe exposed signals; intermediaries
 and error pages can hide the application stack.
 
-Latest release: **v0.2.0**. The development additions are unreleased.
-See [CHANGELOG.md](CHANGELOG.md).
+Current version: **v0.3.0**. See [CHANGELOG.md](CHANGELOG.md).
 
 ## Documentation
 

@@ -3,8 +3,7 @@
 [README](../README.md) · [Usage](usage.md) · [Policies](policies.md)
 
 Rules are embedded in the binary. Use `webscan --techs` to list its catalog.
-The development catalog contains 23 technologies across ten categories;
-v0.2.0 contains 10 technologies.
+The v0.3.0 catalog contains 23 technologies across ten categories.
 
 ## Evidence
 

@@ -11,10 +11,10 @@ go build -buildvcs=false -o bin/webscan .
 ./bin/webscan --version
 ```
 
-Default builds report `webscan dev`. To label a build of the v0.2.0 source:
+Default builds report `webscan dev`. To label a build of the v0.3.0 source:
 
 ```sh
-go build -buildvcs=false -ldflags "-X main.version=v0.2.0" -o bin/webscan .
+go build -buildvcs=false -ldflags "-X main.version=v0.3.0" -o bin/webscan .
 ```
 
 Use that version label only for the matching release source. Tags do not set

@@ -31,10 +31,10 @@ Categories currently include `framework`, `javascript_framework`, `javascript_li
 `ui_framework`, `cms`, `language`, `web_server`, `cdn`, `load_balancer`, and `waf`.
 New category strings may be added; consumers should preserve unknown values.
 Category assignments are catalog metadata and may be refined between releases;
-use technology IDs as identity keys. The unreleased taxonomy refinement moves
-Angular, React, and Vue from `framework` to `javascript_framework` in scan and
-catalog JSON. `framework` continues to cover web/full-stack frameworks, including
-Next.js and Nuxt. IDs, states, evidence, field types and schema versions are unchanged.
+use technology IDs as identity keys. In v0.3.0, Angular, React, and Vue use
+`javascript_framework` in scan and catalog JSON. `framework` covers web/full-stack
+frameworks, including Next.js and Nuxt. Category membership does not add findings,
+change evidence states or establish a rendering mode or backend language.
 No `group` field is added. `javascript_framework` is displayed as JavaScript
 framework in findings and JavaScript frameworks in the catalog.
 `javascript_library` is displayed as JavaScript library in findings and
@@ -97,9 +97,9 @@ those structures does not implicitly change the public JSON shape.
 
 ## Optional asset collection
 
-`--assets` adds an `assets` object in schema 1; default JSON is unchanged.
-Captured bodies now contribute through supported asset rules
-(`mode: fingerprint_inspection`, replacing the unreleased `collection_only` mode).
+`--assets` adds an `assets` object in schema 1; page-only reports omit it.
+Captured bodies contribute through supported asset rules
+(`mode: fingerprint_inspection`).
 Production asset rules cover Next.js JS manifests, React client/ReactDOM, Vue,
 Angular component-runtime shapes, jQuery core indicators and Bootstrap CSS.
 Collection completeness is not detection coverage.
@@ -206,8 +206,8 @@ unknown categories. Terminal output includes a coverage disclaimer. It is
 always plain text, regardless of color flags. JSON uses two-space indentation,
 a trailing newline, and no status text. Load/write errors use stderr and exit 1;
 invalid argument combinations use exit 2. Failed writes can leave partial output.
-Both JSON schemas retain version 1 and their existing field shapes; the three
-category reassignments described above also apply to scan findings.
+Both JSON schemas retain version 1. Category strings described above also apply
+to scan findings; catalog groups are terminal-only presentation.
 
 ## Terminal text safety
 
