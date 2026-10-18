@@ -34,6 +34,7 @@ updates, and prebuilt distribution are not provided.
 ./bin/webscan https://example.com
 ./bin/webscan --no-color https://example.com
 ./bin/webscan --json https://example.com
+./bin/webscan --prefer-html https://example.com
 ./bin/webscan --assets --redact-query --json https://example.com
 ./bin/webscan --assets --asset-budget expanded --json https://example.com
 ./bin/webscan --timeout 10s --max-redirects 3 --max-body 1048576 https://example.com
@@ -53,6 +54,7 @@ help. URLs containing credentials are rejected; fragments are removed.
 | `--version` | — | Show the build version. |
 | `--techs` | false | List bundled technologies without network access. |
 | `--json` | false | Render a scan report or catalog as JSON. |
+| `--prefer-html` | false | Prefer HTML for page requests, not assets. |
 | `--assets` | false | Inspect eligible same-origin JS/CSS. |
 | `--asset-budget standard\|expanded` | standard | Select asset payload limits; requires `--assets`. |
 | `--redact-query` | false | Replace queries in report URLs. |
@@ -69,6 +71,18 @@ Asset budgets are independent of page-body flags. Explicit `--asset-budget`
 requires enabled `--assets` and cannot be used with `--version` or `--techs`.
 Profile names are exact and case-sensitive; there is no unlimited/custom profile.
 See [policies](policies.md) for exact scope and limits.
+
+### HTML preference
+
+`--prefer-html` sends an HTML-preferring Accept header on the supplied page and
+followed page redirects. The default (or `--prefer-html=false`) omits Accept.
+Assets keep their existing headers. See the [request policy](policies.md#page-fetching)
+for the exact value.
+
+This can expose HTML signals when a server otherwise selects JSON. It does not
+execute JavaScript or guarantee HTML. Servers may ignore it or return HTTP 406;
+the returned response is inspected normally, without a fallback request.
+Findings describe that selected representation, not all representations of a URL.
 
 ### Catalog mode
 
@@ -94,7 +108,7 @@ finding, respectively. Listing them does not mean they have direct language rule
 
 `--techs` rejects a URL, `--version`, and explicitly supplied scan options:
 `--timeout`, `--max-redirects`, `--max-body`, `--max-encoded-body`,
-`--allow-http-downgrade`, `--assets`, `--asset-budget`, and `--redact-query`.
+`--allow-http-downgrade`, `--prefer-html`, `--assets`, `--asset-budget`, and `--redact-query`.
 Explicit false values are also rejected. Color options are accepted; catalog
 output always remains plain.
 

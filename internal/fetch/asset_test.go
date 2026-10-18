@@ -48,6 +48,7 @@ func TestFetchAssetResponsePolicyAndCleanup(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			options := DefaultOptions()
 			options.AllowHTTPDowngrade = true // Still cannot relax asset policy.
+			options.PreferHTML = true         // Page negotiation must not leak to assets.
 			c, err := New(options)
 			if err != nil {
 				t.Fatal(err)
@@ -60,7 +61,7 @@ func TestFetchAssetResponsePolicyAndCleanup(t *testing.T) {
 				if calls > 1 {
 					t.Fatal("asset redirect followed")
 				}
-				if r.Method != "GET" || r.UserAgent() != "webscan" || r.Header.Get("Accept-Encoding") != "gzip" || r.Header.Get("Cookie") != "" || r.Referer() != "" || r.Header.Get("Authorization") != "" {
+				if r.Method != "GET" || r.UserAgent() != "webscan" || r.Header.Get("Accept-Encoding") != "gzip" || r.Header.Get("Accept") != "" || r.Header.Get("Cookie") != "" || r.Referer() != "" || r.Header.Get("Authorization") != "" {
 					t.Errorf("unexpected request: %#v", r.Header)
 				}
 				headers := http.Header{"Content-Type": tc.types}

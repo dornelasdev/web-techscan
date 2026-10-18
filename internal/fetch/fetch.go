@@ -23,6 +23,7 @@ type Options struct {
 	MaxBodyBytes        int64 // Decoded final-response bytes.
 	MaxEncodedBodyBytes int64 // Final-response bytes before content decoding.
 	AllowHTTPDowngrade  bool  // Opt in to HTTPS-to-HTTP redirects, not insecure TLS.
+	PreferHTML          bool  // Set an HTML-preferring Accept header on page requests only.
 }
 
 func DefaultOptions() Options {
@@ -97,6 +98,9 @@ func (c *Client) Fetch(ctx context.Context, rawURL string) (*Snapshot, error) {
 	}
 	req.Header.Set("User-Agent", "webscan")
 	req.Header.Set("Accept-Encoding", "gzip")
+	if c.options.PreferHTML {
+		req.Header.Set("Accept", "text/html, application/xhtml+xml;q=0.9, */*;q=0.8")
+	}
 
 	var redirects []Redirect
 	var redirectErr error // Safe, locally authored reason; never Go's raw Location text.

@@ -40,6 +40,13 @@ encoding fields. No fallback request is made. Bodyless 204/304 responses skip
 decoding. Corrupt/incomplete bodies, timeouts, cancellation, and page-limit
 failures produce an error without a partial report.
 
+Page requests omit Accept by default. `--prefer-html` sets
+`Accept: text/html, application/xhtml+xml;q=0.9, */*;q=0.8` on the initial page
+and followed page redirects, including origin changes. Other formats remain
+acceptable. Servers choose the response; HTML is not guaranteed. No fallback
+request or new path is attempted, including after JSON or HTTP 406. Existing
+TLS, redirect, privacy and resource limits remain in force.
+
 HTTP error statuses are retained for inspection and identified as
 `http_error_response`. Other statuses use `final_response`; this does not prove
 that an origin application was reached.
@@ -104,6 +111,7 @@ boundary can be rejected. These limits cover payload reads, not wire overhead.
 Asset requests use normal TLS/proxy/encoding behavior, with no cookies,
 authorization, Referer, asset redirects, or application retries. Page downgrade
 permission does not allow asset redirects.
+Asset requests omit Accept, even when page requests use `--prefer-html`.
 
 Accept successful, non-partial responses with an explicit matching MIME type:
 `text/css` for stylesheets; `text/javascript`, `application/javascript`,

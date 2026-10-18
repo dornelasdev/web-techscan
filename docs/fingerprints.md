@@ -276,12 +276,14 @@ Partial markers, generic JSON errors, cookies, X-Application-Context, and marker
 in redirects or assets do not complete these rules.
 
 This is opportunistic coverage: only inspect the supplied URL's final response.
-No `/error` or Actuator path probes, added Accept header or extra requests.
-The collector currently omits Accept; the reviewed WebFlux handler requires
-explicit HTML acceptance, so its default JSON response will not satisfy the HTML
-rule. A response using generic `application/json` does not satisfy the media-type
-rule either. Customized/disabled views, modified markup and other versions can
-be missed; copied/commented HTML and spoofed headers remain limitations.
+No `/error` or Actuator path probes or extra requests. Default page requests omit
+Accept; the reviewed WebFlux handler requires explicit HTML acceptance, so its
+default JSON response will not satisfy the HTML rule. Optional
+[`--prefer-html`](usage.md#html-preference) requests an HTML representation but
+does not guarantee one. A response using generic `application/json` does not
+satisfy the media-type rule either. Customized/disabled views, modified markup
+and other versions can be missed; copied/commented HTML and spoofed headers
+remain limitations.
 
 Reviewed 2026-10-18. Sources:
 [2.7.18 servlet renderer](https://github.com/spring-projects/spring-boot/blob/v2.7.18/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/web/servlet/error/ErrorMvcAutoConfiguration.java),

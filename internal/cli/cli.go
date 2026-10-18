@@ -34,6 +34,7 @@ Options:
   --techs                   List supported technologies without fetching a URL
   --json                    Print a JSON scan report or technology catalog
   --redact-query            Redact URL queries in scan reports (default false)
+  --prefer-html             Prefer HTML responses for pages, not assets (default false)
   --assets                  Inspect bounded same-origin JS/CSS with asset fingerprints
   --asset-budget profile    Asset budget: standard or expanded (default standard; requires --assets)
   --color mode              Color: auto, always, never (default auto)
@@ -68,6 +69,7 @@ func Run(args []string, stdout, stderr io.Writer, version string) int {
 	flags.Int64Var(&options.MaxBodyBytes, "max-body", options.MaxBodyBytes, "Maximum decoded response body size")
 	flags.Int64Var(&options.MaxEncodedBodyBytes, "max-encoded-body", options.MaxEncodedBodyBytes, "Maximum body size before decoding")
 	flags.BoolVar(&options.AllowHTTPDowngrade, "allow-http-downgrade", options.AllowHTTPDowngrade, "Allow HTTPS-to-HTTP redirects")
+	flags.BoolVar(&options.PreferHTML, "prefer-html", options.PreferHTML, "Prefer HTML responses for page requests")
 
 	if err := flags.Parse(args); err != nil {
 		if errors.Is(err, flag.ErrHelp) {
@@ -95,7 +97,7 @@ func Run(args []string, stdout, stderr io.Writer, version string) int {
 				redactionFlag = true
 			}
 			switch f.Name {
-			case "timeout", "max-redirects", "max-body", "max-encoded-body", "allow-http-downgrade", "assets", "asset-budget":
+			case "timeout", "max-redirects", "max-body", "max-encoded-body", "allow-http-downgrade", "prefer-html", "assets", "asset-budget":
 				if fetchFlag == "" {
 					fetchFlag = f.Name
 				}

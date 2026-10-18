@@ -20,7 +20,9 @@ func TestInformationalCommands(t *testing.T) {
 		{name: "no arguments", want: "Usage: webscan"},
 		{name: "short help", args: []string{"-h"}, want: "Usage: webscan"},
 		{name: "long help", args: []string{"--help"}, want: "Usage: webscan"},
+		{name: "HTML preference help", args: []string{"--prefer-html", "--help"}, want: "--prefer-html"},
 		{name: "version", args: []string{"--version"}, want: "webscan v0.1.0-test\n"},
+		{name: "HTML preference version", args: []string{"--prefer-html", "--version"}, want: "webscan v0.1.0-test\n"},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			var stdout, stderr bytes.Buffer
@@ -47,6 +49,7 @@ func TestUsageErrors(t *testing.T) {
 		{name: "unknown option", args: []string{"--unknown"}, want: "flag provided but not defined"},
 		{name: "invalid boolean", args: []string{"--version=invalid"}, want: "invalid boolean value"},
 		{name: "invalid downgrade boolean", args: []string{"--allow-http-downgrade=invalid"}, want: "invalid boolean value"},
+		{name: "invalid HTML preference boolean", args: []string{"--prefer-html=invalid"}, want: "invalid boolean value"},
 		{name: "invalid redaction boolean", args: []string{"--redact-query=invalid"}, want: "invalid boolean value"},
 		{name: "multiple URLs", args: []string{"https://one.example", "https://two.example"}, want: "expected a single URL"},
 		{name: "empty URL", args: []string{""}, want: "URL must not be empty"},

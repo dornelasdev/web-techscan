@@ -13,8 +13,10 @@
 - Tightened Apache banner matching: module tokens require an Apache version,
   preventing `Apache Tomcat/version` from being interpreted as Apache HTTP Server.
 - Added Spring Boot identification from Actuator API media types (`detected`)
-  and paired Whitelabel error-page markers on HTTP 4xx/5xx (`inferred`). No new
-  Accept header, path probes, language/server implications or extra requests.
+  and paired Whitelabel error-page markers on HTTP 4xx/5xx (`inferred`). No path
+  probes, language/server implications or extra requests.
+- Added opt-in `--prefer-html` for page requests and followed page redirects.
+  Defaults and asset headers remain unchanged; no fallback requests or path probes.
 - The development catalog contains 28 technologies across ten categories.
 
 ## v0.3.0 — 2026-10-16

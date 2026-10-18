@@ -18,6 +18,7 @@ Build from the project root. See [build and update instructions](docs/usage.md#b
 ```sh
 ./bin/webscan https://example.com
 ./bin/webscan --json https://example.com
+./bin/webscan --prefer-html https://example.com
 ./bin/webscan --assets --redact-query https://example.com
 ./bin/webscan --techs
 ```

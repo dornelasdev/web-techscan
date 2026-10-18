@@ -32,7 +32,8 @@ type AssetResponse struct {
 
 // FetchAsset performs a GET without redirects, cookies or referrers. There is no
 // application retry loop; the shared transport retains normal connection handling.
-// Page redirect/downgrade settings do not relax this policy. All bodies are closed.
+// Page redirect/downgrade settings do not relax this policy; page Accept
+// preferences are not applied. All bodies are closed.
 func (c *Client) FetchAsset(ctx context.Context, rawURL string, options AssetOptions) (result AssetResponse, err error) {
 	if options.MaxBodyBytes <= 0 || options.MaxBodyBytes == math.MaxInt64 || options.MaxEncodedBodyBytes <= 0 || options.MaxEncodedBodyBytes == math.MaxInt64 || len(options.MediaTypes) == 0 {
 		return result, errors.New("invalid asset body limits or media types")
