@@ -3,7 +3,7 @@
 [README](../README.md) · [Usage](usage.md) · [Policies](policies.md)
 
 Rules are embedded in the binary. Use `webscan --techs` to list its catalog.
-The development catalog contains 27 technologies across ten categories.
+The development catalog contains 28 technologies across ten categories.
 The v0.3.0 release baseline contains 23.
 
 ## Evidence
@@ -248,6 +248,49 @@ Reviewed 2026-10-07. Sources:
 [8.0.2 defaults](https://github.com/rails/rails/blob/v8.0.2/actionpack/lib/action_controller/metal/request_forgery_protection.rb),
 [configurable cookies](https://github.com/rails/rails/blob/v8.0.2/actionpack/lib/action_dispatch/middleware/session/cookie_store.rb),
 [request IDs](https://github.com/rails/rails/blob/v8.0.2/actionpack/lib/action_dispatch/middleware/request_id.rb).
+
+### Spring Boot
+
+Category: `framework`. No Java/Kotlin/JVM, Spring Framework, server or additional
+Actuator technology finding is implied.
+
+| Rule | Required evidence | State |
+| --- | --- | --- |
+| `actuator-media-type` | Complete Content-Type of `application/vnd.spring-boot.actuator.v2+json` or `v3+json`. | detected |
+| `whitelabel-error-html` | Final HTTP 400–599 response with a Whitelabel h1, a reviewed fallback paragraph and structured error details in a div. | inferred |
+
+The media-type rule is case-insensitive and permits outer spaces/tabs, plus one
+optional UTF-8 charset parameter (quoted or unquoted). Other parameters, charsets,
+API versions, suffixes and comma-combined values are outside coverage. Repeated
+header values are inspected independently and do not duplicate rule evidence.
+The v2/v3 marker is an API representation version, not a Spring Boot software
+version. Neither it nor the response JSON contents are extracted or reported.
+
+HTML requires complete attribute-free h1/p/div tags. Tag case is ignored; text
+is case-sensitive. Require the reviewed servlet explanation about no explicit
+mapping for /error, or the reactive explanation about no configured error view.
+The error div requires a nonempty type and a 4xx/5xx status; an optional bracketed
+ASCII request ID prefix is accepted. Timestamps, messages and traces are not
+required or reported. HTML status numbers are not compared with the response code.
+Partial markers, generic JSON errors, cookies, X-Application-Context, and markers
+in redirects or assets do not complete these rules.
+
+This is opportunistic coverage: only inspect the supplied URL's final response.
+No `/error` or Actuator path probes, added Accept header or extra requests.
+The collector currently omits Accept; the reviewed WebFlux handler requires
+explicit HTML acceptance, so its default JSON response will not satisfy the HTML
+rule. A response using generic `application/json` does not satisfy the media-type
+rule either. Customized/disabled views, modified markup and other versions can
+be missed; copied/commented HTML and spoofed headers remain limitations.
+
+Reviewed 2026-10-18. Sources:
+[2.7.18 servlet renderer](https://github.com/spring-projects/spring-boot/blob/v2.7.18/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/web/servlet/error/ErrorMvcAutoConfiguration.java),
+[3.5.0 servlet renderer](https://github.com/spring-projects/spring-boot/blob/v3.5.0/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/web/servlet/error/ErrorMvcAutoConfiguration.java),
+[2.7.18 reactive renderer](https://github.com/spring-projects/spring-boot/blob/v2.7.18/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/web/reactive/error/AbstractErrorWebExceptionHandler.java),
+[3.5.0 reactive renderer](https://github.com/spring-projects/spring-boot/blob/v3.5.0/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/web/reactive/error/AbstractErrorWebExceptionHandler.java),
+[HTML negotiation](https://github.com/spring-projects/spring-boot/blob/v3.5.0/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/web/reactive/error/DefaultErrorWebExceptionHandler.java),
+[Actuator media types](https://docs.spring.io/spring-boot/api/rest/actuator/mappings.html).
+Renderer tags are provenance baselines, not an exhaustive supported-version range.
 
 ## JavaScript frameworks
 

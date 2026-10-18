@@ -64,8 +64,8 @@ func TestTechsCatalogOffline(t *testing.T) {
 				if !strings.Contains(stdout.String(), "Web frameworks\n    Django\n    Express\n") {
 					t.Error("Django and Express must appear under web frameworks")
 				}
-				if !strings.Contains(stdout.String(), "    Nuxt\n    Ruby on Rails\n  JavaScript frameworks\n") {
-					t.Error("Rails must end the web-framework category before JavaScript frameworks")
+				if !strings.Contains(stdout.String(), "    Nuxt\n    Ruby on Rails\n    Spring Boot\n  JavaScript frameworks\n") {
+					t.Error("Spring Boot must end the alphabetically ordered web-framework category")
 				}
 				if !strings.Contains(stdout.String(), "JavaScript frameworks\n    Angular\n    React\n    Vue\n  JavaScript libraries\n    jQuery\n  UI frameworks\n") {
 					t.Error("Angular, React and Vue must be ordered under JavaScript frameworks")
@@ -100,6 +100,9 @@ func TestTechsCatalogOffline(t *testing.T) {
 			}
 			if got := byID["tomcat"]; got.Name != "Apache Tomcat" || got.Category != "web_server" {
 				t.Errorf("missing or incorrect Tomcat metadata: %+v", got)
+			}
+			if got := byID["spring-boot"]; got.Name != "Spring Boot" || got.Category != "framework" {
+				t.Errorf("missing or incorrect Spring Boot metadata: %+v", got)
 			}
 			if got := byID["angular"]; got.Name != "Angular" || got.Category != "javascript_framework" {
 				t.Errorf("missing or incorrect Angular metadata: %+v", got)

@@ -12,7 +12,10 @@
 - Added optional final-response status ranges for page fingerprint rules.
 - Tightened Apache banner matching: module tokens require an Apache version,
   preventing `Apache Tomcat/version` from being interpreted as Apache HTTP Server.
-- The development catalog contains 27 technologies across ten categories.
+- Added Spring Boot identification from Actuator API media types (`detected`)
+  and paired Whitelabel error-page markers on HTTP 4xx/5xx (`inferred`). No new
+  Accept header, path probes, language/server implications or extra requests.
+- The development catalog contains 28 technologies across ten categories.
 
 ## v0.3.0 — 2026-10-16
 

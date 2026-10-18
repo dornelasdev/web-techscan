@@ -234,6 +234,30 @@
       "implies": ["ruby"]
     },
     {
+      "id": "spring-boot",
+      "name": "Spring Boot",
+      "category": "framework",
+      "rules": [
+        {
+          "id": "actuator-media-type",
+          "state": "detected",
+          "description": "Content-Type reports a Spring Boot Actuator API media type; this may be an intermediary",
+          "all": [{"source": "header", "name": "Content-Type", "pattern": "(?i)^[ \\t]*application/vnd[.]spring-boot[.]actuator[.]v[23][+]json(?:[ \\t]*;[ \\t]*charset[ \\t]*=[ \\t]*(?:utf-8|\"utf-8\"))?[ \\t]*$"}]
+        },
+        {
+          "id": "whitelabel-error-html",
+          "state": "inferred",
+          "description": "HTTP error response with paired Whitelabel heading, fallback explanation and structured error details suggests Spring Boot; this may be an intermediary",
+          "http_status": {"min": 400, "max": 599},
+          "all": [
+            {"source": "html", "pattern": "(?i:<h1>)Whitelabel Error Page(?i:</h1>)"},
+            {"source": "html", "pattern": "(?i:<p>)This application has no (?:explicit mapping for /error|configured error view), so you are seeing this as a fallback[.](?i:</p>)"},
+            {"source": "html", "pattern": "(?i:<div>)(?:\\[[A-Za-z0-9._:-]+\\] )?There was an unexpected error \\(type=[^<>\\r\\n]+, status=[45][0-9]{2}\\)[.](?i:</div>)"}
+          ]
+        }
+      ]
+    },
+    {
       "id": "vue",
       "name": "Vue",
       "category": "javascript_framework",

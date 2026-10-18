@@ -56,8 +56,10 @@ and `inferred`; neither is a guarantee of the hidden origin's technology.
 `response_scope` describes the inspected response, not its ownership or origin.
 Some page rules also require a final HTTP status range. That condition uses
 the existing report `http_status`; it adds no signal source or output field.
-For Tomcat, matching error HTML is inferred, while explicit header identity is
-detected. Neither implies Java or identifies a hidden origin.
+For Tomcat and Spring Boot, matching error HTML is inferred, while explicit
+header identity is detected. Neither implies Java or identifies a hidden origin.
+Spring Boot's Actuator media-type marker describes an API representation, not
+an extracted application version or additional Actuator capability findings.
 
 Each evidence entry has a `description` and a `signals` array. Matched rules
 also have `rule_id`. A signal has `source` (`header`, `cookie`, `html`,

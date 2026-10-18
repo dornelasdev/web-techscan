@@ -82,8 +82,8 @@ case-insensitively within each category:
 | Infrastructure | Web servers, CDN/edge, load balancers, WAFs. |
 
 Angular, React, and Vue use `javascript_framework`. Django, Express, Laravel,
-Next.js, Nuxt, and Rails retain `framework` (web frameworks, including full-stack
-frameworks). Groups are static organization, not additional detections.
+Next.js, Nuxt, Rails, and Spring Boot retain `framework` (web frameworks,
+including full-stack frameworks). Groups are static organization, not additional detections.
 jQuery uses `javascript_library`; its content rule requires `--assets`.
 Catalog JSON remains a flat array with `id`, `name`, and `category`; no `group`
 field is added. Use technology IDs for automation, not category assignments.
@@ -196,6 +196,7 @@ After building, run in another terminal:
 | `rails-csrf.html` | Inferred Ruby on Rails and Ruby. |
 | `django-csrf.html` | No Django or Python finding; the server supplies no csrftoken cookie. |
 | `tomcat-error.html` | No Tomcat finding: the Python server returns this file with HTTP 200, not an error status. |
+| `spring-boot-servlet-error.html`, `spring-boot-reactive-error.html` | No Spring Boot finding: these files are returned with HTTP 200. |
 
 These page-only commands do not fetch linked assets. Referenced files need not
 exist. Go integration tests supply controlled headers/cookies and exercise asset
