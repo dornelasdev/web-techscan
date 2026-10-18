@@ -187,6 +187,7 @@ func fetchPage(target string, options fetch.Options, presentation outputOptions,
 		return exitError
 	}
 	input := detect.Input{
+		HTTPStatus:  snapshot.StatusCode,
 		Headers:     snapshot.Headers,
 		CookieNames: snapshot.CookieNames,
 		HTML:        htmlForDetection(snapshot.Headers, snapshot.Body),

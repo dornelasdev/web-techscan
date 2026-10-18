@@ -57,6 +57,13 @@ This illustrates the format, not a real detection rule:
 - Every rule needs an ID, a description, an explicit `detected` or `inferred`
   state, and at least one matcher in `all`. Every matcher must succeed for the
   rule to match. Any matching rule produces a finding for its technology.
+- Page rules may additionally set `"http_status": {"min": 400, "max": 599}`.
+  Both integer bounds are required and inclusive: `100 <= min <= max <= 599`.
+  Omit the field for unconstrained rules. Null, empty, malformed and unknown-field
+  ranges are rejected; status-gated asset rules are rejected. A missing input
+  status (zero) cannot satisfy a range. Existing ungated rules are unchanged.
+  The condition uses only the final page response, never redirect/asset statuses;
+  it cannot identify a technology without the rule's required signal matchers.
 - Page sources are `header`, `cookie`, and `html`. Header matchers require a header
   `name` and inspect each value independently. Header names are case insensitive.
   Cookie matchers inspect cookie names only. HTML matchers inspect raw HTML,
@@ -86,6 +93,10 @@ ID and signal locations, not captured response values. Asset evidence additional
 includes `asset_url`, with the existing report redaction/display policies applied.
 There are no confidence
 percentages or automatic version extraction in this format.
+Status ranges are rule eligibility conditions, not a new signal source. Evidence
+keeps the observed matcher locations and rule description; the scan report's
+existing `http_status` field supplies the final status. Catalog schema 1 and
+scan/catalog output schema 1 are retained; rebuild with the updated loader.
 
 `implies` lists supported technology relationships. Targets must exist in the
 catalog. A technology without rules must be the target of an inference.

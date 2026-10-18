@@ -3,7 +3,7 @@
 [README](../README.md) · [Usage](usage.md) · [Policies](policies.md)
 
 Rules are embedded in the binary. Use `webscan --techs` to list its catalog.
-The development catalog contains 26 technologies across ten categories.
+The development catalog contains 27 technologies across ten categories.
 The v0.3.0 release baseline contains 23.
 
 ## Evidence
@@ -12,6 +12,8 @@ The v0.3.0 release baseline contains 23.
 - `inferred`: an indirect signal or supported relationship matches a rule.
 - All conditions in a rule must match. Any matching rule can identify its technology.
 - Page rules use only the final response. Redirect signals are not combined.
+- Optional status ranges constrain page rules using the final HTTP status;
+  a status code alone never identifies a technology.
 - Asset rules require `--assets` and all markers within one accepted body.
 - Direct detections take precedence while retaining other supporting evidence.
 - Evidence records rule IDs and signal locations; asset evidence includes its URL.
@@ -35,22 +37,26 @@ identify provenance baselines, not exhaustive version coverage. Branch links may
 
 ## Web servers
 
-Category: `web_server`. All four use `server-header`, with `detected` state.
+Category: `web_server`. All five have a detected `server-header` rule.
+Tomcat additionally has a header rule and status-gated HTML inference.
 nginx/Apache/IIS reviewed 2026-10-05; banner hardening reviewed 2026-10-07.
-Jetty reviewed 2026-10-18.
+Jetty and Tomcat reviewed 2026-10-18.
 
 | Technology | Accepted Server value |
 | --- | --- |
 | nginx | Product token; optional numeric dot-separated version; at most one whitespace-separated build/OS comment. |
-| Apache HTTP Server | Product token; optional numeric dot-separated version and `-dev`; whitespace-separated comments or module/version tokens. |
+| Apache HTTP Server | Product token; optional numeric dot-separated version and `-dev`; whitespace-separated comments. Module/version tokens require an Apache version. |
 | Microsoft IIS | Microsoft-IIS token; optional numeric dot-separated version. |
 | Jetty | `Jetty(major.minor.patch)`; optional `.v` followed by eight digits inside the parentheses. |
+| Apache Tomcat | `Apache Tomcat`; optional `/major.minor.patch`. |
 
 Product spelling is case-insensitive; outer spaces/tabs are accepted. nginx and
 Apache comments permit printable ASCII/tabs, excluding nested parentheses and
 backslash escapes. Apache module names start with an ASCII letter and permit
 letters, digits, dot, underscore, plus, and hyphen; module versions start
 alphanumeric and additionally permit tilde.
+Without an Apache version, only comments may follow its product token.
+`Apache Tomcat/version` is not an Apache HTTP Server module combination.
 
 Reject malformed versions, unrelated trailing words, broken comments, controls,
 and comma-combined banners. Repeated header values are inspected independently;
@@ -81,6 +87,44 @@ Reviewed upstream banner construction and configurable header emission:
 [9.4.57 HttpConfiguration](https://github.com/jetty/jetty.project/blob/jetty-9.4.57.v20241219/jetty-server/src/main/java/org/eclipse/jetty/server/HttpConfiguration.java),
 [9.4.57 version resolution](https://github.com/jetty/jetty.project/blob/jetty-9.4.57.v20241219/jetty-util/src/main/java/org/eclipse/jetty/util/Jetty.java).
 These are provenance baselines, not an exhaustive supported-version range.
+
+### Apache Tomcat
+
+| Rule | Required evidence | State |
+| --- | --- | --- |
+| `server-header` | Complete Server value of Apache Tomcat, with an optional three-part numeric version. | detected |
+| `powered-by-header` | Complete Servlet/JSP X-Powered-By banner containing Apache Tomcat/version and Java/vendor/runtime fields. | detected |
+| `error-report-html` | Final HTTP 400–599 response, an English HTTP Status error title and h1, and an Apache Tomcat/version h3 footer. | inferred |
+
+Headers allow outer spaces/tabs and case-insensitive product names. Servlet/JSP
+versions have two numeric components; Tomcat versions have three. Java vendor
+and runtime fields have bounded ASCII syntax; custom vendor strings, prereleases
+and modified banners may be missed. These values are not extracted or reported.
+Repeated fields do not duplicate rule evidence. Direct evidence upgrades an
+HTML inference while retaining all matching rules.
+
+The HTML rule requires complete attribute-free title, h1 and h3 tags. Tag case
+is ignored; text uses `HTTP Status 4xx/5xx – reason` and `Apache Tomcat/version`.
+The separator is a literal en dash. Custom/localized pages, encoded markers,
+modified tags and hidden server information may be missed. The status condition
+checks a range; it does not compare the numbers in HTML to each other or to the
+response status. Copied/commented markers can still match on an error response.
+No markers from redirects, non-HTML responses or assets complete the HTML rule.
+
+Tomcat does not set a Server header by default unless configured or supplied
+by the application. Its Servlet/JSP X-Powered-By header is opt-in. Header-only
+coverage is therefore limited. Generic Servlet/JSP banners, Apache-Coyote,
+JSESSIONID and a Tomcat mention alone do not identify it. No guessed error paths,
+Java/JVM/framework implication, or hidden-origin attribution.
+
+Reviewed 2026-10-18. Sources:
+[HTTP connector](https://tomcat.apache.org/tomcat-11.0-doc/config/http.html),
+[error report configuration](https://tomcat.apache.org/tomcat-11.0-doc/config/valve.html#Error_Report_Valve),
+[11.0.x header construction](https://github.com/apache/tomcat/blob/11.0.x/java/org/apache/catalina/connector/CoyoteAdapter.java),
+[11.0.x error renderer](https://github.com/apache/tomcat/blob/11.0.x/java/org/apache/catalina/valves/ErrorReportValve.java),
+[English status text](https://github.com/apache/tomcat/blob/main/java/org/apache/catalina/valves/LocalStrings.properties),
+[server identity](https://github.com/apache/tomcat/blob/main/java/org/apache/catalina/util/ServerInfo.properties).
+Branch links are review baselines, not exhaustive version coverage.
 
 ## Web frameworks
 

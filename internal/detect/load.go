@@ -102,6 +102,18 @@ func compileTechnology(tech technology) (*compiledTechnology, error) {
 			return nil, fmt.Errorf("rule %q: description and at least one all matcher are required", r.ID)
 		}
 		cr := compiledRule{id: r.ID, state: r.State, description: r.Description}
+		if r.HTTPStatus != nil {
+			var status httpStatusRange
+			decoder := json.NewDecoder(bytes.NewReader(r.HTTPStatus))
+			decoder.DisallowUnknownFields()
+			if err := decoder.Decode(&status); err != nil {
+				return nil, fmt.Errorf("rule %q: invalid http_status: %w", r.ID, err)
+			}
+			if status.Min < 100 || status.Max > 599 || status.Min > status.Max {
+				return nil, fmt.Errorf("rule %q: http_status needs 100 <= min <= max <= 599", r.ID)
+			}
+			cr.httpStatus = &status
+		}
 		for _, m := range r.All {
 			switch m.Source {
 			case Header:
@@ -132,6 +144,9 @@ func compileTechnology(tech technology) (*compiledTechnology, error) {
 			}
 		}
 		if cr.assetSource != "" {
+			if cr.httpStatus != nil {
+				return nil, fmt.Errorf("rule %q: http_status is only valid for page rules", r.ID)
+			}
 			for _, m := range cr.matchers {
 				if m.source != cr.assetSource {
 					return nil, fmt.Errorf("rule %q: asset rules must use one asset source without page matchers", r.ID)

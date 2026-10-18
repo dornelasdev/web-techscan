@@ -24,6 +24,7 @@ type compiledRule struct {
 	state           State
 	matchers        []compiledMatcher
 	assetSource     Source // Empty for page rules; otherwise all matchers share it.
+	httpStatus      *httpStatusRange
 }
 
 type compiledMatcher struct {
@@ -101,6 +102,9 @@ func (e *Engine) Detect(input Input) []Finding {
 }
 
 func (r compiledRule) evidence(input Input, headers map[string][]string) []Evidence {
+	if r.httpStatus != nil && (input.HTTPStatus < r.httpStatus.Min || input.HTTPStatus > r.httpStatus.Max) {
+		return nil
+	}
 	makeEvidence := func(url string) Evidence {
 		item := Evidence{RuleID: r.id, Description: r.description, AssetURL: url}
 		for _, matcher := range r.matchers {

@@ -6,7 +6,13 @@
   with framework provenance. No independent language rules or extra requests.
 - Added Jetty server-header detection for complete parenthesized release banners.
   No Java or framework implication, version reporting, or extra requests.
-- The development catalog contains 26 technologies across ten categories.
+- Added Apache Tomcat header detection and status-gated error-page inference.
+  Header findings are detected; matching HTML on HTTP 4xx/5xx responses is inferred.
+  No Java implication or extra requests.
+- Added optional final-response status ranges for page fingerprint rules.
+- Tightened Apache banner matching: module tokens require an Apache version,
+  preventing `Apache Tomcat/version` from being interpreted as Apache HTTP Server.
+- The development catalog contains 27 technologies across ten categories.
 
 ## v0.3.0 — 2026-10-16
 

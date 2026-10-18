@@ -195,6 +195,7 @@ After building, run in another terminal:
 | `nuxt-payload.html` | Inferred Nuxt. |
 | `rails-csrf.html` | Inferred Ruby on Rails and Ruby. |
 | `django-csrf.html` | No Django or Python finding; the server supplies no csrftoken cookie. |
+| `tomcat-error.html` | No Tomcat finding: the Python server returns this file with HTTP 200, not an error status. |
 
 These page-only commands do not fetch linked assets. Referenced files need not
 exist. Go integration tests supply controlled headers/cookies and exercise asset

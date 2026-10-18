@@ -9,7 +9,7 @@
         "id": "server-header",
         "state": "detected",
         "description": "Server header reports Apache; this may be an intermediary",
-        "all": [{"source": "header", "name": "Server", "pattern": "^[ \\t]*(?i:Apache)(?:/[0-9]+(?:[.][0-9]+)*(?i:-dev)?)?(?:[ \\t]+(?:\\([\\x20-\\x27\\x2A-\\x5B\\x5D-\\x7E\\t]*\\)|[A-Za-z][A-Za-z0-9._+-]*/[A-Za-z0-9][A-Za-z0-9._+~-]*))*[ \\t]*$"}]
+        "all": [{"source": "header", "name": "Server", "pattern": "^[ \\t]*(?i:Apache)(?:/[0-9]+(?:[.][0-9]+)*(?i:-dev)?(?:[ \\t]+(?:\\([\\x20-\\x27\\x2A-\\x5B\\x5D-\\x7E\\t]*\\)|[A-Za-z][A-Za-z0-9._+-]*/[A-Za-z0-9][A-Za-z0-9._+~-]*))*|(?:[ \\t]+\\([\\x20-\\x27\\x2A-\\x5B\\x5D-\\x7E\\t]*\\))*)[ \\t]*$"}]
       }]
     },
     {
@@ -44,6 +44,36 @@
         "description": "Server header reports nginx; this may be an intermediary",
         "all": [{"source": "header", "name": "Server", "pattern": "^[ \\t]*(?i:nginx)(?:/[0-9]+(?:[.][0-9]+)*)?(?:[ \\t]+\\([\\x20-\\x27\\x2A-\\x5B\\x5D-\\x7E\\t]*\\))?[ \\t]*$"}]
       }]
+    },
+    {
+      "id": "tomcat",
+      "name": "Apache Tomcat",
+      "category": "web_server",
+      "rules": [
+        {
+          "id": "error-report-html",
+          "state": "inferred",
+          "description": "HTTP error response with paired status title/heading and an Apache Tomcat footer suggests Tomcat; this may be an intermediary",
+          "http_status": {"min": 400, "max": 599},
+          "all": [
+            {"source": "html", "pattern": "(?i:<title>)HTTP Status [45][0-9]{2} – [^<>\\r\\n]+(?i:</title>)"},
+            {"source": "html", "pattern": "(?i:<h1>)HTTP Status [45][0-9]{2} – [^<>\\r\\n]+(?i:</h1>)"},
+            {"source": "html", "pattern": "(?i:<h3>)Apache Tomcat/[0-9]+(?:[.][0-9]+){2}(?i:</h3>)"}
+          ]
+        },
+        {
+          "id": "powered-by-header",
+          "state": "detected",
+          "description": "X-Powered-By reports a Servlet/JSP banner with Apache Tomcat identity; this may be an intermediary",
+          "all": [{"source": "header", "name": "X-Powered-By", "pattern": "^[ \\t]*(?i:Servlet)/[0-9]+[.][0-9]+[ \\t]+(?i:JSP)/[0-9]+[.][0-9]+[ \\t]+\\((?i:Apache[ \\t]+Tomcat)/[0-9]+(?:[.][0-9]+){2}[ \\t]+(?i:Java)/[A-Za-z0-9][A-Za-z0-9 ._+~-]*/[0-9][0-9A-Za-z._+~-]*\\)[ \\t]*$"}]
+        },
+        {
+          "id": "server-header",
+          "state": "detected",
+          "description": "Server header reports Apache Tomcat; this may be an intermediary",
+          "all": [{"source": "header", "name": "Server", "pattern": "^[ \\t]*(?i:Apache[ \\t]+Tomcat)(?:/[0-9]+(?:[.][0-9]+){2})?[ \\t]*$"}]
+        }
+      ]
     }
   ]
 }

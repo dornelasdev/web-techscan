@@ -23,6 +23,7 @@ func TestServerCoverageThroughCLI(t *testing.T) {
 		{"iis", "Microsoft IIS", "Microsoft-IIS/10.0", "Microsoft-IIS/10..0", "nginx/1.26.2"},
 		{"jetty", "Jetty", "Jetty(9.4.57.v20241219)", "Jetty(9.4.57.v2024121)", "Jetty(12.0.16)"},
 		{"nginx", "nginx", "nginx/1.26.2 (private build 123)", "nginx/1..2", "Apache/2.4.62"},
+		{"tomcat", "Apache Tomcat", "Apache Tomcat/11.0.27", "Apache Tomcat/11..27", "Apache/2.4.62"},
 	} {
 		for _, tc := range []struct {
 			name, contentType string

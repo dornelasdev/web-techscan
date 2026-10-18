@@ -1,7 +1,10 @@
 // Package detect matches captured page and asset signals without network I/O.
 package detect
 
-import "net/http"
+import (
+	"encoding/json"
+	"net/http"
+)
 
 type State string
 
@@ -38,6 +41,7 @@ const (
 // Input keeps final-page signals separate from successfully collected assets.
 // HTML is populated only for HTML documents, never asset or redirect bodies.
 type Input struct {
+	HTTPStatus  int // Final response status; zero means unavailable.
 	Headers     http.Header
 	CookieNames []string
 	HTML        []byte
@@ -96,10 +100,16 @@ type technology struct {
 }
 
 type rule struct {
-	ID          string    `json:"id"`
-	State       State     `json:"state"`
-	Description string    `json:"description"`
-	All         []matcher `json:"all"`
+	ID          string          `json:"id"`
+	State       State           `json:"state"`
+	Description string          `json:"description"`
+	All         []matcher       `json:"all"`
+	HTTPStatus  json.RawMessage `json:"http_status"` // Optional page-rule range; validated before compilation.
+}
+
+type httpStatusRange struct {
+	Min int `json:"min"`
+	Max int `json:"max"`
 }
 
 type matcher struct {

@@ -101,6 +101,7 @@ func TestMixedStackThroughCLI(t *testing.T) {
 		{"iis", "Microsoft IIS", "Microsoft-IIS/10.0", "Microsoft-IIS/10..0"},
 		{"jetty", "Jetty", "Jetty(12.0.16)", "Jetty(12..16)"},
 		{"nginx", "nginx", "nginx/1.26.2 (Ubuntu)", "nginx/1..2"},
+		{"tomcat", "Apache Tomcat", "Apache Tomcat/11.0.27", "Apache Tomcat/11..27"},
 	} {
 		for _, tc := range []struct {
 			name, mode, contentType, action string
