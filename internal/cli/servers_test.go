@@ -22,6 +22,7 @@ func TestServerCoverageThroughCLI(t *testing.T) {
 		{"apache", "Apache HTTP Server", "Apache/2.4.62 (Unix) PHP/8.3.12 MyMod/1.2", "Apache/2..4", "Microsoft-IIS/10.0"},
 		{"iis", "Microsoft IIS", "Microsoft-IIS/10.0", "Microsoft-IIS/10..0", "nginx/1.26.2"},
 		{"jetty", "Jetty", "Jetty(9.4.57.v20241219)", "Jetty(9.4.57.v2024121)", "Jetty(12.0.16)"},
+		{"kestrel", "Kestrel", "Kestrel", "Kestrel/8.0", "Microsoft-IIS/10.0"},
 		{"nginx", "nginx", "nginx/1.26.2 (private build 123)", "nginx/1..2", "Apache/2.4.62"},
 		{"tomcat", "Apache Tomcat", "Apache Tomcat/11.0.27", "Apache Tomcat/11..27", "Apache/2.4.62"},
 	} {
@@ -82,6 +83,11 @@ func TestServerCoverageThroughCLI(t *testing.T) {
 						t.Errorf("requests=%d, want %d page/redirect requests", requests.Load(), count)
 					}
 					for _, raw := range []string{tech.valid, tech.malformed, tech.redirectBanner, "\x1b"} {
+						// A bare product banner can also be the legitimate display
+						// name. Exact finding/evidence assertions below cover it.
+						if tc.want && raw == tech.name {
+							continue
+						}
 						if strings.Contains(stdout.String(), raw) {
 							t.Errorf("unexpected raw response value/style %q", raw)
 						}

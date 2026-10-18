@@ -57,7 +57,16 @@ func TestServerBannerBoundaries(t *testing.T) {
 			"Microsoft-IIS/10..0", "Microsoft-IIS/10.", "Microsoft-IIS/.10", "Microsoft-IIS/10other",
 			"Microsoft-IIS/10.0-compatible", "Microsoft-IIS/10.0 (Windows)",
 			"Microsoft-IIS/10.0 proxy", "Microsoft-IIS/10.0, nginx", "proxy Microsoft-IIS/10.0",
-			"Microsoft-IIS/10.0\n", "Microsoft-IIS/10.0\x00", "Microsoft-HTTPAPI/2.0", "Kestrel",
+			"Microsoft-IIS/10.0\n", "Microsoft-IIS/10.0\x00", "Microsoft-HTTPAPI/2.0", "Kestrel-compatible",
+		}},
+		{"kestrel", []string{
+			"Kestrel", "kestrel", "KESTREL", "\t kEsTrEl \t",
+		}, []string{
+			"", "Kes", "trel", "Kes trel", "Kes\ttrel", "Kestrel/8.0", "Kestrel/10.0.0",
+			"Kestrel()", "Kestrel (Unix)", "Kestrel proxy", "proxy Kestrel", "NotKestrel",
+			"Kestrel-compatible", "KestrelHTTP", "Kestrel, nginx", "nginx, Kestrel", "KestrelKestrel",
+			"Kestrel\n", "Kestrel\r\n", "Kestrel\x00", "Kestrel\x7f", "\vKestrel", "\fKestrel",
+			"\u00a0Kestrel", "Kestrel\u00a0", "Kestrel", "Keſtrel", "Ｋestrel",
 		}},
 		{"jetty", []string{
 			"Jetty(12.0.16)", "Jetty(10.0.24)", "Jetty(11.0.24)",
@@ -102,7 +111,7 @@ func TestServerBannerBoundaries(t *testing.T) {
 
 func TestServerEvidenceIsolation(t *testing.T) {
 	engine := bundledEngine(t)
-	for _, banner := range []string{"nginx/1.26.2", "Apache/2.4.62", "Microsoft-IIS/10.0", "Jetty(12.0.16)", "Jetty(9.4.57.v20241219)", "Apache Tomcat/11.0.27"} {
+	for _, banner := range []string{"nginx/1.26.2", "Apache/2.4.62", "Microsoft-IIS/10.0", "Jetty(12.0.16)", "Jetty(9.4.57.v20241219)", "Kestrel", "Apache Tomcat/11.0.27"} {
 		for _, input := range []detect.Input{
 			{Headers: http.Header{"Via": {banner}, "X-Powered-By": {banner}, "X-Server": {banner}}},
 			{HTML: []byte("<footer>" + banner + "</footer>"), CookieNames: []string{banner}},
@@ -117,7 +126,7 @@ func TestServerEvidenceIsolation(t *testing.T) {
 		}
 	}
 	// Independent fields are not concatenated, nor interpreted as a proxy chain.
-	got := engine.Detect(detect.Input{Headers: http.Header{"Server": {"nginx", "Apache/2.4.62", "Microsoft-IIS/10.0", "Jetty(12.0.16)", "Jetty(9.4.57.v20241219)", "Apache Tomcat/11.0.27", "nginx"}}})
+	got := engine.Detect(detect.Input{Headers: http.Header{"Server": {"nginx", "Apache/2.4.62", "Microsoft-IIS/10.0", "Jetty(12.0.16)", "Jetty(9.4.57.v20241219)", "Kestrel", "KESTREL", "Apache Tomcat/11.0.27", "nginx"}}})
 	var ids []string
 	for _, finding := range got {
 		ids = append(ids, finding.ID)
@@ -125,10 +134,10 @@ func TestServerEvidenceIsolation(t *testing.T) {
 			t.Errorf("duplicate evidence: %+v", finding)
 		}
 	}
-	if !reflect.DeepEqual(ids, []string{"apache", "iis", "jetty", "nginx", "tomcat"}) {
+	if !reflect.DeepEqual(ids, []string{"apache", "iis", "jetty", "kestrel", "nginx", "tomcat"}) {
 		t.Fatalf("IDs=%v, want independent server findings without language guesses", ids)
 	}
-	if got := engine.Detect(detect.Input{Headers: http.Header{"Server": {"Apache/", "2.4.62", "nginx/", "1.26.2", "Microsoft-IIS/", "10.0", "Jetty(", "12.0.16)", "Jetty(9.4.57.", "v20241219)"}}}); len(got) != 0 {
+	if got := engine.Detect(detect.Input{Headers: http.Header{"Server": {"Apache/", "2.4.62", "nginx/", "1.26.2", "Microsoft-IIS/", "10.0", "Jetty(", "12.0.16)", "Jetty(9.4.57.", "v20241219)", "Kes", "trel"}}}); len(got) != 0 {
 		t.Errorf("split values combined into findings: %+v", got)
 	}
 }

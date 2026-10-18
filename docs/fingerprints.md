@@ -3,7 +3,7 @@
 [README](../README.md) · [Usage](usage.md) · [Policies](policies.md)
 
 Rules are embedded in the binary. Use `webscan --techs` to list its catalog.
-The development catalog contains 28 technologies across ten categories.
+The development catalog contains 29 technologies across ten categories.
 The v0.3.0 release baseline contains 23.
 
 ## Evidence
@@ -37,10 +37,10 @@ identify provenance baselines, not exhaustive version coverage. Branch links may
 
 ## Web servers
 
-Category: `web_server`. All five have a detected `server-header` rule.
+Category: `web_server`. All six have a detected `server-header` rule.
 Tomcat additionally has a header rule and status-gated HTML inference.
 nginx/Apache/IIS reviewed 2026-10-05; banner hardening reviewed 2026-10-07.
-Jetty and Tomcat reviewed 2026-10-18.
+Jetty, Kestrel and Tomcat reviewed 2026-10-18.
 
 | Technology | Accepted Server value |
 | --- | --- |
@@ -48,6 +48,7 @@ Jetty and Tomcat reviewed 2026-10-18.
 | Apache HTTP Server | Product token; optional numeric dot-separated version and `-dev`; whitespace-separated comments. Module/version tokens require an Apache version. |
 | Microsoft IIS | Microsoft-IIS token; optional numeric dot-separated version. |
 | Jetty | `Jetty(major.minor.patch)`; optional `.v` followed by eight digits inside the parentheses. |
+| Kestrel | Complete unversioned `Kestrel` token; ASCII case-insensitive. |
 | Apache Tomcat | `Apache Tomcat`; optional `/major.minor.patch`. |
 
 Product spelling is case-insensitive; outer spaces/tabs are accepted. nginx and
@@ -86,6 +87,28 @@ Reviewed upstream banner construction and configurable header emission:
 [12.0.16 HttpConfiguration](https://github.com/jetty/jetty.project/blob/jetty-12.0.16/jetty-core/jetty-server/src/main/java/org/eclipse/jetty/server/HttpConfiguration.java),
 [9.4.57 HttpConfiguration](https://github.com/jetty/jetty.project/blob/jetty-9.4.57.v20241219/jetty-server/src/main/java/org/eclipse/jetty/server/HttpConfiguration.java),
 [9.4.57 version resolution](https://github.com/jetty/jetty.project/blob/jetty-9.4.57.v20241219/jetty-util/src/main/java/org/eclipse/jetty/util/Jetty.java).
+These are provenance baselines, not an exhaustive supported-version range.
+
+### Kestrel
+
+`server-header`: complete `Kestrel` value in the final response's Server header.
+State: `detected`. Allow ASCII case variations and outer spaces/tabs only.
+Reject version suffixes, comments, trailers, comma-combined values, internal
+whitespace and Unicode lookalikes. Repeated matching values yield one evidence.
+No fallback from HTML, cookies, alternate headers, redirects or asset headers.
+
+The reviewed default banner is unversioned. It can be disabled or overridden,
+and an intermediary can hide, replace or expose it. A finding does not establish
+the hidden origin, ASP.NET Core, C#, another .NET language, or a runtime/version
+finding. No additional requests or security-posture assessment.
+
+Reviewed 2026-10-18 against pinned 8.0.0/10.0.0 sources:
+[8.0.0 identity](https://github.com/dotnet/aspnetcore/blob/v8.0.0/src/Servers/Kestrel/Core/src/Internal/Infrastructure/Constants.cs),
+[10.0.0 identity](https://github.com/dotnet/aspnetcore/blob/v10.0.0/src/Servers/Kestrel/Core/src/Internal/Infrastructure/Constants.cs),
+[8.0.0 header emission](https://github.com/dotnet/aspnetcore/blob/v8.0.0/src/Servers/Kestrel/Core/src/Internal/Http/HttpProtocol.cs),
+[10.0.0 header emission](https://github.com/dotnet/aspnetcore/blob/v10.0.0/src/Servers/Kestrel/Core/src/Internal/Http/HttpProtocol.cs),
+[8.0.0 configuration](https://github.com/dotnet/aspnetcore/blob/v8.0.0/src/Servers/Kestrel/Core/src/KestrelServerOptions.cs),
+[10.0.0 configuration](https://github.com/dotnet/aspnetcore/blob/v10.0.0/src/Servers/Kestrel/Core/src/KestrelServerOptions.cs).
 These are provenance baselines, not an exhaustive supported-version range.
 
 ### Apache Tomcat

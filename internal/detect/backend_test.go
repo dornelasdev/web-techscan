@@ -19,6 +19,14 @@ func TestCombinedBackendEvidence(t *testing.T) {
 		directPHP, assetsOnly    bool
 	}{
 		{
+			name: "kestrel-with-independent-backend-evidence", server: "Kestrel", status: 404, directPHP: true,
+			ids: "django kestrel laravel php python rails ruby spring-boot tomcat", springRules: "whitelabel-error-html", tomcatRules: "error-report-html",
+		},
+		{
+			name: "successful-kestrel-page-keeps-languages", server: "Kestrel", status: 200, directPHP: true,
+			ids: "django kestrel laravel php python rails ruby",
+		},
+		{
 			name: "jetty-and-both-error-identities", server: "Jetty(12.0.16)", status: 404, directPHP: true,
 			ids: "django jetty laravel php python rails ruby spring-boot tomcat", springRules: "whitelabel-error-html", tomcatRules: "error-report-html",
 		},
@@ -141,11 +149,11 @@ func TestCombinedBackendEvidence(t *testing.T) {
 					if finding.Name != "PHP" || finding.Category != detect.Language || finding.State != detect.Detected || !reflect.DeepEqual(finding.Evidence, want) {
 						t.Errorf("direct PHP lost state or relationship provenance: %+v", finding)
 					}
-				case "laravel", "jetty":
+				case "laravel", "jetty", "kestrel":
 					name, category, state, rule := "Laravel", detect.Framework, detect.Inferred, "default-cookie-pair"
 					signals := []detect.Signal{{Source: detect.Cookie}, {Source: detect.Cookie}}
-					if finding.ID == "jetty" {
-						name, category, state, rule = "Jetty", detect.WebServer, detect.Detected, "server-header"
+					if finding.ID != "laravel" {
+						name, category, state, rule = map[string]string{"jetty": "Jetty", "kestrel": "Kestrel"}[finding.ID], detect.WebServer, detect.Detected, "server-header"
 						signals = []detect.Signal{{Source: detect.Header, Name: "Server"}}
 					}
 					if finding.Name != name || finding.Category != category || finding.State != state || len(finding.Evidence) != 1 {

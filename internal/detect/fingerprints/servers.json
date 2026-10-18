@@ -35,6 +35,17 @@
       }]
     },
     {
+      "id": "kestrel",
+      "name": "Kestrel",
+      "category": "web_server",
+      "rules": [{
+        "id": "server-header",
+        "state": "detected",
+        "description": "Server header reports Kestrel; this may be an intermediary",
+        "all": [{"source": "header", "name": "Server", "pattern": "^[ \\t]*[Kk][Ee][Ss][Tt][Rr][Ee][Ll][ \\t]*$"}]
+      }]
+    },
+    {
       "id": "nginx",
       "name": "nginx",
       "category": "web_server",

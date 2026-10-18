@@ -6,6 +6,8 @@
   with framework provenance. No independent language rules or extra requests.
 - Added Jetty server-header detection for complete parenthesized release banners.
   No Java or framework implication, version reporting, or extra requests.
+- Added Kestrel detection from its complete, unversioned Server header.
+  No ASP.NET Core/C#/.NET implication, version reporting, or extra requests.
 - Added Apache Tomcat header detection and status-gated error-page inference.
   Header findings are detected; matching HTML on HTTP 4xx/5xx responses is inferred.
   No Java implication or extra requests.
@@ -19,7 +21,7 @@
   Defaults and asset headers remain unchanged; no fallback requests or path probes.
 - Expanded regressions for combined backend provenance, status-gated error
   fingerprints, and negotiated HTML with separate JS/CSS asset evidence.
-- The development catalog contains 28 technologies across ten categories.
+- The development catalog contains 29 technologies across ten categories.
 
 ## v0.3.0 — 2026-10-16
 
