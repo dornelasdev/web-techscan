@@ -17,6 +17,8 @@
   probes, language/server implications or extra requests.
 - Added opt-in `--prefer-html` for page requests and followed page redirects.
   Defaults and asset headers remain unchanged; no fallback requests or path probes.
+- Expanded regressions for combined backend provenance, status-gated error
+  fingerprints, and negotiated HTML with separate JS/CSS asset evidence.
 - The development catalog contains 28 technologies across ten categories.
 
 ## v0.3.0 — 2026-10-16
