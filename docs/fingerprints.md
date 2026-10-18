@@ -3,7 +3,8 @@
 [README](../README.md) · [Usage](usage.md) · [Policies](policies.md)
 
 Rules are embedded in the binary. Use `webscan --techs` to list its catalog.
-The v0.3.0 catalog contains 23 technologies across ten categories.
+The development catalog contains 25 technologies across ten categories.
+The v0.3.0 release baseline contains 23.
 
 ## Evidence
 
@@ -15,7 +16,7 @@ The v0.3.0 catalog contains 23 technologies across ten categories.
 - Direct detections take precedence while retaining other supporting evidence.
 - Evidence records rule IDs and signal locations; asset evidence includes its URL.
 - Versions constrain some patterns but are not extracted or reported.
-- Laravel → PHP is the only configured language relationship.
+- Language relationships: Laravel → PHP, Django → Python, Rails → Ruby.
 
 Header names are case-insensitive. Cookie names and JS/CSS identifiers are
 case-sensitive. HTML rules require complete tags with quoted target values;
@@ -77,8 +78,9 @@ form, POST method, or session cookie is required. Token/cookie values are not
 compared or reported. The sessionid/csrftoken cookie pair alone does not match.
 
 Custom cookie names, session-backed CSRF, missing Set-Cookie, JS-generated forms,
-and unquoted/encoded marker values can be missed. No Python implication, debug
-text fallback, token validation, or security-posture assessment.
+and unquoted/encoded marker values can be missed. A Django finding implies
+Python as `inferred`, preserving Django as its source. No debug text fallback,
+token validation, or security-posture assessment.
 
 Sources: [Django 5.2 CSRF](https://docs.djangoproject.com/en/5.2/ref/csrf/),
 [default settings](https://github.com/django/django/blob/5.2/django/conf/global_settings.py),
@@ -173,7 +175,8 @@ Marker values are case-sensitive. Tokens are neither validated nor reported.
 Either tag alone, generic session cookies, X-Request-ID, X-Runtime, Turbo assets,
 and hidden authenticity_token fields do not independently match. Custom CSRF
 parameters, API-only responses, omitted tags, and runtime-injected tags can be missed.
-No Ruby implication or security-posture assessment.
+A Rails finding implies Ruby as `inferred`, preserving Rails as its source.
+No security-posture assessment.
 
 Reviewed 2026-10-07. Sources:
 [CSRF helper](https://api.rubyonrails.org/classes/ActionView/Helpers/CsrfHelper.html),
@@ -467,18 +470,42 @@ Sources: [WordPress generator](https://developer.wordpress.org/reference/functio
 
 ## Languages
 
+Category: `language`. No languages are inferred from web-server implementation
+languages, client JS, generic filenames, or session cookies alone.
+
 ### PHP
 
-Category: `language`. `powered-by-header` matches PHP with an optional
+`powered-by-header` matches PHP with an optional
 digit-starting version suffix in X-Powered-By, case-insensitive with outer
 spaces/tabs. State: `detected`. Laravel also implies PHP as `inferred`; the
 header upgrades it while preserving the relationship evidence.
 
 PHPSESSID alone and PHP text in Apache module banners do not match.
-No languages are inferred from web-server implementation languages or client JS.
 
 Reviewed 2026-10-05. Source:
 [expose_php](https://www.php.net/manual/en/ini.core.php#ini.expose-php).
+
+### Python and Ruby
+
+Inference-only catalog entries, reviewed 2026-10-18:
+
+| Language | Required finding | Evidence |
+| --- | --- | --- |
+| Python (`python`) | Django (`django`) | `inferred_from: django` |
+| Ruby (`ruby`) | Ruby on Rails (`rails`) | `inferred_from: rails` |
+
+Both remain `inferred`. They have no direct matchers; relationship evidence
+has no rule ID or signal locations. The source framework finding retains the
+observed evidence. Partial framework markers produce neither finding.
+
+These relationships inherit the framework rules' limitations: copied,
+commented, cached or spoofed markers can support an inference. They do not
+independently observe the language or prove backend execution on the target.
+Python/Ruby header text and server implementation banners do not match.
+
+Sources: the Django and Rails references above describe the framework markers;
+[Django FAQ](https://docs.djangoproject.com/en/5.2/faq/general/) describes its
+Python basis, and the Rails references use its Ruby implementation.
 
 ## CDN and edge providers
 

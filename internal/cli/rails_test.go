@@ -105,7 +105,7 @@ func TestRailsThroughCLI(t *testing.T) {
 				if format == "terminal" {
 					wantLines, gotLines := []string{}, []string{}
 					if tc.want {
-						wantLines = append(wantLines, "? Ruby on Rails [framework]")
+						wantLines = append(wantLines, "? Ruby on Rails [framework]", "? Ruby [language]")
 					}
 					for _, line := range strings.Split(stdout.String(), "\n") {
 						if (strings.HasPrefix(line, "✓ ") || strings.HasPrefix(line, "? ")) && strings.Contains(line, " [") {
@@ -114,6 +114,9 @@ func TestRailsThroughCLI(t *testing.T) {
 					}
 					if !reflect.DeepEqual(gotLines, wantLines) {
 						t.Errorf("findings=%v want=%v", gotLines, wantLines)
+					}
+					if strings.Contains(stdout.String(), "Inferred from Ruby on Rails") != tc.want {
+						t.Error("incorrect Ruby relationship evidence")
 					}
 					if strings.Contains(stdout.String(), "No technologies detected.") != !tc.want || strings.Contains(stdout.String(), "Paired csrf-param authenticity_token and csrf-token meta tags") != tc.want {
 						t.Errorf("incorrect evidence/empty-result message: %s", &stdout)
@@ -140,9 +143,10 @@ func TestRailsThroughCLI(t *testing.T) {
 					}
 					return
 				}
-				if len(report.Findings) != 1 {
-					t.Fatalf("want only Rails without language guesses, got %+v", report.Findings)
+				if len(report.Findings) != 2 {
+					t.Fatalf("want Rails and inferred Ruby, got %+v", report.Findings)
 				}
+				requireLanguageReport(t, report.Findings[1], "ruby", "rails")
 				finding := report.Findings[0]
 				if finding.ID != "rails" || finding.Name != "Ruby on Rails" || finding.Category != "framework" || finding.State != "inferred" || len(finding.Evidence) != 1 {
 					t.Fatalf("unexpected finding: %+v", finding)

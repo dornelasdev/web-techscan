@@ -21,8 +21,17 @@ func requireRails(t *testing.T, got []detect.Finding, want bool) {
 		}
 		return
 	}
+	if len(got) != 2 {
+		t.Fatalf("want Rails and inferred Ruby, got %+v", got)
+	}
+	requireRailsFinding(t, got[:1])
+	requireLanguageInference(t, got[1:], "ruby", "rails")
+}
+
+func requireRailsFinding(t *testing.T, got []detect.Finding) {
+	t.Helper()
 	if len(got) != 1 || got[0].ID != "rails" || got[0].Name != "Ruby on Rails" || got[0].Category != detect.Framework || got[0].State != detect.Inferred {
-		t.Fatalf("want only inferred Rails without language guesses, got %+v", got)
+		t.Fatalf("want one inferred Rails finding, got %+v", got)
 	}
 	if len(got[0].Evidence) != 1 {
 		t.Fatalf("unexpected evidence: %+v", got[0].Evidence)
@@ -107,11 +116,13 @@ func TestRailsIndependentFrameworkEvidence(t *testing.T) {
 	for _, finding := range got {
 		ids = append(ids, finding.ID)
 	}
-	if !reflect.DeepEqual(ids, []string{"django", "nginx", "rails"}) {
+	if !reflect.DeepEqual(ids, []string{"django", "nginx", "python", "rails", "ruby"}) {
 		t.Fatalf("unexpected combined findings: %+v", got)
 	}
-	requireDjango(t, got[:1], true)
-	requireRails(t, got[2:], true)
+	requireDjangoFinding(t, got[:1])
+	requireLanguageInference(t, got[2:3], "python", "django")
+	requireRailsFinding(t, got[3:4])
+	requireLanguageInference(t, got[4:], "ruby", "rails")
 	// Django's token input cannot substitute for either Rails meta tag.
 	for _, body := range []string{djangoInput + railsParam, djangoInput + railsToken} {
 		requireDjango(t, engine.Detect(detect.Input{HTML: []byte(body), CookieNames: []string{"csrftoken"}}), true)

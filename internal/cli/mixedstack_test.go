@@ -78,7 +78,9 @@ func expectedMixedStack(direct, html bool, action, serverID, serverName string) 
 	php.evidence = append(php.evidence, mixedEvidence{from: "laravel", signals: []output.Signal{}})
 	want = append(want, php)
 	if html {
+		want = append(want, mixedFinding{"python", "Python", "language", "language", "inferred", []mixedEvidence{{from: "django", signals: []output.Signal{}}}})
 		want = append(want, mixedFinding{"rails", "Ruby on Rails", "framework", "framework", "inferred", []mixedEvidence{{rule: "csrf-meta-pair", signals: []output.Signal{{Source: "html"}, {Source: "html"}}}}})
+		want = append(want, mixedFinding{"ruby", "Ruby", "language", "language", "inferred", []mixedEvidence{{from: "rails", signals: []output.Signal{}}}})
 		want = append(want, mixedFinding{"wordpress", "WordPress", "cms", "CMS", "inferred", []mixedEvidence{{rule: "generator-meta", signals: []output.Signal{{Source: "html"}}}}})
 	}
 	sort.Slice(want, func(i, j int) bool { return want[i].id < want[j].id })

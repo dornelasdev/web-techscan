@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Added Python inferred from Django and Ruby inferred from Ruby on Rails,
+  with framework provenance. No independent language rules or extra requests.
+- The development catalog contains 25 technologies across ten categories.
+
 ## v0.3.0 — 2026-10-16
 
 Bounded asset inspection, broader frontend/infrastructure coverage, and fetching

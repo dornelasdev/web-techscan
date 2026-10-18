@@ -67,6 +67,11 @@ separate evidence entries on a single technology finding; repeated markers in
 the same asset do not duplicate evidence. Inference relationships still point
 to the source technology, whose evidence carries any asset provenance.
 
+Language relationships currently use Laravel → PHP, Django → Python, and
+Rails → Ruby. Python and Ruby have no direct rules and remain `inferred`;
+their `inferred_from` links point to the framework's observed evidence, not an
+independent observation of a language or executing backend.
+
 All collection fields are arrays, including when empty; they are not `null`.
 Absent optional strings are omitted. A catalog of size 0 is distinct from a
 populated catalog with no findings. There are no confidence scores, raw body

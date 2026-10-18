@@ -107,7 +107,7 @@ func TestDjangoThroughCLI(t *testing.T) {
 				if format == "terminal" {
 					wantLines, gotLines := []string{}, []string{}
 					if tc.want {
-						wantLines = append(wantLines, "? Django [framework]")
+						wantLines = append(wantLines, "? Django [framework]", "? Python [language]")
 					}
 					for _, line := range strings.Split(stdout.String(), "\n") {
 						if (strings.HasPrefix(line, "✓ ") || strings.HasPrefix(line, "? ")) && strings.Contains(line, " [") {
@@ -116,6 +116,9 @@ func TestDjangoThroughCLI(t *testing.T) {
 					}
 					if !reflect.DeepEqual(gotLines, wantLines) {
 						t.Errorf("findings=%v want=%v", gotLines, wantLines)
+					}
+					if strings.Contains(stdout.String(), "Inferred from Django") != tc.want {
+						t.Error("incorrect Python relationship evidence")
 					}
 					if strings.Contains(stdout.String(), "No technologies detected.") != !tc.want || strings.Contains(stdout.String(), "csrftoken cookie name and a hidden csrfmiddlewaretoken input") != tc.want {
 						t.Errorf("incorrect evidence/empty-result message: %s", &stdout)
@@ -142,9 +145,10 @@ func TestDjangoThroughCLI(t *testing.T) {
 					}
 					return
 				}
-				if len(report.Findings) != 1 {
-					t.Fatalf("want only Django without language guesses, got %+v", report.Findings)
+				if len(report.Findings) != 2 {
+					t.Fatalf("want Django and inferred Python, got %+v", report.Findings)
 				}
+				requireLanguageReport(t, report.Findings[1], "python", "django")
 				finding := report.Findings[0]
 				if finding.ID != "django" || finding.Name != "Django" || finding.Category != "framework" || finding.State != "inferred" || len(finding.Evidence) != 1 {
 					t.Fatalf("unexpected finding: %+v", finding)

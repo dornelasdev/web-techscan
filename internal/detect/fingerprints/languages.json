@@ -11,6 +11,16 @@
         "description": "X-Powered-By header reports PHP",
         "all": [{"source": "header", "name": "X-Powered-By", "pattern": "(?i)^[ \\t]*PHP(?:/[0-9][0-9A-Za-z.+_~-]*)?[ \\t]*$"}]
       }]
+    },
+    {
+      "id": "python",
+      "name": "Python",
+      "category": "language"
+    },
+    {
+      "id": "ruby",
+      "name": "Ruby",
+      "category": "language"
     }
   ]
 }

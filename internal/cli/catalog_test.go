@@ -73,6 +73,9 @@ func TestTechsCatalogOffline(t *testing.T) {
 				if !strings.Contains(stdout.String(), "\n  UI frameworks\n    Bootstrap\n") {
 					t.Error("Bootstrap must appear under UI frameworks")
 				}
+				if !strings.Contains(stdout.String(), "\n  Languages\n    PHP\n    Python\n    Ruby\n") {
+					t.Error("direct and inference-only languages must appear in alphabetical order")
+				}
 				if strings.Count(stdout.String(), "\nWeb development\n") != 1 || strings.Count(stdout.String(), "\nInfrastructure\n") != 1 {
 					t.Error("each nonempty organization group must have one heading")
 				}
@@ -100,6 +103,11 @@ func TestTechsCatalogOffline(t *testing.T) {
 			}
 			if got := byID["rails"]; got.Name != "Ruby on Rails" || got.Category != "framework" {
 				t.Errorf("missing or incorrect Rails metadata: %+v", got)
+			}
+			for id, name := range map[string]string{"python": "Python", "ruby": "Ruby"} {
+				if got := byID[id]; got.Name != name || got.Category != "language" {
+					t.Errorf("missing or incorrect inference-only language metadata: %+v", got)
+				}
 			}
 			if got := byID["react"]; got.Name != "React" || got.Category != "javascript_framework" {
 				t.Errorf("missing or incorrect React metadata: %+v", got)

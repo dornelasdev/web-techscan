@@ -90,6 +90,9 @@ percentages or automatic version extraction in this format.
 `implies` lists supported technology relationships. Targets must exist in the
 catalog. A technology without rules must be the target of an inference.
 Duplicate edges, self-references, and longer inference cycles are rejected.
+Relationships apply to every matching rule of the source technology, regardless
+of its state or signal source. Review existing implications when adding a rule;
+this format has no per-rule or minimum-state implication policy.
 
 All direct matches are collected before inference. Relationships may chain,
 but their results always remain `inferred` unless the target has its own

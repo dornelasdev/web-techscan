@@ -89,6 +89,8 @@ Catalog JSON remains a flat array with `id`, `name`, and `category`; no `group`
 field is added. Use technology IDs for automation, not category assignments.
 
 Catalog entries have no scan state and do not guarantee identification.
+Python and Ruby are inference-only entries; scans require a Django or Rails
+finding, respectively. Listing them does not mean they have direct language rules.
 
 `--techs` rejects a URL, `--version`, and explicitly supplied scan options:
 `--timeout`, `--max-redirects`, `--max-body`, `--max-encoded-body`,
@@ -191,8 +193,8 @@ After building, run in another terminal:
 | `drupal.html` | Inferred Drupal; the server supplies no X-Generator header. |
 | `joomla.html` | Inferred Joomla, without PHP. |
 | `nuxt-payload.html` | Inferred Nuxt. |
-| `rails-csrf.html` | Inferred Ruby on Rails. |
-| `django-csrf.html` | No Django finding; the server supplies no csrftoken cookie. |
+| `rails-csrf.html` | Inferred Ruby on Rails and Ruby. |
+| `django-csrf.html` | No Django or Python finding; the server supplies no csrftoken cookie. |
 
 These page-only commands do not fetch linked assets. Referenced files need not
 exist. Go integration tests supply controlled headers/cookies and exercise asset

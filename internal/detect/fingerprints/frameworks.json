@@ -58,7 +58,8 @@
             }
           ]
         }
-      ]
+      ],
+      "implies": ["python"]
     },
     {
       "id": "express",
@@ -229,7 +230,8 @@
             }
           ]
         }
-      ]
+      ],
+      "implies": ["ruby"]
     },
     {
       "id": "vue",

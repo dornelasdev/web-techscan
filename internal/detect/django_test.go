@@ -20,8 +20,17 @@ func requireDjango(t *testing.T, got []detect.Finding, want bool) {
 		}
 		return
 	}
+	if len(got) != 2 {
+		t.Fatalf("want Django and inferred Python, got %+v", got)
+	}
+	requireDjangoFinding(t, got[:1])
+	requireLanguageInference(t, got[1:], "python", "django")
+}
+
+func requireDjangoFinding(t *testing.T, got []detect.Finding) {
+	t.Helper()
 	if len(got) != 1 || got[0].ID != "django" || got[0].Name != "Django" || got[0].Category != detect.Framework || got[0].State != detect.Inferred {
-		t.Fatalf("want only inferred Django, no language guesses; got %+v", got)
+		t.Fatalf("want one inferred Django finding; got %+v", got)
 	}
 	if len(got[0].Evidence) != 1 {
 		t.Fatalf("unexpected evidence: %+v", got[0].Evidence)
@@ -109,10 +118,11 @@ func TestDjangoMixedStack(t *testing.T) {
 	for _, finding := range got {
 		ids = append(ids, finding.ID)
 	}
-	if !reflect.DeepEqual(ids, []string{"django", "laravel", "nginx", "php"}) {
+	if !reflect.DeepEqual(ids, []string{"django", "laravel", "nginx", "php", "python"}) {
 		t.Fatalf("unexpected combined findings: %+v", got)
 	}
-	requireDjango(t, got[:1], true)
+	requireDjangoFinding(t, got[:1])
+	requireLanguageInference(t, got[4:], "python", "django")
 	if got[3].State != detect.Inferred || len(got[3].Evidence) != 1 || got[3].Evidence[0].InferredFrom != "laravel" {
 		t.Errorf("language evidence crossed frameworks: %+v", got[3])
 	}

@@ -58,13 +58,16 @@ func TestServerFrameworkSignalCombinations(t *testing.T) {
 						wantIDs = append(wantIDs, server.id)
 					}
 					for _, pair := range []struct {
-						id   string
-						bits int
+						id, language string
+						bits         int
 					}{
-						{"nuxt", nuxtID | nuxtAsset}, {"django", djangoCookie | djangoField}, {"rails", railsParameter | railsCSRF},
+						{"nuxt", "", nuxtID | nuxtAsset}, {"django", "python", djangoCookie | djangoField}, {"rails", "ruby", railsParameter | railsCSRF},
 					} {
 						if mask&pair.bits == pair.bits {
 							wantIDs = append(wantIDs, pair.id)
+							if pair.language != "" {
+								wantIDs = append(wantIDs, pair.language)
+							}
 						}
 					}
 					sort.Strings(wantIDs)
@@ -74,16 +77,20 @@ func TestServerFrameworkSignalCombinations(t *testing.T) {
 						gotIDs = append(gotIDs, finding.ID)
 					}
 					if !reflect.DeepEqual(gotIDs, wantIDs) {
-						t.Fatalf("findings=%+v want IDs=%v, without language guesses", got, wantIDs)
+						t.Fatalf("findings=%+v want IDs=%v with supported language relationships", got, wantIDs)
 					}
 					for i, finding := range got {
 						switch finding.ID {
 						case "nuxt":
 							requireNuxt(t, got[i:i+1], true, false)
 						case "django":
-							requireDjango(t, got[i:i+1], true)
+							requireDjangoFinding(t, got[i:i+1])
 						case "rails":
-							requireRails(t, got[i:i+1], true)
+							requireRailsFinding(t, got[i:i+1])
+						case "python":
+							requireLanguageInference(t, got[i:i+1], "python", "django")
+						case "ruby":
+							requireLanguageInference(t, got[i:i+1], "ruby", "rails")
 						default:
 							if finding.Category != detect.WebServer || finding.State != detect.Detected || len(finding.Evidence) != 1 {
 								t.Fatalf("unexpected server finding: %+v", finding)
