@@ -4,7 +4,9 @@
 
 - Added Python inferred from Django and Ruby inferred from Ruby on Rails,
   with framework provenance. No independent language rules or extra requests.
-- The development catalog contains 25 technologies across ten categories.
+- Added Jetty server-header detection for complete parenthesized release banners.
+  No Java or framework implication, version reporting, or extra requests.
+- The development catalog contains 26 technologies across ten categories.
 
 ## v0.3.0 — 2026-10-16
 

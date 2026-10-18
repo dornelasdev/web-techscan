@@ -3,7 +3,7 @@
 [README](../README.md) · [Usage](usage.md) · [Policies](policies.md)
 
 Rules are embedded in the binary. Use `webscan --techs` to list its catalog.
-The development catalog contains 25 technologies across ten categories.
+The development catalog contains 26 technologies across ten categories.
 The v0.3.0 release baseline contains 23.
 
 ## Evidence
@@ -35,14 +35,16 @@ identify provenance baselines, not exhaustive version coverage. Branch links may
 
 ## Web servers
 
-Category: `web_server`. All three use `server-header`, with `detected` state.
-Reviewed 2026-10-05; banner hardening reviewed 2026-10-07.
+Category: `web_server`. All four use `server-header`, with `detected` state.
+nginx/Apache/IIS reviewed 2026-10-05; banner hardening reviewed 2026-10-07.
+Jetty reviewed 2026-10-18.
 
 | Technology | Accepted Server value |
 | --- | --- |
 | nginx | Product token; optional numeric dot-separated version; at most one whitespace-separated build/OS comment. |
 | Apache HTTP Server | Product token; optional numeric dot-separated version and `-dev`; whitespace-separated comments or module/version tokens. |
 | Microsoft IIS | Microsoft-IIS token; optional numeric dot-separated version. |
+| Jetty | `Jetty(major.minor.patch)`; optional `.v` followed by eight digits inside the parentheses. |
 
 Product spelling is case-insensitive; outer spaces/tabs are accepted. nginx and
 Apache comments permit printable ASCII/tabs, excluding nested parentheses and
@@ -60,6 +62,25 @@ Sources: [nginx server_tokens](https://nginx.org/en/docs/http/ngx_http_core_modu
 [Apache ServerTokens](https://httpd.apache.org/docs/2.4/mod/core.html#servertokens),
 [Apache release definitions](https://github.com/apache/httpd/blob/2.4.x/include/ap_release.h),
 [IIS response headers](https://techcommunity.microsoft.com/blog/iis-support-blog/remove-unwanted-http-response-headers/369710).
+
+### Jetty boundaries
+
+Examples: `Jetty(12.0.16)` and `Jetty(9.4.57.v20241219)`. Require three numeric
+version components; the optional build suffix uses lowercase `v` and eight
+digits, without calendar-date validation. Product spelling is case-insensitive;
+only outer spaces/tabs are allowed. Versions constrain matching but are not reported.
+
+Bare `Jetty`, slash-style banners, prerelease/custom suffixes, internal spaces,
+comments and comma-combined values do not match. No fallback from error-page
+text, X-Powered-By, JSESSIONID or asset contents. An omitted/customized Server
+header may be missed. A finding does not imply Java, a JVM runtime finding,
+an application framework, or a hidden origin's identity.
+
+Reviewed upstream banner construction and configurable header emission:
+[12.0.16 HttpConfiguration](https://github.com/jetty/jetty.project/blob/jetty-12.0.16/jetty-core/jetty-server/src/main/java/org/eclipse/jetty/server/HttpConfiguration.java),
+[9.4.57 HttpConfiguration](https://github.com/jetty/jetty.project/blob/jetty-9.4.57.v20241219/jetty-server/src/main/java/org/eclipse/jetty/server/HttpConfiguration.java),
+[9.4.57 version resolution](https://github.com/jetty/jetty.project/blob/jetty-9.4.57.v20241219/jetty-util/src/main/java/org/eclipse/jetty/util/Jetty.java).
+These are provenance baselines, not an exhaustive supported-version range.
 
 ## Web frameworks
 

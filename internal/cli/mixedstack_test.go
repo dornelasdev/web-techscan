@@ -99,6 +99,7 @@ func TestMixedStackThroughCLI(t *testing.T) {
 	for _, exposed := range []struct{ id, name, banner, invalid string }{
 		{"apache", "Apache HTTP Server", "Apache/2.4.62 (Unix) PHP/8.3.12", "Apache/2..4"},
 		{"iis", "Microsoft IIS", "Microsoft-IIS/10.0", "Microsoft-IIS/10..0"},
+		{"jetty", "Jetty", "Jetty(12.0.16)", "Jetty(12..16)"},
 		{"nginx", "nginx", "nginx/1.26.2 (Ubuntu)", "nginx/1..2"},
 	} {
 		for _, tc := range []struct {

@@ -57,6 +57,23 @@ func TestServerBannerBoundaries(t *testing.T) {
 			"Microsoft-IIS/10.0 proxy", "Microsoft-IIS/10.0, nginx", "proxy Microsoft-IIS/10.0",
 			"Microsoft-IIS/10.0\n", "Microsoft-IIS/10.0\x00", "Microsoft-HTTPAPI/2.0", "Kestrel",
 		}},
+		{"jetty", []string{
+			"Jetty(12.0.16)", "Jetty(10.0.24)", "Jetty(11.0.24)",
+			"Jetty(9.4.57.v20241219)", "Jetty(9.4.57)", "\t jEtTy(12.0.16) \t",
+		}, []string{
+			"", "Jetty", "Jetty/12.0.16", "Jetty()", "Jetty(12)", "Jetty(12.0)",
+			"Jetty(12.0.16.1)", "Jetty(12..16)", "Jetty(.0.16)", "Jetty(12.0.16.)",
+			"Jetty(12.0.16", "Jetty12.0.16)", "Jetty((12.0.16))", "Jetty (12.0.16)",
+			"Jetty( 12.0.16)", "Jetty(12.0.16 )", "Jetty(12.0.16\t)",
+			"Jetty(9.4.57.v2024121)", "Jetty(9.4.57.v202412190)", "Jetty(9.4.57.V20241219)",
+			"Jetty(9.4.57.v2024abcd)", "Jetty(9.4.57.v20241219.extra)",
+			"Jetty(12.0.16-SNAPSHOT)", "Jetty(12.0.16.RC1)", "Jetty(12.0.16-custom)",
+			"Jetty(12.0.16) proxy", "Jetty(12.0.16) (Unix)", "proxy Jetty(12.0.16)",
+			"Jetty(12.0.16), nginx", "nginx, Jetty(12.0.16)", "Jetty(12.0.16)Jetty(12.0.16)",
+			"NotJetty(12.0.16)", "Jetty-compatible(12.0.16)", "jetty-http/12.0.16",
+			"Jetty(１２.0.16)", "Jetty(12.0.16)\n", "Jetty(12.0.16)\r\n",
+			"Jetty(12.0.16)\x00", "Jetty(12.0.16)\x7f", "\u00a0Jetty(12.0.16)",
+		}},
 	} {
 		for _, value := range tc.positive {
 			t.Run(tc.id+"/positive/"+value, func(t *testing.T) {
@@ -83,10 +100,14 @@ func TestServerBannerBoundaries(t *testing.T) {
 
 func TestServerEvidenceIsolation(t *testing.T) {
 	engine := bundledEngine(t)
-	for _, banner := range []string{"nginx/1.26.2", "Apache/2.4.62", "Microsoft-IIS/10.0"} {
+	for _, banner := range []string{"nginx/1.26.2", "Apache/2.4.62", "Microsoft-IIS/10.0", "Jetty(12.0.16)", "Jetty(9.4.57.v20241219)"} {
 		for _, input := range []detect.Input{
 			{Headers: http.Header{"Via": {banner}, "X-Powered-By": {banner}, "X-Server": {banner}}},
 			{HTML: []byte("<footer>" + banner + "</footer>"), CookieNames: []string{banner}},
+			{Assets: []detect.Asset{
+				{URL: "https://example.test/app.js", Source: detect.AssetJavaScript, Body: []byte(banner)},
+				{URL: "https://example.test/app.css", Source: detect.AssetCSS, Body: []byte(banner)},
+			}},
 		} {
 			if got := engine.Detect(input); len(got) != 0 {
 				t.Errorf("wrong-source banner %q yielded %+v", banner, got)
@@ -94,7 +115,7 @@ func TestServerEvidenceIsolation(t *testing.T) {
 		}
 	}
 	// Independent fields are not concatenated, nor interpreted as a proxy chain.
-	got := engine.Detect(detect.Input{Headers: http.Header{"Server": {"nginx", "Apache/2.4.62", "Microsoft-IIS/10.0", "nginx"}}})
+	got := engine.Detect(detect.Input{Headers: http.Header{"Server": {"nginx", "Apache/2.4.62", "Microsoft-IIS/10.0", "Jetty(12.0.16)", "Jetty(9.4.57.v20241219)", "nginx"}}})
 	var ids []string
 	for _, finding := range got {
 		ids = append(ids, finding.ID)
@@ -102,10 +123,10 @@ func TestServerEvidenceIsolation(t *testing.T) {
 			t.Errorf("duplicate evidence: %+v", finding)
 		}
 	}
-	if !reflect.DeepEqual(ids, []string{"apache", "iis", "nginx"}) {
+	if !reflect.DeepEqual(ids, []string{"apache", "iis", "jetty", "nginx"}) {
 		t.Fatalf("IDs=%v, want independent server findings without language guesses", ids)
 	}
-	if got := engine.Detect(detect.Input{Headers: http.Header{"Server": {"Apache/", "2.4.62", "nginx/", "1.26.2", "Microsoft-IIS/", "10.0"}}}); len(got) != 0 {
+	if got := engine.Detect(detect.Input{Headers: http.Header{"Server": {"Apache/", "2.4.62", "nginx/", "1.26.2", "Microsoft-IIS/", "10.0", "Jetty(", "12.0.16)", "Jetty(9.4.57.", "v20241219)"}}}); len(got) != 0 {
 		t.Errorf("split values combined into findings: %+v", got)
 	}
 }
