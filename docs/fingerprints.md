@@ -3,7 +3,7 @@
 [README](../README.md) · [Usage](usage.md) · [Policies](policies.md)
 
 Rules are embedded in the binary. Use `webscan --techs` to list its catalog.
-The development catalog contains 29 technologies across ten categories.
+The development catalog contains 30 technologies across ten categories.
 The v0.3.0 release baseline contains 23.
 
 ## Evidence
@@ -153,6 +153,42 @@ Branch links are review baselines, not exhaustive version coverage.
 
 Category: `framework`. Includes web/full-stack frameworks; category names do
 not establish rendering mode or backend language.
+
+### ASP.NET Core
+
+`antiforgery-cookie-and-input`: a final-response cookie name matching
+`.AspNetCore.Antiforgery.` plus exactly 11 ASCII Base64url characters
+(`A–Z`, `a–z`, `0–9`, `_`, `-`), paired with a complete input tag containing
+quoted `type="hidden"` and `name="__RequestVerificationToken"` attributes.
+State: `inferred`.
+
+Cookie and field names are case-sensitive. Input tag/attribute names and the
+hidden type are case-insensitive; both attributes must be on one tag, in either
+order. Token values, a surrounding form and a POST method are not required.
+No token decoding, comparison, validation or security-posture assessment.
+The cookie suffix is a name-shape check, not validation of its hash or encoding.
+Neither cookie names/suffixes nor token values are reported.
+
+Neither marker alone, classic ASP.NET cookie names, generic session/authentication
+cookies, `X-Powered-By: ASP.NET`, IIS or Kestrel completes this rule. No language,
+runtime or server finding is implied. Redirect and asset markers do not complete
+the final-page pair; additional requests or form submissions are not made.
+
+Customized names, absent Set-Cookie, pages without the hidden input, runtime-only
+forms and encoded/unquoted markers can be missed. Raw HTML can match copied or
+commented tags; independent cookies and markup do not establish their association
+or backend execution. Headers/cookies can be spoofed or exposed by intermediaries.
+
+Reviewed 2026-10-18. Pinned defaults and cookie construction:
+[8.0.0 options](https://github.com/dotnet/aspnetcore/blob/v8.0.0/src/Antiforgery/src/AntiforgeryOptions.cs),
+[10.0.0 options](https://github.com/dotnet/aspnetcore/blob/v10.0.0/src/Antiforgery/src/AntiforgeryOptions.cs),
+[8.0.0 cookie naming](https://github.com/dotnet/aspnetcore/blob/v8.0.0/src/Antiforgery/src/Internal/AntiforgeryOptionsSetup.cs),
+[10.0.0 cookie naming](https://github.com/dotnet/aspnetcore/blob/v10.0.0/src/Antiforgery/src/Internal/AntiforgeryOptionsSetup.cs),
+[10.0.0 input rendering](https://github.com/dotnet/aspnetcore/blob/v10.0.0/src/Mvc/Mvc.ViewFeatures/src/AntiforgeryExtensions.cs).
+The shared field name also appears in
+[classic ASP.NET](https://github.com/aspnet/AspNetWebStack/blob/main/src/System.Web.WebPages/Helpers/AntiForgeryConfig.cs);
+it is not a Core-only marker. Pinned sources are provenance baselines, not an
+exhaustive supported-version range; the classic reference follows its main branch.
 
 ### Django
 

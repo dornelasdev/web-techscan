@@ -39,6 +39,20 @@
       ]
     },
     {
+      "id": "aspnet-core",
+      "name": "ASP.NET Core",
+      "category": "framework",
+      "rules": [{
+        "id": "antiforgery-cookie-and-input",
+        "state": "inferred",
+        "description": "An ASP.NET Core-shaped antiforgery cookie name and a hidden __RequestVerificationToken input suggest ASP.NET Core",
+        "all": [
+          {"source": "cookie", "pattern": "^[.]AspNetCore[.]Antiforgery[.][A-Za-z0-9_-]{11}$"},
+          {"source": "html", "pattern": "(?i:<input)\\s+(?:[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>\\x60]+))?\\s+)*(?:(?i:type)\\s*=\\s*(?i:\"hidden\"|'hidden')\\s+(?:[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>\\x60]+))?\\s+)*(?i:name)\\s*=\\s*(?:\"__RequestVerificationToken\"|'__RequestVerificationToken')|(?i:name)\\s*=\\s*(?:\"__RequestVerificationToken\"|'__RequestVerificationToken')\\s+(?:[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>\\x60]+))?\\s+)*(?i:type)\\s*=\\s*(?i:\"hidden\"|'hidden'))(?:\\s+[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>\\x60]+))?)*\\s*/?>"}
+        ]
+      }]
+    },
+    {
       "id": "django",
       "name": "Django",
       "category": "framework",

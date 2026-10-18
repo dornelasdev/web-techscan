@@ -68,7 +68,7 @@ func TestBundledTaxonomy(t *testing.T) {
 			want = detect.Language
 		case "apache", "iis", "jetty", "kestrel", "nginx", "tomcat":
 			want = detect.WebServer
-		case "django", "express", "laravel", "nextjs", "nuxt", "rails", "spring-boot":
+		case "aspnet-core", "django", "express", "laravel", "nextjs", "nuxt", "rails", "spring-boot":
 		default:
 			want = tech.Category
 		}
@@ -80,7 +80,7 @@ func TestBundledTaxonomy(t *testing.T) {
 		}
 		counts[tech.Category]++
 	}
-	if engine.Len() != 29 || len(counts) != 10 || counts[detect.Framework] != 7 || counts[detect.JSFramework] != 3 || counts[detect.JSLibrary] != 1 || counts[detect.Language] != 3 || counts[detect.WebServer] != 6 {
+	if engine.Len() != 30 || len(counts) != 10 || counts[detect.Framework] != 8 || counts[detect.JSFramework] != 3 || counts[detect.JSLibrary] != 1 || counts[detect.Language] != 3 || counts[detect.WebServer] != 6 {
 		t.Fatalf("unexpected catalog taxonomy: size=%d counts=%v", engine.Len(), counts)
 	}
 }
