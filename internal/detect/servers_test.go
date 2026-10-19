@@ -111,7 +111,7 @@ func TestServerBannerBoundaries(t *testing.T) {
 
 func TestServerEvidenceIsolation(t *testing.T) {
 	engine := bundledEngine(t)
-	for _, banner := range []string{"nginx/1.26.2", "Apache/2.4.62", "Microsoft-IIS/10.0", "Jetty(12.0.16)", "Jetty(9.4.57.v20241219)", "Kestrel", "Apache Tomcat/11.0.27"} {
+	for _, banner := range []string{"nginx/1.26.2", "Apache/2.4.62", "Caddy", "Microsoft-IIS/10.0", "Jetty(12.0.16)", "Jetty(9.4.57.v20241219)", "Kestrel", "Apache Tomcat/11.0.27"} {
 		for _, input := range []detect.Input{
 			{Headers: http.Header{"Via": {banner}, "X-Powered-By": {banner}, "X-Server": {banner}}},
 			{HTML: []byte("<footer>" + banner + "</footer>"), CookieNames: []string{banner}},
@@ -126,7 +126,7 @@ func TestServerEvidenceIsolation(t *testing.T) {
 		}
 	}
 	// Independent fields are not concatenated, nor interpreted as a proxy chain.
-	got := engine.Detect(detect.Input{Headers: http.Header{"Server": {"nginx", "Apache/2.4.62", "Microsoft-IIS/10.0", "Jetty(12.0.16)", "Jetty(9.4.57.v20241219)", "Kestrel", "KESTREL", "Apache Tomcat/11.0.27", "nginx"}}})
+	got := engine.Detect(detect.Input{Headers: http.Header{"Server": {"nginx", "Apache/2.4.62", "Caddy", "CADDY", "Microsoft-IIS/10.0", "Jetty(12.0.16)", "Jetty(9.4.57.v20241219)", "Kestrel", "KESTREL", "Apache Tomcat/11.0.27", "nginx"}}})
 	var ids []string
 	for _, finding := range got {
 		ids = append(ids, finding.ID)
@@ -134,7 +134,7 @@ func TestServerEvidenceIsolation(t *testing.T) {
 			t.Errorf("duplicate evidence: %+v", finding)
 		}
 	}
-	if !reflect.DeepEqual(ids, []string{"apache", "iis", "jetty", "kestrel", "nginx", "tomcat"}) {
+	if !reflect.DeepEqual(ids, []string{"apache", "caddy", "iis", "jetty", "kestrel", "nginx", "tomcat"}) {
 		t.Fatalf("IDs=%v, want independent server findings without language guesses", ids)
 	}
 	if got := engine.Detect(detect.Input{Headers: http.Header{"Server": {"Apache/", "2.4.62", "nginx/", "1.26.2", "Microsoft-IIS/", "10.0", "Jetty(", "12.0.16)", "Jetty(9.4.57.", "v20241219)", "Kes", "trel"}}}); len(got) != 0 {

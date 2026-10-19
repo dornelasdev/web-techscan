@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Added Caddy detection from a complete Server header and conservative inference
+  from a standalone default-shaped HTTP Via value. No Go/framework implication,
+  version reporting, topology reconstruction, or extra requests.
 - Added Python inferred from Django and Ruby inferred from Ruby on Rails,
   with framework provenance. No independent language rules or extra requests.
 - Added Jetty server-header detection for complete parenthesized release banners.
@@ -24,7 +27,7 @@
   Defaults and asset headers remain unchanged; no fallback requests or path probes.
 - Expanded regressions for combined backend provenance, status-gated error
   fingerprints, and negotiated HTML with separate JS/CSS asset evidence.
-- The development catalog contains 30 technologies across ten categories.
+- The development catalog contains 31 technologies across ten categories.
 
 ## v0.3.0 — 2026-10-16
 

@@ -3,7 +3,7 @@
 [README](../README.md) · [Usage](usage.md) · [Policies](policies.md)
 
 Rules are embedded in the binary. Use `webscan --techs` to list its catalog.
-The development catalog contains 30 technologies across ten categories.
+The development catalog contains 31 technologies across ten categories.
 The v0.3.0 release baseline contains 23.
 
 ## Evidence
@@ -37,8 +37,9 @@ identify provenance baselines, not exhaustive version coverage. Branch links may
 
 ## Web servers
 
-Category: `web_server`. All six have a detected `server-header` rule.
+Category: `web_server`. All seven have a detected `server-header` rule.
 Tomcat additionally has a header rule and status-gated HTML inference.
+Caddy additionally has a standalone Via-header inference rule.
 nginx/Apache/IIS reviewed 2026-10-05; banner hardening reviewed 2026-10-07.
 Jetty, Kestrel and Tomcat reviewed 2026-10-18.
 
@@ -47,6 +48,7 @@ Jetty, Kestrel and Tomcat reviewed 2026-10-18.
 | nginx | Product token; optional numeric dot-separated version; at most one whitespace-separated build/OS comment. |
 | Apache HTTP Server | Product token; optional numeric dot-separated version and `-dev`; whitespace-separated comments. Module/version tokens require an Apache version. |
 | Microsoft IIS | Microsoft-IIS token; optional numeric dot-separated version. |
+| Caddy | Complete unversioned `Caddy` token; ASCII case-insensitive. |
 | Jetty | `Jetty(major.minor.patch)`; optional `.v` followed by eight digits inside the parentheses. |
 | Kestrel | Complete unversioned `Kestrel` token; ASCII case-insensitive. |
 | Apache Tomcat | `Apache Tomcat`; optional `/major.minor.patch`. |
@@ -69,6 +71,44 @@ Sources: [nginx server_tokens](https://nginx.org/en/docs/http/ngx_http_core_modu
 [Apache ServerTokens](https://httpd.apache.org/docs/2.4/mod/core.html#servertokens),
 [Apache release definitions](https://github.com/apache/httpd/blob/2.4.x/include/ap_release.h),
 [IIS response headers](https://techcommunity.microsoft.com/blog/iis-support-blog/remove-unwanted-http-response-headers/369710).
+
+### Caddy
+
+| Rule | Required final-response evidence | State |
+| --- | --- | --- |
+| `server-header` | Complete unversioned `Caddy` Server value. | detected |
+| `via-header` | Standalone Via value: `1.0`, `1.1`, `2.0` or `3.0`, whitespace, and `Caddy`. | inferred |
+
+Allow ASCII product-name case variations, outer spaces/tabs, and spaces/tabs
+between the Via protocol and recipient. Reject version suffixes, trailers,
+comments, combined lists, ports, host suffixes, controls and Unicode lookalikes.
+No explicit `HTTP/` prefix or other protocol forms. Repeated values are checked
+independently and yield one evidence entry per rule. Server evidence upgrades
+Via inference to detected while retaining both rules. No fallback from HTML,
+cookies, other headers, redirect hops, or asset headers/bodies.
+
+Reviewed Caddy 2.8.4/2.10.2 defaults emit `Server: Caddy`. In the reviewed
+2.11.0/2.11.7 normal reverse-proxy response path, Caddy removes its own Server
+header and adds Via instead; an upstream Server header can still be forwarded.
+Via names can be arbitrary recipient pseudonyms, so the rule is inferred.
+Its numeric prefix describes HTTP, not the Caddy version. Neither rule proves
+the software's authenticity, backend language, hidden origin or proxy topology.
+No Go/framework, CDN, WAF or load-balancer implication.
+
+Customized/removed headers, intermediaries, combined Via lists and comments
+can cause misses. Spoofed Server/Via values or another recipient named Caddy
+can mislead. No probes or additional requests.
+
+Reviewed 2026-10-19 against pinned sources:
+[2.8.4 identity](https://github.com/caddyserver/caddy/blob/v2.8.4/modules/caddyhttp/server.go),
+[2.10.2 identity](https://github.com/caddyserver/caddy/blob/v2.10.2/modules/caddyhttp/server.go),
+[2.11.7 identity](https://github.com/caddyserver/caddy/blob/v2.11.7/modules/caddyhttp/server.go),
+[2.11.0 proxy response](https://github.com/caddyserver/caddy/blob/v2.11.0/modules/caddyhttp/reverseproxy/reverseproxy.go),
+[2.11.7 proxy response](https://github.com/caddyserver/caddy/blob/v2.11.7/modules/caddyhttp/reverseproxy/reverseproxy.go),
+[header configuration](https://caddyserver.com/docs/caddyfile/directives/header),
+[Via semantics](https://www.rfc-editor.org/rfc/rfc9110.html#section-7.6.3).
+Own-authored rules and tests; no upstream code or fingerprint dataset imported.
+These are provenance baselines, not an exhaustive supported-version range.
 
 ### Jetty boundaries
 

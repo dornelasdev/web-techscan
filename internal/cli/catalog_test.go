@@ -76,7 +76,7 @@ func TestTechsCatalogOffline(t *testing.T) {
 				if !strings.Contains(stdout.String(), "\n  Languages\n    PHP\n    Python\n    Ruby\n") {
 					t.Error("direct and inference-only languages must appear in alphabetical order")
 				}
-				if !strings.Contains(stdout.String(), "\n  Web servers\n    Apache HTTP Server\n    Apache Tomcat\n    Jetty\n    Kestrel\n    Microsoft IIS\n    nginx\n") {
+				if !strings.Contains(stdout.String(), "\n  Web servers\n    Apache HTTP Server\n    Apache Tomcat\n    Caddy\n    Jetty\n    Kestrel\n    Microsoft IIS\n    nginx\n") {
 					t.Error("web servers must appear in the alphabetically ordered infrastructure category")
 				}
 				if strings.Count(stdout.String(), "\nWeb development\n") != 1 || strings.Count(stdout.String(), "\nInfrastructure\n") != 1 {
@@ -94,6 +94,9 @@ func TestTechsCatalogOffline(t *testing.T) {
 			byID := make(map[string]output.Technology)
 			for _, tech := range report.Technologies {
 				byID[tech.ID] = tech
+			}
+			if got := byID["caddy"]; got.Name != "Caddy" || got.Category != "web_server" {
+				t.Errorf("missing or incorrect Caddy metadata: %+v", got)
 			}
 			if got := byID["jetty"]; got.Name != "Jetty" || got.Category != "web_server" {
 				t.Errorf("missing or incorrect Jetty metadata: %+v", got)

@@ -20,6 +20,7 @@ func TestServerCoverageThroughCLI(t *testing.T) {
 		id, name, valid, malformed, redirectBanner string
 	}{
 		{"apache", "Apache HTTP Server", "Apache/2.4.62 (Unix) PHP/8.3.12 MyMod/1.2", "Apache/2..4", "Microsoft-IIS/10.0"},
+		{"caddy", "Caddy", "Caddy", "Caddy/2.11.7", "Microsoft-IIS/10.0"},
 		{"iis", "Microsoft IIS", "Microsoft-IIS/10.0", "Microsoft-IIS/10..0", "nginx/1.26.2"},
 		{"jetty", "Jetty", "Jetty(9.4.57.v20241219)", "Jetty(9.4.57.v2024121)", "Jetty(12.0.16)"},
 		{"kestrel", "Kestrel", "Kestrel", "Kestrel/8.0", "Microsoft-IIS/10.0"},

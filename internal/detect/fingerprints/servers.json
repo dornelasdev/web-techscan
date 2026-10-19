@@ -13,6 +13,25 @@
       }]
     },
     {
+      "id": "caddy",
+      "name": "Caddy",
+      "category": "web_server",
+      "rules": [
+        {
+          "id": "server-header",
+          "state": "detected",
+          "description": "Server header reports Caddy; this may be an intermediary",
+          "all": [{"source": "header", "name": "Server", "pattern": "^[ \\t]*[Cc][Aa][Dd][Dd][Yy][ \\t]*$"}]
+        },
+        {
+          "id": "via-header",
+          "state": "inferred",
+          "description": "A standalone HTTP Via recipient named Caddy suggests a Caddy intermediary; the name can be a pseudonym",
+          "all": [{"source": "header", "name": "Via", "pattern": "^[ \\t]*(?:1[.][01]|[23][.]0)[ \\t]+[Cc][Aa][Dd][Dd][Yy][ \\t]*$"}]
+        }
+      ]
+    },
+    {
       "id": "iis",
       "name": "Microsoft IIS",
       "category": "web_server",

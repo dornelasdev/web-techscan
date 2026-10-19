@@ -25,6 +25,7 @@ func TestServerFrameworkSignalCombinations(t *testing.T) {
 	)
 	for _, server := range []struct{ id, valid, invalid string }{
 		{"apache", "Apache/2.4.62 (Unix) PHP/8.3.12", "Apache/2..4"},
+		{"caddy", "Caddy", "Caddy/2.11.7"},
 		{"iis", "Microsoft-IIS/10.0", "Microsoft-IIS/10..0"},
 		{"jetty", "Jetty(12.0.16)", "Jetty(12..16)"},
 		{"kestrel", "Kestrel", "Kestrel/8.0"},
