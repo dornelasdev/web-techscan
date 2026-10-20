@@ -3,7 +3,7 @@
 [README](../README.md) · [Usage](usage.md) · [Policies](policies.md)
 
 Rules are embedded in the binary. Use `webscan --techs` to list its catalog.
-The development catalog contains 32 technologies across ten categories.
+The development catalog contains 33 technologies across ten categories.
 The v0.3.0 release baseline contains 23.
 
 ## Evidence
@@ -258,6 +258,56 @@ spaces/tabs. State: `detected`. No language/runtime implication.
 Reviewed 2026-10-05. Sources:
 [response implementation](https://github.com/expressjs/express/blob/master/lib/application.js),
 [header configuration](https://expressjs.com/en/advanced/best-practice-security/#reduce-fingerprinting).
+
+### FastAPI
+
+Category: `framework`. Both rules are `inferred` and require three markers in
+the same final-page HTML capture:
+
+| Rule | Required evidence |
+| --- | --- |
+| `swagger-ui-html` | Default FastAPI favicon link, empty `div` with `id="swagger-ui"`, and a complete inline script with the default-shaped `const ui = SwaggerUIBundle(...)` initializer. |
+| `redoc-html` | Default FastAPI favicon link, empty `redoc` element with a nonempty quoted `spec-url`, and a complete jsDelivr ReDoc script tag. |
+
+Favicon: complete `link` with quoted `rel="shortcut icon"` and quoted
+`https://fastapi.tiangolo.com/img/favicon.png` href, in either attribute order.
+HTML tag/attribute names and rel value are case-insensitive; URL schemes/hosts
+allow ASCII case variations. URL paths, JS identifiers and target IDs are
+case-sensitive. Attribute whitespace, single/double quotes and supported extra
+attributes are accepted. URLs have no query/fragment, credentials, explicit
+ports or host suffixes; URL text is inspected, not fetched.
+
+Swagger requires a bare inline script tag, `const ui`, a quoted nonempty `url`
+property first, then quoted `dom_id: "#swagger-ui"`, a comma and a closed call.
+The remaining configuration stays within that script; JS syntax is not parsed
+or executed. ReDoc's external script URL is
+`https://cdn.jsdelivr.net/npm/redoc@2/bundles/redoc.standalone.js` or the reviewed
+`@next` variant. ReDoc schema URLs are not fixed to `/openapi.json` and are not
+followed. Titles are not used; customized documentation paths/titles can match.
+
+Either marker alone, partial or cross-viewer combinations, generic viewer
+pages, FastAPI text/titles, JSON errors, Uvicorn/Werkzeug headers and session
+cookies do not identify FastAPI. Redirect or asset content cannot complete the
+page rule. Duplicate markers yield one evidence entry per rule; both matching
+rules retain separate evidence on one inferred finding. No Python/server/runtime
+implication or version extraction; viewer package versions are not FastAPI versions.
+
+These are documentation-template clues, not proof that the API backend uses
+FastAPI. Copied, commented or statically hosted markup can match. Customized
+favicons, hosts, viewer URLs, markup or initializer structure may miss. No
+automatic `/docs`, `/redoc`, OAuth or schema discovery. Supply the documentation
+URL explicitly, or scan a URL that redirects there. Page-only matching performs
+no favicon, viewer or schema requests; `--assets` retains its existing policy.
+
+Reviewed 2026-10-20:
+[0.115.12 templates](https://github.com/fastapi/fastapi/blob/0.115.12/fastapi/openapi/docs.py),
+[0.116.1 templates](https://github.com/fastapi/fastapi/blob/0.116.1/fastapi/openapi/docs.py),
+[0.116.1 route/title setup](https://github.com/fastapi/fastapi/blob/0.116.1/fastapi/applications.py),
+[current template reference](https://fastapi.tiangolo.com/reference/openapi/docs/),
+[customization](https://fastapi.tiangolo.com/how-to/custom-docs-ui-assets/),
+[generic Swagger UI page](https://github.com/swagger-api/swagger-ui/blob/v5.17.14/dist/index.html).
+Own-authored rules/minimal fixtures; no upstream template or dataset imported.
+These are provenance baselines, not an exhaustive supported-version range.
 
 ### Fiber
 

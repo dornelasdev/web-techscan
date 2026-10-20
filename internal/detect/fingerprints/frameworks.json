@@ -87,6 +87,33 @@
       }]
     },
     {
+      "id": "fastapi",
+      "name": "FastAPI",
+      "category": "framework",
+      "rules": [
+        {
+          "id": "redoc-html",
+          "state": "inferred",
+          "description": "FastAPI's default favicon markup with a ReDoc documentation template suggests FastAPI; the HTML can be served statically",
+          "all": [
+            {"source": "html", "pattern": "<[Ll][Ii][Nn][Kk]\\s+(?:[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>\\x60]+))?\\s+)*(?:[Rr][Ee][Ll]\\s*=\\s*(?:\"[Ss][Hh][Oo][Rr][Tt][Cc][Uu][Tt] [Ii][Cc][Oo][Nn]\"|'[Ss][Hh][Oo][Rr][Tt][Cc][Uu][Tt] [Ii][Cc][Oo][Nn]')\\s+(?:[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>\\x60]+))?\\s+)*[Hh][Rr][Ee][Ff]\\s*=\\s*(?:\"[Hh][Tt][Tt][Pp][Ss]://[Ff][Aa][Ss][Tt][Aa][Pp][Ii][.][Tt][Ii][Aa][Nn][Gg][Oo][Ll][Oo][.][Cc][Oo][Mm]/img/favicon[.]png\"|'[Hh][Tt][Tt][Pp][Ss]://[Ff][Aa][Ss][Tt][Aa][Pp][Ii][.][Tt][Ii][Aa][Nn][Gg][Oo][Ll][Oo][.][Cc][Oo][Mm]/img/favicon[.]png')|[Hh][Rr][Ee][Ff]\\s*=\\s*(?:\"[Hh][Tt][Tt][Pp][Ss]://[Ff][Aa][Ss][Tt][Aa][Pp][Ii][.][Tt][Ii][Aa][Nn][Gg][Oo][Ll][Oo][.][Cc][Oo][Mm]/img/favicon[.]png\"|'[Hh][Tt][Tt][Pp][Ss]://[Ff][Aa][Ss][Tt][Aa][Pp][Ii][.][Tt][Ii][Aa][Nn][Gg][Oo][Ll][Oo][.][Cc][Oo][Mm]/img/favicon[.]png')\\s+(?:[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>\\x60]+))?\\s+)*[Rr][Ee][Ll]\\s*=\\s*(?:\"[Ss][Hh][Oo][Rr][Tt][Cc][Uu][Tt] [Ii][Cc][Oo][Nn]\"|'[Ss][Hh][Oo][Rr][Tt][Cc][Uu][Tt] [Ii][Cc][Oo][Nn]'))(?:\\s+[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>\\x60]+))?)*\\s*/?>"},
+            {"source": "html", "pattern": "<[Rr][Ee][Dd][Oo][Cc]\\s+(?:[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>\\x60]+))?\\s+)*[Ss][Pp][Ee][Cc]-[Uu][Rr][Ll]\\s*=\\s*(?:\"[^\"'<>\\\\\\s]+\"|'[^\"'<>\\\\\\s]+')(?:\\s+[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>\\x60]+))?)*\\s*>\\s*</[Rr][Ee][Dd][Oo][Cc]\\s*>"},
+            {"source": "html", "pattern": "<[Ss][Cc][Rr][Ii][Pp][Tt]\\s+(?:[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>\\x60]+))?\\s+)*[Ss][Rr][Cc]\\s*=\\s*(?:\"[Hh][Tt][Tt][Pp][Ss]://[Cc][Dd][Nn][.][Jj][Ss][Dd][Ee][Ll][Ii][Vv][Rr][.][Nn][Ee][Tt]/npm/redoc@(?:next|2)/bundles/redoc[.]standalone[.]js\"|'[Hh][Tt][Tt][Pp][Ss]://[Cc][Dd][Nn][.][Jj][Ss][Dd][Ee][Ll][Ii][Vv][Rr][.][Nn][Ee][Tt]/npm/redoc@(?:next|2)/bundles/redoc[.]standalone[.]js')(?:\\s+[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>\\x60]+))?)*\\s*>\\s*</[Ss][Cc][Rr][Ii][Pp][Tt]\\s*>"}
+          ]
+        },
+        {
+          "id": "swagger-ui-html",
+          "state": "inferred",
+          "description": "FastAPI's default favicon markup with a Swagger UI documentation template suggests FastAPI; the HTML can be served statically",
+          "all": [
+            {"source": "html", "pattern": "<[Ll][Ii][Nn][Kk]\\s+(?:[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>\\x60]+))?\\s+)*(?:[Rr][Ee][Ll]\\s*=\\s*(?:\"[Ss][Hh][Oo][Rr][Tt][Cc][Uu][Tt] [Ii][Cc][Oo][Nn]\"|'[Ss][Hh][Oo][Rr][Tt][Cc][Uu][Tt] [Ii][Cc][Oo][Nn]')\\s+(?:[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>\\x60]+))?\\s+)*[Hh][Rr][Ee][Ff]\\s*=\\s*(?:\"[Hh][Tt][Tt][Pp][Ss]://[Ff][Aa][Ss][Tt][Aa][Pp][Ii][.][Tt][Ii][Aa][Nn][Gg][Oo][Ll][Oo][.][Cc][Oo][Mm]/img/favicon[.]png\"|'[Hh][Tt][Tt][Pp][Ss]://[Ff][Aa][Ss][Tt][Aa][Pp][Ii][.][Tt][Ii][Aa][Nn][Gg][Oo][Ll][Oo][.][Cc][Oo][Mm]/img/favicon[.]png')|[Hh][Rr][Ee][Ff]\\s*=\\s*(?:\"[Hh][Tt][Tt][Pp][Ss]://[Ff][Aa][Ss][Tt][Aa][Pp][Ii][.][Tt][Ii][Aa][Nn][Gg][Oo][Ll][Oo][.][Cc][Oo][Mm]/img/favicon[.]png\"|'[Hh][Tt][Tt][Pp][Ss]://[Ff][Aa][Ss][Tt][Aa][Pp][Ii][.][Tt][Ii][Aa][Nn][Gg][Oo][Ll][Oo][.][Cc][Oo][Mm]/img/favicon[.]png')\\s+(?:[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>\\x60]+))?\\s+)*[Rr][Ee][Ll]\\s*=\\s*(?:\"[Ss][Hh][Oo][Rr][Tt][Cc][Uu][Tt] [Ii][Cc][Oo][Nn]\"|'[Ss][Hh][Oo][Rr][Tt][Cc][Uu][Tt] [Ii][Cc][Oo][Nn]'))(?:\\s+[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>\\x60]+))?)*\\s*/?>"},
+            {"source": "html", "pattern": "<[Dd][Ii][Vv]\\s+(?:[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>\\x60]+))?\\s+)*[Ii][Dd]\\s*=\\s*(?:\"swagger-ui\"|'swagger-ui')(?:\\s+[A-Za-z_:][A-Za-z0-9_.:-]*(?:\\s*=\\s*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>\\x60]+))?)*\\s*>\\s*</[Dd][Ii][Vv]\\s*>"},
+            {"source": "html", "pattern": "<[Ss][Cc][Rr][Ii][Pp][Tt]\\s*>\\s*const\\s+ui\\s*=\\s*SwaggerUIBundle\\s*\\(\\s*\\{\\s*url\\s*:\\s*(?:\"[^\"'<>\\\\\\s]+\"|'[^\"'<>\\\\\\s]+')\\s*,\\s*(?:\"dom_id\"|'dom_id')\\s*:\\s*(?:\"#swagger-ui\"|'#swagger-ui')\\s*,[^<]*\\}\\s*\\)\\s*[^<]*</[Ss][Cc][Rr][Ii][Pp][Tt]\\s*>"}
+          ]
+        }
+      ]
+    },
+    {
       "id": "fiber",
       "name": "Fiber",
       "category": "framework",

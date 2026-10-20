@@ -96,7 +96,7 @@ case-insensitively within each category:
 | Infrastructure | Web servers, CDN/edge, load balancers, WAFs. |
 
 Angular, React, and Vue use `javascript_framework`. ASP.NET Core, Django, Express,
-Fiber, Laravel, Next.js, Nuxt, Rails, and Spring Boot use `framework` (web frameworks,
+FastAPI, Fiber, Laravel, Next.js, Nuxt, Rails, and Spring Boot use `framework` (web frameworks,
 including full-stack frameworks). Groups are static organization, not additional detections.
 jQuery uses `javascript_library`; its content rule requires `--assets`.
 Catalog JSON remains a flat array with `id`, `name`, and `category`; no `group`
@@ -210,6 +210,7 @@ After building, run in another terminal:
 | `rails-csrf.html` | Inferred Ruby on Rails and Ruby. |
 | `django-csrf.html` | No Django or Python finding; the server supplies no csrftoken cookie. |
 | `aspnet-core-antiforgery.html` | No ASP.NET Core finding; the server supplies no antiforgery cookie. |
+| `fastapi-swagger.html`, `fastapi-redoc.html` | Inferred FastAPI, without Python. Static documentation markup does not establish backend execution. |
 | `tomcat-error.html` | No Tomcat finding: the Python server returns this file with HTTP 200, not an error status. |
 | `spring-boot-servlet-error.html`, `spring-boot-reactive-error.html` | No Spring Boot finding: these files are returned with HTTP 200. |
 

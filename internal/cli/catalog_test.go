@@ -64,8 +64,8 @@ func TestTechsCatalogOffline(t *testing.T) {
 				if !strings.Contains(stdout.String(), "Web frameworks\n    ASP.NET Core\n    Django\n    Express\n") {
 					t.Error("ASP.NET Core, Django and Express must be alphabetically ordered under web frameworks")
 				}
-				if !strings.Contains(stdout.String(), "    Express\n    Fiber\n    Laravel\n") {
-					t.Error("Fiber must be alphabetically ordered under web frameworks")
+				if !strings.Contains(stdout.String(), "    Express\n    FastAPI\n    Fiber\n    Laravel\n") {
+					t.Error("FastAPI and Fiber must be alphabetically ordered under web frameworks")
 				}
 				if !strings.Contains(stdout.String(), "    Nuxt\n    Ruby on Rails\n    Spring Boot\n  JavaScript frameworks\n") {
 					t.Error("Spring Boot must end the alphabetically ordered web-framework category")
@@ -97,6 +97,9 @@ func TestTechsCatalogOffline(t *testing.T) {
 			byID := make(map[string]output.Technology)
 			for _, tech := range report.Technologies {
 				byID[tech.ID] = tech
+			}
+			if got := byID["fastapi"]; got.Name != "FastAPI" || got.Category != "framework" {
+				t.Errorf("missing or incorrect FastAPI metadata: %+v", got)
 			}
 			if got := byID["fiber"]; got.Name != "Fiber" || got.Category != "framework" {
 				t.Errorf("missing or incorrect Fiber metadata: %+v", got)
