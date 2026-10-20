@@ -36,6 +36,8 @@
   Defaults and asset headers remain unchanged; no fallback requests or path probes.
 - Expanded regressions for combined backend provenance, status-gated error
   fingerprints, and negotiated HTML with separate JS/CSS asset evidence.
+- Expanded combined Caddy/Fiber/FastAPI/Uvicorn/Gunicorn regressions, including
+  page findings preserved through asset failures and redirect/asset isolation.
 - The development catalog contains 35 technologies across ten categories.
 
 ## v0.3.0 — 2026-10-16
