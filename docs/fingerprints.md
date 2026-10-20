@@ -3,7 +3,7 @@
 [README](../README.md) · [Usage](usage.md) · [Policies](policies.md)
 
 Rules are embedded in the binary. Use `webscan --techs` to list its catalog.
-The development catalog contains 31 technologies across ten categories.
+The development catalog contains 32 technologies across ten categories.
 The v0.3.0 release baseline contains 23.
 
 ## Evidence
@@ -258,6 +258,32 @@ spaces/tabs. State: `detected`. No language/runtime implication.
 Reviewed 2026-10-05. Sources:
 [response implementation](https://github.com/expressjs/express/blob/master/lib/application.js),
 [header configuration](https://expressjs.com/en/advanced/best-practice-security/#reduce-fingerprinting).
+
+### Fiber
+
+`server-header`: complete unversioned `Fiber` value in the final response's
+Server header. State: `detected`; category: `framework`, not `web_server`.
+Allow ASCII case variations and outer spaces/tabs only. Reject versions,
+comments, trailers, combined values, internal whitespace, controls and Unicode
+lookalikes. Repeated matching values yield one evidence entry.
+
+The Server header is disabled by default in the reviewed Fiber versions.
+`ServerHeader: "Fiber"` is an explicit configuration example, not automatic
+identity disclosure. Default/custom-header deployments can therefore be missed.
+Headers can be spoofed, forwarded, replaced or hidden by intermediaries.
+No Go language/runtime or server implication and no hidden-origin attribution.
+
+No fallback from X-Powered-By, Via, cookies, HTML, redirect hops or assets.
+`fasthttp`, `Go`, `Cannot GET /`, `404 page not found` and generic JSON errors
+do not identify Fiber. No path probes, additional requests or version extraction.
+
+Reviewed 2026-10-20 against pinned
+[2.52.9 configuration and server setup](https://github.com/gofiber/fiber/blob/v2.52.9/app.go)
+and [3.0.0 configuration and server setup](https://github.com/gofiber/fiber/blob/v3.0.0/app.go).
+Both default to an empty ServerHeader and suppress the default server banner.
+The [configuration reference](https://docs.gofiber.io/api/fiber/) documents the
+opt-in header. Own-authored rule/tests; no upstream code or dataset imported.
+These are provenance baselines, not an exhaustive supported-version range.
 
 ### Laravel
 

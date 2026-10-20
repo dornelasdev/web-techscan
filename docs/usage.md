@@ -96,7 +96,7 @@ case-insensitively within each category:
 | Infrastructure | Web servers, CDN/edge, load balancers, WAFs. |
 
 Angular, React, and Vue use `javascript_framework`. ASP.NET Core, Django, Express,
-Laravel, Next.js, Nuxt, Rails, and Spring Boot use `framework` (web frameworks,
+Fiber, Laravel, Next.js, Nuxt, Rails, and Spring Boot use `framework` (web frameworks,
 including full-stack frameworks). Groups are static organization, not additional detections.
 jQuery uses `javascript_library`; its content rule requires `--assets`.
 Catalog JSON remains a flat array with `id`, `name`, and `category`; no `group`

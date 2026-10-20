@@ -87,6 +87,17 @@
       }]
     },
     {
+      "id": "fiber",
+      "name": "Fiber",
+      "category": "framework",
+      "rules": [{
+        "id": "server-header",
+        "state": "detected",
+        "description": "Server header reports Fiber; this may be an intermediary",
+        "all": [{"source": "header", "name": "Server", "pattern": "^[ \\t]*[Ff][Ii][Bb][Ee][Rr][ \\t]*$"}]
+      }]
+    },
+    {
       "id": "laravel",
       "name": "Laravel",
       "category": "framework",

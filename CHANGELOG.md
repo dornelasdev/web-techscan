@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Added initial Fiber framework detection from a complete, unversioned Server
+  header. The header is opt-in in Fiber; no Go implication, generic error-body
+  matching, version reporting, or extra requests.
 - Added Caddy detection from a complete Server header and conservative inference
   from a standalone default-shaped HTTP Via value. No Go/framework implication,
   version reporting, topology reconstruction, or extra requests.
@@ -27,7 +30,7 @@
   Defaults and asset headers remain unchanged; no fallback requests or path probes.
 - Expanded regressions for combined backend provenance, status-gated error
   fingerprints, and negotiated HTML with separate JS/CSS asset evidence.
-- The development catalog contains 31 technologies across ten categories.
+- The development catalog contains 32 technologies across ten categories.
 
 ## v0.3.0 — 2026-10-16
 
