@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Added Uvicorn and Gunicorn detection from complete, unversioned final-page
+  Server headers. No Python/framework implications, version reporting, or
+  additional requests.
 - Added initial FastAPI inference from default-branded Swagger UI or ReDoc
   HTML templates in the final page. No Python implication, documentation/schema
   discovery, version reporting, or additional requests.
@@ -33,7 +36,7 @@
   Defaults and asset headers remain unchanged; no fallback requests or path probes.
 - Expanded regressions for combined backend provenance, status-gated error
   fingerprints, and negotiated HTML with separate JS/CSS asset evidence.
-- The development catalog contains 33 technologies across ten categories.
+- The development catalog contains 35 technologies across ten categories.
 
 ## v0.3.0 — 2026-10-16
 

@@ -37,7 +37,7 @@ guarantees. Missing findings do not establish that a technology is absent.
 
 ## Coverage
 
-The development catalog includes 33 technologies across ten categories:
+The development catalog includes 35 technologies across ten categories:
 web frameworks, JavaScript frameworks, JavaScript libraries, UI frameworks, CMSs,
 languages, web servers, CDN/edge providers, load balancers, and WAFs.
 `--techs` organizes these under Web development and Infrastructure.

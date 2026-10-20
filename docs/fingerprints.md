@@ -3,7 +3,7 @@
 [README](../README.md) · [Usage](usage.md) · [Policies](policies.md)
 
 Rules are embedded in the binary. Use `webscan --techs` to list its catalog.
-The development catalog contains 33 technologies across ten categories.
+The development catalog contains 35 technologies across ten categories.
 The v0.3.0 release baseline contains 23.
 
 ## Evidence
@@ -37,7 +37,7 @@ identify provenance baselines, not exhaustive version coverage. Branch links may
 
 ## Web servers
 
-Category: `web_server`. All seven have a detected `server-header` rule.
+Category: `web_server`. All nine have a detected `server-header` rule.
 Tomcat additionally has a header rule and status-gated HTML inference.
 Caddy additionally has a standalone Via-header inference rule.
 nginx/Apache/IIS reviewed 2026-10-05; banner hardening reviewed 2026-10-07.
@@ -49,9 +49,11 @@ Jetty, Kestrel and Tomcat reviewed 2026-10-18.
 | Apache HTTP Server | Product token; optional numeric dot-separated version and `-dev`; whitespace-separated comments. Module/version tokens require an Apache version. |
 | Microsoft IIS | Microsoft-IIS token; optional numeric dot-separated version. |
 | Caddy | Complete unversioned `Caddy` token; ASCII case-insensitive. |
+| Gunicorn | Complete unversioned `gunicorn` token; ASCII case-insensitive. |
 | Jetty | `Jetty(major.minor.patch)`; optional `.v` followed by eight digits inside the parentheses. |
 | Kestrel | Complete unversioned `Kestrel` token; ASCII case-insensitive. |
 | Apache Tomcat | `Apache Tomcat`; optional `/major.minor.patch`. |
+| Uvicorn | Complete unversioned `uvicorn` token; ASCII case-insensitive. |
 
 Product spelling is case-insensitive; outer spaces/tabs are accepted. nginx and
 Apache comments permit printable ASCII/tabs, excluding nested parentheses and
@@ -109,6 +111,36 @@ Reviewed 2026-10-19 against pinned sources:
 [Via semantics](https://www.rfc-editor.org/rfc/rfc9110.html#section-7.6.3).
 Own-authored rules and tests; no upstream code or fingerprint dataset imported.
 These are provenance baselines, not an exhaustive supported-version range.
+
+### Uvicorn and Gunicorn
+
+Each uses `server-header`: a complete unversioned product token in the final
+response's Server header, state `detected`. Allow ASCII case variations and
+outer spaces/tabs. Reject versions, comments, trailers, combined values,
+internal whitespace, controls and Unicode lookalikes. Repeated matching values
+yield one evidence entry. No alternate-header, HTML, cookie, redirect or asset
+fallback; no version extraction or additional requests.
+
+Reviewed Uvicorn defaults emit `Server: uvicorn`. `--no-server-header` disables
+the default; custom Server headers can replace it. Reviewed Gunicorn WSGI
+responses use the unversioned `SERVER` identity (`gunicorn`), not the versioned
+`SERVER_SOFTWARE` environment value. Versioned/custom banners are not covered.
+Removed, replaced or intermediary headers can cause misses; spoofed values can
+mislead. Neither finding identifies a hidden origin, Python, Flask, FastAPI,
+another framework, or the other server. Independent page markers can still
+identify frameworks alongside either server.
+
+Reviewed 2026-10-20 against pinned sources:
+[Uvicorn 0.35.0 configuration](https://github.com/encode/uvicorn/blob/0.35.0/uvicorn/config.py),
+[0.54.0 configuration](https://github.com/Kludex/uvicorn/blob/0.54.0/uvicorn/config.py),
+[0.54.0 response headers](https://github.com/Kludex/uvicorn/blob/0.54.0/uvicorn/protocols/http/h11_impl.py),
+[header settings](https://uvicorn.dev/settings/),
+[Gunicorn 23.0.0 identity](https://github.com/benoitc/gunicorn/blob/23.0.0/gunicorn/__init__.py),
+[23.0.0 response headers](https://github.com/benoitc/gunicorn/blob/23.0.0/gunicorn/http/wsgi.py),
+[26.2.2 identity](https://github.com/benoitc/gunicorn/blob/26.2.2/gunicorn/__init__.py),
+[26.2.2 response headers](https://github.com/benoitc/gunicorn/blob/26.2.2/gunicorn/http/wsgi.py).
+These are provenance baselines, not an exhaustive supported-version range.
+Own-authored rules/tests; no upstream code or fingerprint dataset imported.
 
 ### Jetty boundaries
 

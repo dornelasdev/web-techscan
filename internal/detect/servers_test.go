@@ -50,6 +50,24 @@ func TestServerBannerBoundaries(t *testing.T) {
 			"nginx/1.26.2 (café)", "nginx/1.26.2 (K)",
 			"nginx/1.26.2\r\n", "nginx/1.26.2 (bad\x7fvalue)",
 		}},
+		{"gunicorn", []string{
+			"gunicorn", "GUNICORN", "Gunicorn", "\t gUnIcOrN \t",
+		}, []string{
+			"", "Guni", "corn", "Guni corn", "Guni\tcorn", "gunicorn/23.0.0", "gunicorn/26.2.2",
+			"gunicorn/19.9.0", "Gunicorn()", "Gunicorn (Python)", "Gunicorn proxy", "proxy Gunicorn",
+			"NotGunicorn", "Gunicorn-compatible", "GunicornHTTP", "gunicorn, uvicorn", "uvicorn, gunicorn",
+			"GunicornGunicorn", "Gunicorn\n", "Gunicorn\r\n", "Gunicorn\x00", "Gunicorn\x7f", "\vGunicorn", "\fGunicorn",
+			"\u00a0Gunicorn", "Gunicorn\u00a0", "Ｇunicorn", "Gunіcorn", "GunicornK",
+		}},
+		{"uvicorn", []string{
+			"uvicorn", "UVICORN", "Uvicorn", "\t uViCoRn \t",
+		}, []string{
+			"", "Uvi", "corn", "Uvi corn", "Uvi\tcorn", "uvicorn/0.35.0", "uvicorn/0.54.0",
+			"Uvicorn()", "Uvicorn (Python)", "Uvicorn proxy", "proxy Uvicorn", "NotUvicorn",
+			"Uvicorn-compatible", "UvicornWorker", "UvicornHTTP", "uvicorn, gunicorn", "gunicorn, uvicorn",
+			"UvicornUvicorn", "Uvicorn\n", "Uvicorn\r\n", "Uvicorn\x00", "Uvicorn\x7f", "\vUvicorn", "\fUvicorn",
+			"\u00a0Uvicorn", "Uvicorn\u00a0", "Ｕvicorn", "Uvіcorn", "UvicornK",
+		}},
 		{"iis", []string{
 			"Microsoft-IIS", "Microsoft-IIS/6.0", "Microsoft-IIS/7.5", "Microsoft-IIS/10.0",
 			"\t mIcRoSoFt-IiS/10.0 \t",
@@ -111,7 +129,7 @@ func TestServerBannerBoundaries(t *testing.T) {
 
 func TestServerEvidenceIsolation(t *testing.T) {
 	engine := bundledEngine(t)
-	for _, banner := range []string{"nginx/1.26.2", "Apache/2.4.62", "Caddy", "Microsoft-IIS/10.0", "Jetty(12.0.16)", "Jetty(9.4.57.v20241219)", "Kestrel", "Apache Tomcat/11.0.27"} {
+	for _, banner := range []string{"nginx/1.26.2", "Apache/2.4.62", "Caddy", "gunicorn", "Microsoft-IIS/10.0", "Jetty(12.0.16)", "Jetty(9.4.57.v20241219)", "Kestrel", "Apache Tomcat/11.0.27", "uvicorn"} {
 		for _, input := range []detect.Input{
 			{Headers: http.Header{"Via": {banner}, "X-Powered-By": {banner}, "X-Server": {banner}}},
 			{HTML: []byte("<footer>" + banner + "</footer>"), CookieNames: []string{banner}},
@@ -126,7 +144,7 @@ func TestServerEvidenceIsolation(t *testing.T) {
 		}
 	}
 	// Independent fields are not concatenated, nor interpreted as a proxy chain.
-	got := engine.Detect(detect.Input{Headers: http.Header{"Server": {"nginx", "Apache/2.4.62", "Caddy", "CADDY", "Microsoft-IIS/10.0", "Jetty(12.0.16)", "Jetty(9.4.57.v20241219)", "Kestrel", "KESTREL", "Apache Tomcat/11.0.27", "nginx"}}})
+	got := engine.Detect(detect.Input{Headers: http.Header{"Server": {"nginx", "Apache/2.4.62", "Caddy", "CADDY", "gunicorn", "GUNICORN", "Microsoft-IIS/10.0", "Jetty(12.0.16)", "Jetty(9.4.57.v20241219)", "Kestrel", "KESTREL", "Apache Tomcat/11.0.27", "uvicorn", "UVICORN", "nginx"}}})
 	var ids []string
 	for _, finding := range got {
 		ids = append(ids, finding.ID)
@@ -134,10 +152,10 @@ func TestServerEvidenceIsolation(t *testing.T) {
 			t.Errorf("duplicate evidence: %+v", finding)
 		}
 	}
-	if !reflect.DeepEqual(ids, []string{"apache", "caddy", "iis", "jetty", "kestrel", "nginx", "tomcat"}) {
+	if !reflect.DeepEqual(ids, []string{"apache", "caddy", "gunicorn", "iis", "jetty", "kestrel", "nginx", "tomcat", "uvicorn"}) {
 		t.Fatalf("IDs=%v, want independent server findings without language guesses", ids)
 	}
-	if got := engine.Detect(detect.Input{Headers: http.Header{"Server": {"Apache/", "2.4.62", "nginx/", "1.26.2", "Microsoft-IIS/", "10.0", "Jetty(", "12.0.16)", "Jetty(9.4.57.", "v20241219)", "Kes", "trel"}}}); len(got) != 0 {
+	if got := engine.Detect(detect.Input{Headers: http.Header{"Server": {"Apache/", "2.4.62", "nginx/", "1.26.2", "Microsoft-IIS/", "10.0", "Jetty(", "12.0.16)", "Jetty(9.4.57.", "v20241219)", "Kes", "trel", "Guni", "Uvi", "corn"}}}); len(got) != 0 {
 		t.Errorf("split values combined into findings: %+v", got)
 	}
 }

@@ -93,7 +93,8 @@ func TestFastAPIDocumentationThroughCLI(t *testing.T) {
 							contentType = "text/html"
 						}
 						w.Header().Set("Content-Type", contentType)
-						w.Header().Set("Server", "uvicorn")
+						// Distinguish the raw banner from the legitimate JSON ID.
+						w.Header().Set("Server", "uViCoRn")
 						if tc.nginx {
 							w.Header().Add("Server", "nginx")
 						}
@@ -156,7 +157,7 @@ func TestFastAPIDocumentationThroughCLI(t *testing.T) {
 				if !reflect.DeepEqual(visited, wantPaths) {
 					t.Errorf("requests=%v want=%v; no schema, favicon, viewer or docs probes", visited, wantPaths)
 				}
-				for _, raw := range []string{"private-", "uvicorn", "Fiber", "Example API", "fastapi.tiangolo.com", "cdn.jsdelivr.net", "SwaggerUIBundle"} {
+				for _, raw := range []string{"private-", "uViCoRn", "Fiber", "Example API", "fastapi.tiangolo.com", "cdn.jsdelivr.net", "SwaggerUIBundle"} {
 					if strings.Contains(stdout.String(), raw) {
 						t.Errorf("raw body/header value leaked: %q", raw)
 					}
@@ -171,6 +172,9 @@ func TestFastAPIDocumentationThroughCLI(t *testing.T) {
 				if tc.assets {
 					ids = append(ids, "react")
 				}
+				// Every final response declares Uvicorn independently of the
+				// page's complete, partial or absent documentation markers.
+				ids = append(ids, "uvicorn")
 				fastAPIEvidence := []mixedEvidence{}
 				for _, rule := range tc.rules {
 					fastAPIEvidence = append(fastAPIEvidence, mixedEvidence{rule: rule, signals: []output.Signal{{Source: "html"}, {Source: "html"}, {Source: "html"}}})
@@ -179,6 +183,7 @@ func TestFastAPIDocumentationThroughCLI(t *testing.T) {
 					"fastapi": {"fastapi", "FastAPI", "framework", "framework", "inferred", fastAPIEvidence},
 					"nginx":   {"nginx", "nginx", "web_server", "web server", "detected", []mixedEvidence{mixedHeader("server-header", "Server")}},
 					"react":   {"react", "React", "javascript_framework", "JavaScript framework", "inferred", []mixedEvidence{{rule: "asset-client-runtime", signals: []output.Signal{{Source: "asset_javascript"}, {Source: "asset_javascript"}}}}},
+					"uvicorn": {"uvicorn", "Uvicorn", "web_server", "web server", "detected", []mixedEvidence{mixedHeader("server-header", "Server")}},
 				}
 				assetURL := server.URL + "/runtime.js?[redacted]"
 				if strings.Contains(stdout.String(), "\x1b") != (format == "color" && len(ids) != 0) {
@@ -224,7 +229,7 @@ func TestFastAPIDocumentationThroughCLI(t *testing.T) {
 				if tc.hop != "" {
 					redirects = append(redirects, output.Redirect{FromURL: server.URL + "/start?[redacted]", ToURL: server.URL + "/reference?[redacted]", StatusCode: 302})
 				}
-				if report.SchemaVersion != 1 || report.CatalogSize != 33 || !report.QueryRedacted || report.URL != server.URL+path+"?[redacted]" || report.FinalURL != server.URL+"/reference?[redacted]" || report.HTTPStatus != tc.status || report.ResponseScope != scope || report.BodyBytes != len(body) || !reflect.DeepEqual(report.Redirects, redirects) || report.Findings == nil || len(report.Findings) != len(ids) || (report.Assets != nil) != tc.assets {
+				if report.SchemaVersion != 1 || report.CatalogSize != 35 || !report.QueryRedacted || report.URL != server.URL+path+"?[redacted]" || report.FinalURL != server.URL+"/reference?[redacted]" || report.HTTPStatus != tc.status || report.ResponseScope != scope || report.BodyBytes != len(body) || !reflect.DeepEqual(report.Redirects, redirects) || report.Findings == nil || len(report.Findings) != len(ids) || (report.Assets != nil) != tc.assets {
 					t.Fatalf("unexpected metadata: %+v", report)
 				}
 				for i, id := range ids {

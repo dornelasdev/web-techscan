@@ -161,7 +161,6 @@ func TestFastAPISourceAndBackendIsolation(t *testing.T) {
 	engine := bundledEngine(t)
 	docs := fastAPIFavicon + fastAPISwaggerDiv + fastAPISwaggerInit + fastAPIRedocTag + fastAPIRedocScript
 	for _, input := range []detect.Input{
-		{Headers: http.Header{"X-Example": {docs}, "X-Powered-By": {"FastAPI"}, "Server": {"uvicorn"}}, CookieNames: []string{"FastAPI", "session"}},
 		{HTTPStatus: 404, Headers: http.Header{"Server": {"Werkzeug/3.1.3 Python/3.13.0"}, "Vary": {"Cookie"}}, CookieNames: []string{"session"}, HTML: []byte(`<title>404 Not Found</title>{"detail":"Not Found"}`)},
 		{Assets: []detect.Asset{{URL: "https://example.test/docs.js", Source: detect.AssetJavaScript, Body: []byte(docs)}, {URL: "https://example.test/docs.css", Source: detect.AssetCSS, Body: []byte(docs)}}},
 		{HTML: []byte(fastAPIFavicon), Assets: []detect.Asset{{URL: "https://example.test/docs.js", Source: detect.AssetJavaScript, Body: []byte(docs)}}},
@@ -171,6 +170,12 @@ func TestFastAPISourceAndBackendIsolation(t *testing.T) {
 			t.Errorf("wrong-source/generic evidence produced findings: %+v", got)
 		}
 	}
+	// Uvicorn is independently identifiable; its header still cannot supply
+	// documentation markers or imply FastAPI/Python.
+	requirePythonHTTPServer(t, engine.Detect(detect.Input{
+		Headers:     http.Header{"X-Example": {docs}, "X-Powered-By": {"FastAPI"}, "Server": {"uvicorn"}},
+		CookieNames: []string{"FastAPI", "session"},
+	}), "uvicorn")
 	for mask := 0; mask < 4; mask++ {
 		input := detect.Input{Headers: http.Header{"Server": {"nginx"}}, HTML: []byte(docs)}
 		if mask&1 != 0 {
