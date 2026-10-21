@@ -79,7 +79,7 @@ func TestTechsCatalogOffline(t *testing.T) {
 				if !strings.Contains(stdout.String(), "\n  Languages\n    PHP\n    Python\n    Ruby\n") {
 					t.Error("direct and inference-only languages must appear in alphabetical order")
 				}
-				if !strings.Contains(stdout.String(), "\n  Web servers\n    Apache HTTP Server\n    Apache Tomcat\n    Caddy\n    Gunicorn\n    Jetty\n    Kestrel\n    LiteSpeed\n    Microsoft IIS\n    nginx\n    Uvicorn\n") {
+				if !strings.Contains(stdout.String(), "\n  Web servers\n    Apache HTTP Server\n    Apache Tomcat\n    Caddy\n    Gunicorn\n    Jetty\n    Kestrel\n    LiteSpeed\n    Microsoft IIS\n    nginx\n    OpenResty\n    Uvicorn\n") {
 					t.Error("web servers must appear in the alphabetically ordered infrastructure category")
 				}
 				if strings.Count(stdout.String(), "\nWeb development\n") != 1 || strings.Count(stdout.String(), "\nInfrastructure\n") != 1 {
@@ -104,7 +104,7 @@ func TestTechsCatalogOffline(t *testing.T) {
 			if got := byID["fiber"]; got.Name != "Fiber" || got.Category != "framework" {
 				t.Errorf("missing or incorrect Fiber metadata: %+v", got)
 			}
-			for id, name := range map[string]string{"gunicorn": "Gunicorn", "uvicorn": "Uvicorn", "litespeed": "LiteSpeed"} {
+			for id, name := range map[string]string{"gunicorn": "Gunicorn", "uvicorn": "Uvicorn", "litespeed": "LiteSpeed", "openresty": "OpenResty"} {
 				if got := byID[id]; got.Name != name || got.Category != "web_server" {
 					t.Errorf("missing or incorrect %s metadata: %+v", name, got)
 				}

@@ -27,6 +27,7 @@ func TestServerCoverageThroughCLI(t *testing.T) {
 		{"kestrel", "Kestrel", "Kestrel", "Kestrel/8.0", "Microsoft-IIS/10.0"},
 		{"litespeed", "LiteSpeed", "lItEsPeEd/1.9.3 oPeN", "LiteSpeed/1.9.3 Open-compatible", "nginx/1.26.2"},
 		{"nginx", "nginx", "nginx/1.26.2 (private build 123)", "nginx/1..2", "Apache/2.4.62"},
+		{"openresty", "OpenResty", "oPeNrEsTy/1.27.1.2", "openresty/1.27.1.2-compatible", "nginx/1.26.2"},
 		{"tomcat", "Apache Tomcat", "Apache Tomcat/11.0.27", "Apache Tomcat/11..27", "Apache/2.4.62"},
 		{"uvicorn", "Uvicorn", "uViCoRn", "uvicorn/0.54.0", "gunicorn"},
 	} {

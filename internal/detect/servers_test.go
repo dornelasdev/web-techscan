@@ -103,6 +103,20 @@ func TestServerBannerBoundaries(t *testing.T) {
 			"\u00a0LiteSpeed", "LiteSpeed\u00a0", "LiteSpeed/1.9.3\u00a0Open", "LiteSpeed/１.9.3 Open",
 			"ＬiteSpeed", "Liteſpeed", "LіteSpeed", "LiteSpeed/1.9.3 Оpen",
 		}},
+		{"openresty", []string{
+			"openresty", "OpenResty", "OPENRESTY", "\t oPeNrEsTy \t",
+			"openresty/1.25.3.1", "openresty/1.25.3.2", "openresty/1.27.1.2", "\t oPeNrEsTy/1.27.1.2 \t",
+		}, []string{
+			"", "open", "resty", "open resty", "open\tresty", "openresty/", "openresty/1", "openresty/1.27",
+			"openresty/1.27.1", "openresty/1.27.1.2.3", "openresty/1..1.2", "openresty/.27.1.2",
+			"openresty/1.27.1.", "openresty/1.27.1.unknown", "openresty/1.27.1.2rc1", "openresty/1.27.1.2-dev",
+			"openresty/1.27.1.2-compatible", "openresty/1.27.1.2 (custom)", "openresty (custom)",
+			"openresty /1.27.1.2", "openresty/ 1.27.1.2", "NotOpenResty", "openresty-proxy", "openrestyish",
+			"openresty/1.27.1.2 proxy", "proxy openresty", "openresty, nginx", "nginx, openresty",
+			"openrestyopenresty", "openresty\n", "openresty/1.27.1.2\r\n", "openresty\x00", "openresty\x7f",
+			"\vopenresty", "\fopenresty", "\u00a0openresty", "openresty\u00a0", "openresty/１.27.1.2",
+			"ＯpenResty", "openreſty", "оpenresty", "openrestу",
+		}},
 		{"jetty", []string{
 			"Jetty(12.0.16)", "Jetty(10.0.24)", "Jetty(11.0.24)",
 			"Jetty(9.4.57.v20241219)", "Jetty(9.4.57)", "\t jEtTy(12.0.16) \t",
@@ -146,7 +160,7 @@ func TestServerBannerBoundaries(t *testing.T) {
 
 func TestServerEvidenceIsolation(t *testing.T) {
 	engine := bundledEngine(t)
-	for _, banner := range []string{"nginx/1.26.2", "Apache/2.4.62", "Caddy", "gunicorn", "Microsoft-IIS/10.0", "Jetty(12.0.16)", "Jetty(9.4.57.v20241219)", "Kestrel", "LiteSpeed", "LiteSpeed/1.9.3 Open", "Apache Tomcat/11.0.27", "uvicorn"} {
+	for _, banner := range []string{"nginx/1.26.2", "Apache/2.4.62", "Caddy", "gunicorn", "Microsoft-IIS/10.0", "Jetty(12.0.16)", "Jetty(9.4.57.v20241219)", "Kestrel", "LiteSpeed", "LiteSpeed/1.9.3 Open", "Apache Tomcat/11.0.27", "openresty", "openresty/1.27.1.2", "uvicorn"} {
 		for _, input := range []detect.Input{
 			{Headers: http.Header{"Via": {banner}, "X-Powered-By": {banner}, "X-Server": {banner}}},
 			{HTML: []byte("<footer>" + banner + "</footer>"), CookieNames: []string{banner}},
@@ -161,7 +175,7 @@ func TestServerEvidenceIsolation(t *testing.T) {
 		}
 	}
 	// Independent fields are not concatenated, nor interpreted as a proxy chain.
-	got := engine.Detect(detect.Input{Headers: http.Header{"Server": {"nginx", "Apache/2.4.62", "Caddy", "CADDY", "gunicorn", "GUNICORN", "Microsoft-IIS/10.0", "Jetty(12.0.16)", "Jetty(9.4.57.v20241219)", "Kestrel", "KESTREL", "LiteSpeed", "LiteSpeed/1.8.4 Open", "Apache Tomcat/11.0.27", "uvicorn", "UVICORN", "nginx"}}})
+	got := engine.Detect(detect.Input{Headers: http.Header{"Server": {"nginx", "Apache/2.4.62", "Caddy", "CADDY", "gunicorn", "GUNICORN", "Microsoft-IIS/10.0", "Jetty(12.0.16)", "Jetty(9.4.57.v20241219)", "Kestrel", "KESTREL", "LiteSpeed", "LiteSpeed/1.8.4 Open", "Apache Tomcat/11.0.27", "uvicorn", "UVICORN", "openresty", "openresty/1.27.1.2", "nginx"}}})
 	var ids []string
 	for _, finding := range got {
 		ids = append(ids, finding.ID)
@@ -169,7 +183,7 @@ func TestServerEvidenceIsolation(t *testing.T) {
 			t.Errorf("duplicate evidence: %+v", finding)
 		}
 	}
-	if !reflect.DeepEqual(ids, []string{"apache", "caddy", "gunicorn", "iis", "jetty", "kestrel", "litespeed", "nginx", "tomcat", "uvicorn"}) {
+	if !reflect.DeepEqual(ids, []string{"apache", "caddy", "gunicorn", "iis", "jetty", "kestrel", "litespeed", "nginx", "openresty", "tomcat", "uvicorn"}) {
 		t.Fatalf("IDs=%v, want independent server findings without language guesses", ids)
 	}
 	if got := engine.Detect(detect.Input{Headers: http.Header{"Server": {"Apache/", "2.4.62", "nginx/", "1.26.2", "Microsoft-IIS/", "10.0", "Jetty(", "12.0.16)", "Jetty(9.4.57.", "v20241219)", "Lite", "Speed", "LiteSpeed/", "1.9.3 Open", "LiteSpeed/1.9.3", "Open", "Kes", "trel", "Guni", "Uvi", "corn"}}}); len(got) != 0 {

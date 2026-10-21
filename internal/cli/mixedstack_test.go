@@ -105,6 +105,7 @@ func TestMixedStackThroughCLI(t *testing.T) {
 		{"kestrel", "Kestrel", "kEsTrEl", "Kestrel/8.0"},
 		{"litespeed", "LiteSpeed", "lItEsPeEd/1.9.3 oPeN", "LiteSpeed/1.9.3 Open-compatible"},
 		{"nginx", "nginx", "nginx/1.26.2 (Ubuntu)", "nginx/1..2"},
+		{"openresty", "OpenResty", "oPeNrEsTy/1.27.1.2", "openresty/1.27.1.2-compatible"},
 		{"tomcat", "Apache Tomcat", "Apache Tomcat/11.0.27", "Apache Tomcat/11..27"},
 		{"uvicorn", "Uvicorn", "uViCoRn", "uvicorn/0.54.0"},
 	} {

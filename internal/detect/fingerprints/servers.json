@@ -98,6 +98,17 @@
       }]
     },
     {
+      "id": "openresty",
+      "name": "OpenResty",
+      "category": "web_server",
+      "rules": [{
+        "id": "server-header",
+        "state": "detected",
+        "description": "Server header reports OpenResty; this may be an intermediary",
+        "all": [{"source": "header", "name": "Server", "pattern": "^[ \\t]*[Oo][Pp][Ee][Nn][Rr][Ee][Ss][Tt][Yy](?:/[0-9]+(?:[.][0-9]+){3})?[ \\t]*$"}]
+      }]
+    },
+    {
       "id": "tomcat",
       "name": "Apache Tomcat",
       "category": "web_server",

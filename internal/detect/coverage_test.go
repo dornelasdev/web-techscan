@@ -59,6 +59,9 @@ func TestBundledHeaderFingerprints(t *testing.T) {
 		{"litespeed", "Server", "server-header", detect.WebServer,
 			[]string{"LiteSpeed", "LITESPEED", " litespeed\t", "LiteSpeed/1.8.4 Open", "LiteSpeed/1.9.3 Open"},
 			[]string{"OpenLiteSpeed", "LiteSpeed Open", "LiteSpeed/1.9.3", "LiteSpeed/6.3.4 Enterprise", "LiteSpeed/1.9.3 Open-compatible", "LiteSpeed, nginx"}},
+		{"openresty", "Server", "server-header", detect.WebServer,
+			[]string{"openresty", "OPENRESTY", " OpenResty\t", "openresty/1.25.3.2", "openresty/1.27.1.2"},
+			[]string{"NotOpenResty", "openresty-compatible", "openresty/1.27.1", "openresty/1.27.1.unknown", "openresty/1.27.1.2 (custom)", "openresty, nginx"}},
 		{"fiber", "Server", "server-header", detect.Framework,
 			[]string{"Fiber", "FIBER", " fiber\t"},
 			[]string{"Fiber/3.0.0", "Fiber-compatible", "fasthttp", "Go", "my Fiber app"}},
@@ -83,7 +86,13 @@ func TestBundledHeaderFingerprints(t *testing.T) {
 			}
 			for _, value := range tc.negative {
 				t.Run("near-miss/"+value, func(t *testing.T) {
-					if got := engine.Detect(detect.Input{Headers: http.Header{tc.header: {value}}}); len(got) != 0 {
+					got := engine.Detect(detect.Input{Headers: http.Header{tc.header: {value}}})
+					if tc.id == "nginx" && value == "openresty/1.25.3.1" {
+						// This remains a negative for nginx, not for the whole catalog.
+						requireOpenResty(t, got)
+						return
+					}
+					if len(got) != 0 {
 						t.Fatalf("unexpected findings: %+v", got)
 					}
 				})

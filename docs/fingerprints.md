@@ -3,7 +3,7 @@
 [README](../README.md) · [Usage](usage.md) · [Policies](policies.md)
 
 Rules are embedded in the binary. Use `webscan --techs` to list its catalog.
-The development catalog contains 36 technologies across ten categories.
+The development catalog contains 37 technologies across ten categories.
 The v0.3.0 release baseline contains 23.
 
 ## Evidence
@@ -37,7 +37,7 @@ identify provenance baselines, not exhaustive version coverage. Branch links may
 
 ## Web servers
 
-Category: `web_server`. All ten have a detected `server-header` rule.
+Category: `web_server`. All eleven have a detected `server-header` rule.
 Tomcat additionally has a header rule and status-gated HTML inference.
 Caddy additionally has a standalone Via-header inference rule.
 nginx/Apache/IIS reviewed 2026-10-05; banner hardening reviewed 2026-10-07.
@@ -53,6 +53,7 @@ Jetty, Kestrel and Tomcat reviewed 2026-10-18.
 | Jetty | `Jetty(major.minor.patch)`; optional `.v` followed by eight digits inside the parentheses. |
 | Kestrel | Complete unversioned `Kestrel` token; ASCII case-insensitive. |
 | LiteSpeed | Bare `LiteSpeed`, or `LiteSpeed/major.minor.patch Open`. Family identity only. |
+| OpenResty | Bare `openresty`, or `openresty/major.minor.patch.release`; ASCII case-insensitive. |
 | Apache Tomcat | `Apache Tomcat`; optional `/major.minor.patch`. |
 | Uvicorn | Complete unversioned `uvicorn` token; ASCII case-insensitive. |
 
@@ -210,6 +211,40 @@ Reviewed 2026-10-21 against official configuration documentation and pinned sour
 [OpenLiteSpeed 1.8.4 identity](https://github.com/litespeedtech/openlitespeed/blob/v1.8.4/src/http/httpserverversion.cpp),
 [1.9.3 identity](https://github.com/litespeedtech/openlitespeed/blob/v1.9.3/src/http/httpserverversion.cpp),
 [1.9.3 response headers](https://github.com/litespeedtech/openlitespeed/blob/v1.9.3/src/http/httprespheaders.cpp).
+These are provenance baselines, not an exhaustive supported-version range.
+Own-authored rule/tests; no upstream code or fingerprint dataset imported.
+
+### OpenResty
+
+`server-header`, state `detected`: complete final-page Server value of
+`openresty` or `openresty/major.minor.patch.release`. Allow ASCII product-name
+case variations and outer spaces/tabs. Versioned banners require exactly four
+ASCII numeric components. Repeated bare/versioned values yield one rule evidence.
+Versions constrain matching but are not extracted or reported.
+
+Reviewed release assembly produces the four-part versioned identity; the nginx
+core header filter selects it when version details are enabled. With
+`server_tokens off`, the product name remains. The headers-more module can
+replace or clear Server. Removed/customized headers and intermediaries can
+cause misses; spoofed values can mislead or identify an intermediary rather
+than the hidden origin.
+
+Initially reject three/five-part versions, `.unknown`, prerelease/custom
+suffixes, build comments, combined values, internal whitespace, controls and
+Unicode lookalikes. Build-comment banners can be legitimate but are outside
+this initial rule. No fallback from HTML, cookies, other headers, redirects
+or assets; no path probes or extra requests. OpenResty does not automatically
+add nginx, Lua, LuaJIT or an application framework. Separate supported nginx
+header values can produce an independent nginx finding, without a topology claim.
+
+Reviewed 2026-10-21 against pinned sources:
+[1.25.3.2 header patch](https://github.com/openresty/openresty/blob/v1.25.3.2/patches/nginx-1.25.3-server_header.patch),
+[1.27.1.2 header patch](https://github.com/openresty/openresty/blob/v1.27.1.2/patches/nginx-1.27.1-server_header.patch),
+[1.27.1.2 release assembly](https://github.com/openresty/openresty/blob/v1.27.1.2/util/mirror-tarballs),
+[1.27.1.2 version fields](https://github.com/openresty/openresty/blob/v1.27.1.2/util/ver),
+[nginx 1.27.1 header filter](https://github.com/nginx/nginx/blob/release-1.27.1/src/http/ngx_http_header_filter_module.c),
+[server_tokens](https://nginx.org/en/docs/http/ngx_http_core_module.html#server_tokens),
+[headers-more 0.37](https://github.com/openresty/headers-more-nginx-module/tree/v0.37#description).
 These are provenance baselines, not an exhaustive supported-version range.
 Own-authored rule/tests; no upstream code or fingerprint dataset imported.
 
