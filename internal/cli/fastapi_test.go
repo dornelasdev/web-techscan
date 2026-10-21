@@ -229,7 +229,7 @@ func TestFastAPIDocumentationThroughCLI(t *testing.T) {
 				if tc.hop != "" {
 					redirects = append(redirects, output.Redirect{FromURL: server.URL + "/start?[redacted]", ToURL: server.URL + "/reference?[redacted]", StatusCode: 302})
 				}
-				if report.SchemaVersion != 1 || report.CatalogSize != 35 || !report.QueryRedacted || report.URL != server.URL+path+"?[redacted]" || report.FinalURL != server.URL+"/reference?[redacted]" || report.HTTPStatus != tc.status || report.ResponseScope != scope || report.BodyBytes != len(body) || !reflect.DeepEqual(report.Redirects, redirects) || report.Findings == nil || len(report.Findings) != len(ids) || (report.Assets != nil) != tc.assets {
+				if report.SchemaVersion != 1 || report.CatalogSize != 36 || !report.QueryRedacted || report.URL != server.URL+path+"?[redacted]" || report.FinalURL != server.URL+"/reference?[redacted]" || report.HTTPStatus != tc.status || report.ResponseScope != scope || report.BodyBytes != len(body) || !reflect.DeepEqual(report.Redirects, redirects) || report.Findings == nil || len(report.Findings) != len(ids) || (report.Assets != nil) != tc.assets {
 					t.Fatalf("unexpected metadata: %+v", report)
 				}
 				for i, id := range ids {

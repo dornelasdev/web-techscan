@@ -76,6 +76,17 @@
       }]
     },
     {
+      "id": "litespeed",
+      "name": "LiteSpeed",
+      "category": "web_server",
+      "rules": [{
+        "id": "server-header",
+        "state": "detected",
+        "description": "Server header reports the LiteSpeed family without establishing an edition; this may be an intermediary",
+        "all": [{"source": "header", "name": "Server", "pattern": "^[ \\t]*[Ll][Ii][Tt][Ee][Ss][Pp][Ee][Ee][Dd](?:/[0-9]+(?:[.][0-9]+){2}[ \\t]+[Oo][Pp][Ee][Nn])?[ \\t]*$"}]
+      }]
+    },
+    {
       "id": "nginx",
       "name": "nginx",
       "category": "web_server",

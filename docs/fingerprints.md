@@ -3,7 +3,7 @@
 [README](../README.md) · [Usage](usage.md) · [Policies](policies.md)
 
 Rules are embedded in the binary. Use `webscan --techs` to list its catalog.
-The development catalog contains 35 technologies across ten categories.
+The development catalog contains 36 technologies across ten categories.
 The v0.3.0 release baseline contains 23.
 
 ## Evidence
@@ -37,7 +37,7 @@ identify provenance baselines, not exhaustive version coverage. Branch links may
 
 ## Web servers
 
-Category: `web_server`. All nine have a detected `server-header` rule.
+Category: `web_server`. All ten have a detected `server-header` rule.
 Tomcat additionally has a header rule and status-gated HTML inference.
 Caddy additionally has a standalone Via-header inference rule.
 nginx/Apache/IIS reviewed 2026-10-05; banner hardening reviewed 2026-10-07.
@@ -52,6 +52,7 @@ Jetty, Kestrel and Tomcat reviewed 2026-10-18.
 | Gunicorn | Complete unversioned `gunicorn` token; ASCII case-insensitive. |
 | Jetty | `Jetty(major.minor.patch)`; optional `.v` followed by eight digits inside the parentheses. |
 | Kestrel | Complete unversioned `Kestrel` token; ASCII case-insensitive. |
+| LiteSpeed | Bare `LiteSpeed`, or `LiteSpeed/major.minor.patch Open`. Family identity only. |
 | Apache Tomcat | `Apache Tomcat`; optional `/major.minor.patch`. |
 | Uvicorn | Complete unversioned `uvicorn` token; ASCII case-insensitive. |
 
@@ -182,6 +183,35 @@ Reviewed 2026-10-18 against pinned 8.0.0/10.0.0 sources:
 [8.0.0 configuration](https://github.com/dotnet/aspnetcore/blob/v8.0.0/src/Servers/Kestrel/Core/src/KestrelServerOptions.cs),
 [10.0.0 configuration](https://github.com/dotnet/aspnetcore/blob/v10.0.0/src/Servers/Kestrel/Core/src/KestrelServerOptions.cs).
 These are provenance baselines, not an exhaustive supported-version range.
+
+### LiteSpeed
+
+`server-header`, state `detected`: final-page Server value of `LiteSpeed` or
+`LiteSpeed/major.minor.patch Open`. Product name and Open suffix accept ASCII
+case variations. Allow outer spaces/tabs and spaces/tabs before Open; numeric
+components use ASCII digits. Repeated bare/detailed values yield one rule evidence.
+The initial versioned form requires exactly three numeric components; other
+version formats remain unsupported. No version extraction or edition field.
+
+The bare banner does not distinguish Enterprise from OpenLiteSpeed. Reviewed
+OpenLiteSpeed sources use the bare name when details are hidden and append a
+version plus Open when shown. This catalog reports one LiteSpeed-family finding,
+not separate Enterprise/Open findings or a hidden origin's identity. Headers
+can be hidden, replaced or spoofed; absence does not establish absence of LiteSpeed.
+
+Reject standalone `OpenLiteSpeed`, `LiteSpeed Open`, version-only suffixes,
+Enterprise/custom suffixes, comments, combined values, controls and lookalikes.
+Unreviewed banners can miss. No fallback from X-Turbo-Charged-By, cache headers,
+cookies, HTML, redirects or assets. No PHP/framework/cache/WAF implications,
+probes or additional requests. Independent language/framework rules still apply.
+
+Reviewed 2026-10-21 against official configuration documentation and pinned sources:
+[Server Signature settings](https://download.litespeedtech.com/docs/webserver/config/general#showVersionNumber),
+[OpenLiteSpeed 1.8.4 identity](https://github.com/litespeedtech/openlitespeed/blob/v1.8.4/src/http/httpserverversion.cpp),
+[1.9.3 identity](https://github.com/litespeedtech/openlitespeed/blob/v1.9.3/src/http/httpserverversion.cpp),
+[1.9.3 response headers](https://github.com/litespeedtech/openlitespeed/blob/v1.9.3/src/http/httprespheaders.cpp).
+These are provenance baselines, not an exhaustive supported-version range.
+Own-authored rule/tests; no upstream code or fingerprint dataset imported.
 
 ### Apache Tomcat
 

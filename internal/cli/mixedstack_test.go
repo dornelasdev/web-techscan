@@ -103,6 +103,7 @@ func TestMixedStackThroughCLI(t *testing.T) {
 		{"iis", "Microsoft IIS", "Microsoft-IIS/10.0", "Microsoft-IIS/10..0"},
 		{"jetty", "Jetty", "Jetty(12.0.16)", "Jetty(12..16)"},
 		{"kestrel", "Kestrel", "kEsTrEl", "Kestrel/8.0"},
+		{"litespeed", "LiteSpeed", "lItEsPeEd/1.9.3 oPeN", "LiteSpeed/1.9.3 Open-compatible"},
 		{"nginx", "nginx", "nginx/1.26.2 (Ubuntu)", "nginx/1..2"},
 		{"tomcat", "Apache Tomcat", "Apache Tomcat/11.0.27", "Apache Tomcat/11..27"},
 		{"uvicorn", "Uvicorn", "uViCoRn", "uvicorn/0.54.0"},

@@ -30,6 +30,7 @@ func TestServerFrameworkSignalCombinations(t *testing.T) {
 		{"iis", "Microsoft-IIS/10.0", "Microsoft-IIS/10..0"},
 		{"jetty", "Jetty(12.0.16)", "Jetty(12..16)"},
 		{"kestrel", "Kestrel", "Kestrel/8.0"},
+		{"litespeed", "LiteSpeed/1.9.3 Open", "LiteSpeed/1.9.3 Open-compatible"},
 		{"nginx", "nginx/1.26.2 (Ubuntu)", "nginx/1..2"},
 		{"tomcat", "Apache Tomcat/11.0.27", "Apache Tomcat/11..27"},
 		{"uvicorn", "uvicorn", "uvicorn/0.54.0"},

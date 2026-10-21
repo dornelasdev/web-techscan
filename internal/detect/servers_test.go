@@ -86,6 +86,23 @@ func TestServerBannerBoundaries(t *testing.T) {
 			"Kestrel\n", "Kestrel\r\n", "Kestrel\x00", "Kestrel\x7f", "\vKestrel", "\fKestrel",
 			"\u00a0Kestrel", "Kestrel\u00a0", "Kestrel", "Keſtrel", "Ｋestrel",
 		}},
+		{"litespeed", []string{
+			"LiteSpeed", "litespeed", "LITESPEED", "\t lItEsPeEd \t",
+			"LiteSpeed/1.8.4 Open", "LiteSpeed/1.9.3 Open", "\t lItEsPeEd/1.9.3\t oPeN \t",
+		}, []string{
+			"", "Lite", "Speed", "Lite Speed", "Lite\tSpeed", "LiteSpeedOpen", "OpenLiteSpeed",
+			"LiteSpeed Open", "LiteSpeed/1.9.3", "LiteSpeed/6.3.4 Enterprise", "LiteSpeed/1.9.3 (Open)",
+			"LiteSpeed/1 Open", "LiteSpeed/1.9 Open", "LiteSpeed/1.9.0.1 Open", "LiteSpeed/1..3 Open",
+			"LiteSpeed/.9.3 Open", "LiteSpeed/1.9. Open", "LiteSpeed/1.9.3Open", "LiteSpeed /1.9.3 Open",
+			"LiteSpeed/v1.9.3 Open", "LiteSpeed/1.9.3-rc1 Open", "LiteSpeed/1.9.3 OpenSSL",
+			"LiteSpeed/1.9.3 Open-compatible", "LiteSpeed/1.9.3 Open proxy", "LiteSpeed-compatible",
+			"NotLiteSpeed", "LiteSpeedHTTP", "LiteSpeedLiteSpeed", "LiteSpeed (Unix)", "proxy LiteSpeed",
+			"LiteSpeed, nginx", "nginx, LiteSpeed", "LiteSpeed/1.9.3 Open, nginx",
+			"LiteSpeed\n", "LiteSpeed/1.9.3\nOpen", "LiteSpeed/1.9.3 Open\r\n", "LiteSpeed\x00", "LiteSpeed\x7f",
+			"\vLiteSpeed", "\fLiteSpeed", "LiteSpeed/1.9.3\vOpen", "LiteSpeed/1.9.3\fOpen",
+			"\u00a0LiteSpeed", "LiteSpeed\u00a0", "LiteSpeed/1.9.3\u00a0Open", "LiteSpeed/１.9.3 Open",
+			"ＬiteSpeed", "Liteſpeed", "LіteSpeed", "LiteSpeed/1.9.3 Оpen",
+		}},
 		{"jetty", []string{
 			"Jetty(12.0.16)", "Jetty(10.0.24)", "Jetty(11.0.24)",
 			"Jetty(9.4.57.v20241219)", "Jetty(9.4.57)", "\t jEtTy(12.0.16) \t",
@@ -129,7 +146,7 @@ func TestServerBannerBoundaries(t *testing.T) {
 
 func TestServerEvidenceIsolation(t *testing.T) {
 	engine := bundledEngine(t)
-	for _, banner := range []string{"nginx/1.26.2", "Apache/2.4.62", "Caddy", "gunicorn", "Microsoft-IIS/10.0", "Jetty(12.0.16)", "Jetty(9.4.57.v20241219)", "Kestrel", "Apache Tomcat/11.0.27", "uvicorn"} {
+	for _, banner := range []string{"nginx/1.26.2", "Apache/2.4.62", "Caddy", "gunicorn", "Microsoft-IIS/10.0", "Jetty(12.0.16)", "Jetty(9.4.57.v20241219)", "Kestrel", "LiteSpeed", "LiteSpeed/1.9.3 Open", "Apache Tomcat/11.0.27", "uvicorn"} {
 		for _, input := range []detect.Input{
 			{Headers: http.Header{"Via": {banner}, "X-Powered-By": {banner}, "X-Server": {banner}}},
 			{HTML: []byte("<footer>" + banner + "</footer>"), CookieNames: []string{banner}},
@@ -144,7 +161,7 @@ func TestServerEvidenceIsolation(t *testing.T) {
 		}
 	}
 	// Independent fields are not concatenated, nor interpreted as a proxy chain.
-	got := engine.Detect(detect.Input{Headers: http.Header{"Server": {"nginx", "Apache/2.4.62", "Caddy", "CADDY", "gunicorn", "GUNICORN", "Microsoft-IIS/10.0", "Jetty(12.0.16)", "Jetty(9.4.57.v20241219)", "Kestrel", "KESTREL", "Apache Tomcat/11.0.27", "uvicorn", "UVICORN", "nginx"}}})
+	got := engine.Detect(detect.Input{Headers: http.Header{"Server": {"nginx", "Apache/2.4.62", "Caddy", "CADDY", "gunicorn", "GUNICORN", "Microsoft-IIS/10.0", "Jetty(12.0.16)", "Jetty(9.4.57.v20241219)", "Kestrel", "KESTREL", "LiteSpeed", "LiteSpeed/1.8.4 Open", "Apache Tomcat/11.0.27", "uvicorn", "UVICORN", "nginx"}}})
 	var ids []string
 	for _, finding := range got {
 		ids = append(ids, finding.ID)
@@ -152,10 +169,10 @@ func TestServerEvidenceIsolation(t *testing.T) {
 			t.Errorf("duplicate evidence: %+v", finding)
 		}
 	}
-	if !reflect.DeepEqual(ids, []string{"apache", "caddy", "gunicorn", "iis", "jetty", "kestrel", "nginx", "tomcat", "uvicorn"}) {
+	if !reflect.DeepEqual(ids, []string{"apache", "caddy", "gunicorn", "iis", "jetty", "kestrel", "litespeed", "nginx", "tomcat", "uvicorn"}) {
 		t.Fatalf("IDs=%v, want independent server findings without language guesses", ids)
 	}
-	if got := engine.Detect(detect.Input{Headers: http.Header{"Server": {"Apache/", "2.4.62", "nginx/", "1.26.2", "Microsoft-IIS/", "10.0", "Jetty(", "12.0.16)", "Jetty(9.4.57.", "v20241219)", "Kes", "trel", "Guni", "Uvi", "corn"}}}); len(got) != 0 {
+	if got := engine.Detect(detect.Input{Headers: http.Header{"Server": {"Apache/", "2.4.62", "nginx/", "1.26.2", "Microsoft-IIS/", "10.0", "Jetty(", "12.0.16)", "Jetty(9.4.57.", "v20241219)", "Lite", "Speed", "LiteSpeed/", "1.9.3 Open", "LiteSpeed/1.9.3", "Open", "Kes", "trel", "Guni", "Uvi", "corn"}}}); len(got) != 0 {
 		t.Errorf("split values combined into findings: %+v", got)
 	}
 }

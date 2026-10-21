@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Added LiteSpeed-family Server-header detection for the bare identity and the
+  reviewed three-part-version-plus-Open form. No edition, language, framework,
+  cache or WAF inference, version reporting, or additional requests.
 - Added Uvicorn and Gunicorn detection from complete, unversioned final-page
   Server headers. No Python/framework implications, version reporting, or
   additional requests.
@@ -38,7 +41,7 @@
   fingerprints, and negotiated HTML with separate JS/CSS asset evidence.
 - Expanded combined Caddy/Fiber/FastAPI/Uvicorn/Gunicorn regressions, including
   page findings preserved through asset failures and redirect/asset isolation.
-- The development catalog contains 35 technologies across ten categories.
+- The development catalog contains 36 technologies across ten categories.
 
 ## v0.3.0 — 2026-10-16
 
