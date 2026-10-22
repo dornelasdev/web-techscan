@@ -22,6 +22,47 @@
           ]
         }
       ]
+    },
+    {
+      "id": "tailwindcss",
+      "name": "Tailwind CSS",
+      "category": "ui_framework",
+      "rules": [
+        {
+          "id": "asset-css-v3-banner-and-preflight",
+          "state": "inferred",
+          "description": "Tailwind banner and generated preflight content declaration suggest Tailwind CSS",
+          "all": [
+            {
+              "source": "asset_css",
+              "pattern": "/\\*!\\s*tailwindcss\\s+v3\\.4\\.[0-9]+\\s+\\|\\s+MIT License\\s+\\|\\s+https://tailwindcss\\.com\\s*\\*/"
+            },
+            {
+              "source": "asset_css",
+              "pattern": "(?:^|[{}]|\\*/)\\s*(?:::?before\\s*,\\s*::?after|::?after\\s*,\\s*::?before)\\s*\\{\\s*--tw-content\\s*:\\s*(?:\"\"|'')\\s*;?\\s*\\}"
+            }
+          ]
+        },
+        {
+          "id": "asset-css-v4-banner-and-translate",
+          "state": "inferred",
+          "description": "Tailwind banner and generated translate property registration/declaration/usage suggest Tailwind CSS",
+          "all": [
+            {
+              "source": "asset_css",
+              "pattern": "/\\*!\\s*tailwindcss\\s+v4\\.1\\.[0-9]+\\s+\\|\\s+MIT License\\s+\\|\\s+https://tailwindcss\\.com\\s*\\*/"
+            },
+            {
+              "source": "asset_css",
+              "pattern": "(?:^|[{}]|\\*/)\\s*@property\\s+--tw-translate-x\\s*\\{\\s*syntax\\s*:\\s*(?:\"\\*\"|'\\*')\\s*;\\s*inherits\\s*:\\s*false\\s*;\\s*initial-value\\s*:\\s*0\\s*;?\\s*\\}"
+            },
+            {
+              "source": "asset_css",
+              "pattern": "(?:^|[{}]|\\*/)\\s*[^{};]+\\{\\s*(?:[^{}]*;\\s*)?--tw-translate-x\\s*:\\s*[^;{}\\s][^;{}]*;\\s*(?:[^{}]*;\\s*)?translate\\s*:\\s*var\\(\\s*--tw-translate-x\\s*\\)\\s+var\\(\\s*--tw-translate-y\\s*\\)\\s*(?:;[^{}]*)?\\}"
+            }
+          ]
+        }
+      ]
     }
   ]
 }

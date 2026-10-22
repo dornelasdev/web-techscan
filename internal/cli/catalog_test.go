@@ -73,8 +73,8 @@ func TestTechsCatalogOffline(t *testing.T) {
 				if !strings.Contains(stdout.String(), "JavaScript frameworks\n    Angular\n    React\n    Vue\n  JavaScript libraries\n    jQuery\n  UI frameworks\n") {
 					t.Error("Angular, React and Vue must be ordered under JavaScript frameworks")
 				}
-				if !strings.Contains(stdout.String(), "\n  UI frameworks\n    Bootstrap\n") {
-					t.Error("Bootstrap must appear under UI frameworks")
+				if !strings.Contains(stdout.String(), "\n  UI frameworks\n    Bootstrap\n    Tailwind CSS\n") {
+					t.Error("Bootstrap and Tailwind CSS must be alphabetically ordered under UI frameworks")
 				}
 				if !strings.Contains(stdout.String(), "\n  Languages\n    PHP\n    Python\n    Ruby\n") {
 					t.Error("direct and inference-only languages must appear in alphabetical order")
@@ -152,6 +152,9 @@ func TestTechsCatalogOffline(t *testing.T) {
 			}
 			if got := byID["bootstrap"]; got.Name != "Bootstrap" || got.Category != "ui_framework" {
 				t.Errorf("missing or incorrect Bootstrap metadata: %+v", got)
+			}
+			if got := byID["tailwindcss"]; got.Name != "Tailwind CSS" || got.Category != "ui_framework" {
+				t.Errorf("missing or incorrect Tailwind CSS metadata: %+v", got)
 			}
 			if got := byID["jquery"]; got.Name != "jQuery" || got.Category != "javascript_library" {
 				t.Errorf("missing or incorrect jQuery metadata: %+v", got)

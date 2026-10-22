@@ -3,7 +3,7 @@
 [README](../README.md) · [Usage](usage.md) · [Policies](policies.md)
 
 Rules are embedded in the binary. Use `webscan --techs` to list its catalog.
-The development catalog contains 37 technologies across ten categories.
+The development catalog contains 38 technologies across ten categories.
 The v0.3.0 release baseline contains 23.
 
 ## Evidence
@@ -821,6 +821,42 @@ Reviewed 2026-10-10. Sources:
 [button variables](https://getbootstrap.com/docs/5.3/components/buttons/#variables),
 [prefix customization](https://getbootstrap.com/docs/5.3/customize/css-variables/#prefix),
 [MIT license](https://github.com/twbs/bootstrap/blob/v5.3.3/LICENSE).
+
+### Tailwind CSS
+
+Category: `ui_framework`. State: `inferred`. Requires `--assets` and all markers
+for either rule in one accepted CSS capture:
+
+| Rule | Required markers |
+| --- | --- |
+| `asset-css-v3-banner-and-preflight` | Closed official-shaped `/*! tailwindcss v3.4.x \| MIT License \| https://tailwindcss.com */` banner plus a closed before/after pseudo-element rule declaring empty `--tw-content`. |
+| `asset-css-v4-banner-and-translate` | Corresponding stable `v4.1.x` banner; closed `@property --tw-translate-x` registration with `syntax: "*"`, `inherits: false`, `initial-value: 0`; and a closed rule declaring `--tw-translate-x` before `translate: var(--tw-translate-x) var(--tw-translate-y)`. |
+
+Matching is case-sensitive. Allow whitespace and empty single/double quotes in
+v3 preflight; both pseudo-element selector orders and single/double colons are
+supported. The v3 block contains only the empty content declaration. The v4
+registration retains the listed declaration order; translate blocks allow other
+declarations and custom translation values. Final semicolons are optional.
+
+Banner-only, class names, filenames, generic utility CSS, bare `--tw-` prefixes,
+inline styles, JavaScript bodies, split-file markers and mismatched banner/rule
+families do not suffice. Neither rule establishes applied styles, execution,
+backend technology, Radix UI or shadcn/ui use. No versions are reported.
+
+Initial baselines are upstream v3.4.17 preflight/banner generation and v4.1.0
+compiler snapshots, not every build in either family. Stripped/changed banners,
+prereleases, other version families, custom serialization/identifiers, disabled
+preflight in v3, and absence of the selected translate output in v4 can miss.
+Off-origin, imported-only, failed, incomplete and over-budget styles are not
+inspected. Copied/commented CSS or forks retaining the markers can match.
+
+Reviewed 2026-10-22. Own-authored rules and minimal synthetic fixtures; no
+upstream distribution or third-party fingerprint dataset imported. Sources:
+[v3.4.17 preflight](https://github.com/tailwindlabs/tailwindcss/blob/v3.4.17/src/css/preflight.css),
+[v3.4.17 banner generation](https://github.com/tailwindlabs/tailwindcss/blob/v3.4.17/src/corePlugins.js),
+[v4.1.0 compiler/banner](https://github.com/tailwindlabs/tailwindcss/blob/v4.1.0/packages/tailwindcss/src/index.ts),
+[v4.1.0 compiled translate snapshots](https://github.com/tailwindlabs/tailwindcss/blob/v4.1.0/packages/tailwindcss/src/index.test.ts),
+[v3.4.17 MIT license](https://github.com/tailwindlabs/tailwindcss/blob/v3.4.17/LICENSE).
 
 ## CMSs
 

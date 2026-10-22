@@ -41,7 +41,7 @@ framework in findings and JavaScript frameworks in the catalog.
 JavaScript libraries in the catalog. jQuery content evidence remains inferred;
 it does not establish execution or report a version.
 `ui_framework` is displayed as UI framework in findings and UI frameworks in the
-catalog. Bootstrap CSS evidence remains inferred, not proof of applied styles.
+catalog. Bootstrap and Tailwind CSS evidence remains inferred, not proof of applied styles.
 `cdn` is displayed as CDN/edge. It describes identifying edge-provider evidence,
 not enabled security services, cache behavior, or the hidden origin's identity.
 `load_balancer` is displayed as `load balancer` in findings and Load balancers
@@ -112,7 +112,8 @@ those structures does not implicitly change the public JSON shape.
 Captured bodies contribute through supported asset rules
 (`mode: fingerprint_inspection`).
 Production asset rules cover Next.js JS manifests, React client/ReactDOM, Vue,
-Angular component-runtime shapes, jQuery core indicators and Bootstrap CSS.
+Angular component-runtime shapes, jQuery core indicators, Bootstrap CSS and
+Tailwind CSS build markers.
 Collection completeness is not detection coverage.
 Asset failures do not change successful page scans to exit 1; consumers needing
 all selected assets must check the collection status and individual items.

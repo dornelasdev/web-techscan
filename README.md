@@ -37,7 +37,7 @@ guarantees. Missing findings do not establish that a technology is absent.
 
 ## Coverage
 
-The development catalog includes 37 technologies across ten categories:
+The development catalog includes 38 technologies across ten categories:
 web frameworks, JavaScript frameworks, JavaScript libraries, UI frameworks, CMSs,
 languages, web servers, CDN/edge providers, load balancers, and WAFs.
 `--techs` organizes these under Web development and Infrastructure.
@@ -47,7 +47,8 @@ they are not independent language detections.
 Default scans inspect the final response. `--assets` also inspects bounded,
 directly referenced same-origin JS/CSS. Asset rules currently cover Next.js
 manifests, React client/ReactDOM runtime markers, Vue 3-shaped renderer markers,
-Angular component-runtime markers, jQuery core-runtime indicators, and Bootstrap CSS.
+Angular component-runtime markers, jQuery core-runtime indicators, Bootstrap CSS,
+and conservative Tailwind CSS build markers.
 
 There is no crawling, JavaScript execution, version extraction, bulk scanning,
 or vulnerability testing. Findings describe exposed signals; intermediaries

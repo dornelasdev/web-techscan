@@ -172,6 +172,8 @@ contracts. Combined frontend checks include Angular HTML/JS and React
 client/ReactDOM evidence, split indicators and oversized captures.
 jQuery checks include core-indicator pairs, plugin-style decoys, source isolation,
 gzip, incomplete/oversized captures and evidence URL redaction.
+Tailwind CSS checks cover v3.4/v4.1-shaped marker combinations, near misses,
+same-file/source isolation, failed captures, redirects and evidence provenance.
 Passing fixtures are not a measurement of real-world detection accuracy.
 
 Optional checks, after building to create `bin/`:

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Added initial Tailwind CSS inference from paired v3.4-shaped banner/preflight
+  or v4.1-shaped banner/translate CSS markers in one accepted stylesheet.
+  Requires `--assets`; no class-name fallback, version reporting, Radix/shadcn
+  implications, or collection-policy changes.
 - Added OpenResty Server-header detection for its bare identity or a four-part
   numeric version. No automatic nginx/Lua/LuaJIT implications, version reporting,
   or additional requests.
@@ -44,7 +48,7 @@
   fingerprints, and negotiated HTML with separate JS/CSS asset evidence.
 - Expanded combined Caddy/Fiber/FastAPI/Uvicorn/Gunicorn regressions, including
   page findings preserved through asset failures and redirect/asset isolation.
-- The development catalog contains 37 technologies across ten categories.
+- The development catalog contains 38 technologies across ten categories.
 
 ## v0.3.0 — 2026-10-16
 

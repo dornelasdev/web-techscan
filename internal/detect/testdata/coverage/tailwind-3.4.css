@@ -1,0 +1,6 @@
+/* Minimal authored detection scaffold; not an upstream distribution. */
+/*! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */
+::before,
+::after {
+  --tw-content: '';
+}
