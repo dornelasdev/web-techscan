@@ -174,6 +174,8 @@ jQuery checks include core-indicator pairs, plugin-style decoys, source isolatio
 gzip, incomplete/oversized captures and evidence URL redaction.
 Tailwind CSS checks cover v3.4/v4.1-shaped marker combinations, near misses,
 same-file/source isolation, failed captures, redirects and evidence provenance.
+Radix UI checks cover Popover/Tooltip mapping trios, same-object/file/source
+isolation, partial/mixed mappings, independent CSS findings and optional failures.
 Passing fixtures are not a measurement of real-world detection accuracy.
 
 Optional checks, after building to create `bin/`:

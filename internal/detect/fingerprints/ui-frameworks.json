@@ -63,6 +63,35 @@
           ]
         }
       ]
+    },
+    {
+      "id": "radix-ui",
+      "name": "Radix UI",
+      "category": "ui_framework",
+      "rules": [
+        {
+          "id": "asset-popover-style-mappings",
+          "state": "inferred",
+          "description": "Radix popover transform-origin and available-size variable mappings suggest Radix UI",
+          "all": [
+            {
+              "source": "asset_javascript",
+              "pattern": "\\{\\s*(?:[^{}]*,\\s*)?(?:\"--radix-popover-content-transform-origin\"|'--radix-popover-content-transform-origin')\\s*:\\s*(?:\"var\\(--radix-popper-transform-origin\\)\"|'var\\(--radix-popper-transform-origin\\)')\\s*,\\s*(?:\"--radix-popover-content-available-width\"|'--radix-popover-content-available-width')\\s*:\\s*(?:\"var\\(--radix-popper-available-width\\)\"|'var\\(--radix-popper-available-width\\)')\\s*,\\s*(?:\"--radix-popover-content-available-height\"|'--radix-popover-content-available-height')\\s*:\\s*(?:\"var\\(--radix-popper-available-height\\)\"|'var\\(--radix-popper-available-height\\)')\\s*(?:,[^{}]*)?\\}"
+            }
+          ]
+        },
+        {
+          "id": "asset-tooltip-style-mappings",
+          "state": "inferred",
+          "description": "Radix tooltip transform-origin and available-size variable mappings suggest Radix UI",
+          "all": [
+            {
+              "source": "asset_javascript",
+              "pattern": "\\{\\s*(?:[^{}]*,\\s*)?(?:\"--radix-tooltip-content-transform-origin\"|'--radix-tooltip-content-transform-origin')\\s*:\\s*(?:\"var\\(--radix-popper-transform-origin\\)\"|'var\\(--radix-popper-transform-origin\\)')\\s*,\\s*(?:\"--radix-tooltip-content-available-width\"|'--radix-tooltip-content-available-width')\\s*:\\s*(?:\"var\\(--radix-popper-available-width\\)\"|'var\\(--radix-popper-available-width\\)')\\s*,\\s*(?:\"--radix-tooltip-content-available-height\"|'--radix-tooltip-content-available-height')\\s*:\\s*(?:\"var\\(--radix-popper-available-height\\)\"|'var\\(--radix-popper-available-height\\)')\\s*(?:,[^{}]*)?\\}"
+            }
+          ]
+        }
+      ]
     }
   ]
 }

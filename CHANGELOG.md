@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Added initial Radix UI inference from Popover or Tooltip variable-mapping
+  objects in an accepted JavaScript capture. Requires `--assets`; no generic
+  attribute/prefix fallback, version reporting, React/Tailwind/shadcn implications,
+  or collection-policy changes.
 - Added initial Tailwind CSS inference from paired v3.4-shaped banner/preflight
   or v4.1-shaped banner/translate CSS markers in one accepted stylesheet.
   Requires `--assets`; no class-name fallback, version reporting, Radix/shadcn
@@ -48,7 +52,7 @@
   fingerprints, and negotiated HTML with separate JS/CSS asset evidence.
 - Expanded combined Caddy/Fiber/FastAPI/Uvicorn/Gunicorn regressions, including
   page findings preserved through asset failures and redirect/asset isolation.
-- The development catalog contains 38 technologies across ten categories.
+- The development catalog contains 39 technologies across ten categories.
 
 ## v0.3.0 — 2026-10-16
 

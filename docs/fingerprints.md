@@ -3,7 +3,7 @@
 [README](../README.md) · [Usage](usage.md) · [Policies](policies.md)
 
 Rules are embedded in the binary. Use `webscan --techs` to list its catalog.
-The development catalog contains 38 technologies across ten categories.
+The development catalog contains 39 technologies across ten categories.
 The v0.3.0 release baseline contains 23.
 
 ## Evidence
@@ -821,6 +821,56 @@ Reviewed 2026-10-10. Sources:
 [button variables](https://getbootstrap.com/docs/5.3/components/buttons/#variables),
 [prefix customization](https://getbootstrap.com/docs/5.3/customize/css-variables/#prefix),
 [MIT license](https://github.com/twbs/bootstrap/blob/v5.3.3/LICENSE).
+
+### Radix UI
+
+Category: `ui_framework`. State: `inferred`. Requires `--assets`.
+
+| Rule | Component namespace |
+| --- | --- |
+| `asset-popover-style-mappings` | `--radix-popover-content-` |
+| `asset-tooltip-style-mappings` | `--radix-tooltip-content-` |
+
+Either rule requires three consecutive quoted key/value mappings, in this order,
+in one closed flat object in one accepted JavaScript capture:
+
+| Component key suffix | Exact string value |
+| --- | --- |
+| `transform-origin` | `var(--radix-popper-transform-origin)` |
+| `available-width` | `var(--radix-popper-available-width)` |
+| `available-height` | `var(--radix-popper-available-height)` |
+
+Allow JavaScript whitespace, single/double quoted keys and values, other flat
+properties before/after the trio, and a trailing comma. Matching is case-sensitive;
+the quoted variable-reference values must retain their exact spelling. Each rule
+uses one compound matcher and records one `asset_javascript` signal. Both rules
+and separate matching URLs retain independent evidence under one Radix finding.
+
+Generic `data-state`/ARIA attributes, component names, imports, filenames, CSS
+variable prefixes or consumption alone do not suffice. Neither do partial/mixed
+component mappings, split objects/files, CSS captures or inline page scripts.
+No automatic React, Tailwind, Radix Themes, shadcn/ui, version or backend finding.
+
+Baselines are the published Popover 1.1.14/1.1.15 and Tooltip 1.2.8 ESM package
+builds, not verified real-site minified bundles or whole-version-family coverage.
+The rule observes raw object-shaped text, not JS syntax, object identity, execution
+or applied styles. Copied/commented code and forks retaining the mappings can
+match. Changed/reordered/interleaved mappings, escapes, computed keys, template
+strings or nested braces within the selected flat object can miss. Comments
+between required tokens and CSS whitespace inside the quoted values are not
+supported. Components without these mappings do not establish Radix via this rule.
+Lazy/import-only, off-origin, failed, incomplete and over-budget chunks can miss;
+the collector does not follow the module graph or execute UI interactions.
+HTML and CSS fingerprints remain deferred.
+
+Reviewed 2026-10-22. Own-authored rules and minimal synthetic fixtures; no package
+bundle or external fingerprint dataset imported. Sources:
+[Popover 1.1.14](https://unpkg.com/@radix-ui/react-popover@1.1.14/dist/index.mjs),
+[Popover 1.1.15](https://unpkg.com/@radix-ui/react-popover@1.1.15/dist/index.mjs),
+[Tooltip 1.2.8](https://unpkg.com/@radix-ui/react-tooltip@1.2.8/dist/index.mjs),
+[styling](https://www.radix-ui.com/primitives/docs/guides/styling),
+[server-side rendering](https://www.radix-ui.com/primitives/docs/guides/server-side-rendering),
+[MIT license](https://unpkg.com/@radix-ui/react-popover@1.1.15/LICENSE).
 
 ### Tailwind CSS
 
