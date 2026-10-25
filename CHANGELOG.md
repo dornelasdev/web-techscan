@@ -55,6 +55,8 @@
   fingerprints, and negotiated HTML with separate JS/CSS asset evidence.
 - Expanded combined Caddy/Fiber/FastAPI/Uvicorn/Gunicorn regressions, including
   page findings preserved through asset failures and redirect/asset isolation.
+- Added combined Bootstrap/Tailwind/Radix/shadcn regressions for shared/separate
+  assets, partial evidence, optional failures and copy-safe report provenance.
 - The development catalog contains 40 technologies across ten categories.
 
 ## v0.3.0 — 2026-10-16

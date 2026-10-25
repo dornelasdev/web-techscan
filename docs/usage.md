@@ -178,6 +178,8 @@ Radix UI checks cover Popover/Tooltip mapping trios, same-object/file/source
 isolation, partial/mixed mappings, independent CSS findings and optional failures.
 shadcn/ui checks cover paired Sidebar HTML groups, same-tag/style boundaries,
 redirect/asset isolation and independent Radix/Tailwind findings.
+Combined UI checks include Bootstrap, shared/separate stylesheets, failed captures,
+multiple rule/URL records and report-copy/redaction preservation.
 Passing fixtures are not a measurement of real-world detection accuracy.
 
 Optional checks, after building to create `bin/`:

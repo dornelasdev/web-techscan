@@ -18,6 +18,7 @@ func TestMixedAssetRedactionCopiesAllProvenance(t *testing.T) {
 	jsURL := "https://example.test/script?private-js=1"
 	domURL := "https://example.test/renderer%3Fname?private-dom=1"
 	angularURL := "https://example.test/component?private-angular=1"
+	tailwindURL := "https://example.test/tailwind%3Fname?private-tailwind=1"
 	findings := []detect.Finding{
 		{ID: "bootstrap", Name: "Bootstrap", Category: detect.UIFramework, State: detect.Inferred,
 			Evidence: []detect.Evidence{{RuleID: "asset-css-banner-and-buttons", Description: "CSS evidence", AssetURL: cssURL, Signals: []detect.Signal{{Source: detect.AssetCSS}}}}},
@@ -44,21 +45,36 @@ func TestMixedAssetRedactionCopiesAllProvenance(t *testing.T) {
 				{RuleID: "asset-component-runtime", Description: "Angular runtime evidence", AssetURL: angularURL, Signals: []detect.Signal{{Source: detect.AssetJavaScript}, {Source: detect.AssetJavaScript}, {Source: detect.AssetJavaScript}}},
 				{RuleID: "server-host-attributes", Description: "Angular host evidence", Signals: []detect.Signal{{Source: detect.HTML}}},
 			}},
+		{ID: "tailwindcss", Name: "Tailwind CSS", Category: detect.UIFramework, State: detect.Inferred,
+			Evidence: []detect.Evidence{
+				{RuleID: "asset-css-v3-banner-and-preflight", Description: "Shared CSS evidence", AssetURL: cssURL, Signals: []detect.Signal{{Source: detect.AssetCSS}, {Source: detect.AssetCSS}}},
+				{RuleID: "asset-css-v4-banner-and-translate", Description: "Second CSS rule", AssetURL: cssURL, Signals: []detect.Signal{{Source: detect.AssetCSS}, {Source: detect.AssetCSS}, {Source: detect.AssetCSS}}},
+				{RuleID: "asset-css-v4-banner-and-translate", Description: "Separate CSS capture", AssetURL: tailwindURL, Signals: []detect.Signal{{Source: detect.AssetCSS}, {Source: detect.AssetCSS}, {Source: detect.AssetCSS}}},
+			}},
+		{ID: "radix-ui", Name: "Radix UI", Category: detect.UIFramework, State: detect.Inferred,
+			Evidence: []detect.Evidence{
+				{RuleID: "asset-popover-style-mappings", Description: "Popover evidence", AssetURL: jsURL, Signals: []detect.Signal{{Source: detect.AssetJavaScript}}},
+				{RuleID: "asset-popover-style-mappings", Description: "Separate Popover capture", AssetURL: domURL, Signals: []detect.Signal{{Source: detect.AssetJavaScript}}},
+				{RuleID: "asset-tooltip-style-mappings", Description: "Tooltip evidence", AssetURL: domURL, Signals: []detect.Signal{{Source: detect.AssetJavaScript}}},
+			}},
+		{ID: "shadcn-ui", Name: "shadcn/ui", Category: detect.UIFramework, State: detect.Inferred,
+			Evidence: []detect.Evidence{{RuleID: "sidebar-html", Description: "Sidebar page evidence", Signals: []detect.Signal{{Source: detect.HTML}, {Source: detect.HTML}, {Source: detect.HTML}}}}},
 	}
 	// Synthetic catalog metadata, independent of the bundled catalog total.
 	report := output.NewReport(fetch.Snapshot{OriginalURL: "https://example.test/", FinalURL: "https://example.test/"}, findings, len(findings))
-	report.Assets = output.NewAssetReport(assets.Collection{Budget: outputBudget(t, "standard"), Status: "complete", Attempted: 4, Collected: 4, Items: []assets.Item{
+	report.Assets = output.NewAssetReport(assets.Collection{Budget: outputBudget(t, "standard"), Status: "complete", Attempted: 5, Collected: 5, Items: []assets.Item{
 		{Reference: assets.Reference{URL: cssURL, Kind: assets.Stylesheet}, Status: "collected"},
 		{Reference: assets.Reference{URL: jsURL, Kind: assets.JavaScript}, Status: "collected"},
 		{Reference: assets.Reference{URL: domURL, Kind: assets.JavaScript}, Status: "collected"},
 		{Reference: assets.Reference{URL: angularURL, Kind: assets.JavaScript}, Status: "collected"},
+		{Reference: assets.Reference{URL: tailwindURL, Kind: assets.Stylesheet}, Status: "collected"},
 	}})
 	before, err := json.Marshal(report)
 	if err != nil {
 		t.Fatal(err)
 	}
 	redacted := report.RedactQueries()
-	wantURLs := []string{"https://example.test/style%3Fname?[redacted]", "https://example.test/script?[redacted]", "https://example.test/renderer%3Fname?[redacted]", "https://example.test/component?[redacted]"}
+	wantURLs := []string{"https://example.test/style%3Fname?[redacted]", "https://example.test/script?[redacted]", "https://example.test/renderer%3Fname?[redacted]", "https://example.test/component?[redacted]", "https://example.test/tailwind%3Fname?[redacted]"}
 	for i, want := range wantURLs {
 		if redacted.Assets.Items[i].URL != want {
 			t.Fatalf("redacted report=%+v", redacted)
@@ -89,8 +105,8 @@ func TestMixedAssetRedactionCopiesAllProvenance(t *testing.T) {
 			t.Fatalf("runtime provenance changed: %+v", redacted.Findings[index])
 		}
 	}
-	if !reflect.DeepEqual(redacted.Findings[2], report.Findings[2]) {
-		t.Fatal("redaction changed Nuxt page evidence")
+	if !reflect.DeepEqual(redacted.Findings[2], report.Findings[2]) || !reflect.DeepEqual(redacted.Findings[8], report.Findings[8]) || redacted.Findings[8].Evidence[0].AssetURL != "" {
+		t.Fatal("redaction changed Nuxt or shadcn page evidence")
 	}
 	var encoded bytes.Buffer
 	if err := output.JSON(&encoded, redacted); err != nil {
@@ -120,7 +136,7 @@ func TestMixedAssetRedactionCopiesAllProvenance(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !bytes.Equal(before, after) || findings[0].Evidence[0].AssetURL != cssURL || findings[1].Evidence[0].AssetURL != jsURL || findings[3].Evidence[0].AssetURL != jsURL || findings[3].Evidence[2].AssetURL != domURL || findings[4].Evidence[0].AssetURL != jsURL || findings[5].Evidence[0].AssetURL != angularURL {
+	if !bytes.Equal(before, after) || findings[0].Evidence[0].AssetURL != cssURL || findings[1].Evidence[0].AssetURL != jsURL || findings[3].Evidence[0].AssetURL != jsURL || findings[3].Evidence[2].AssetURL != domURL || findings[4].Evidence[0].AssetURL != jsURL || findings[5].Evidence[0].AssetURL != angularURL || findings[6].Evidence[2].AssetURL != tailwindURL || findings[7].Evidence[1].AssetURL != domURL || findings[8].Evidence[0].AssetURL != "" {
 		t.Fatal("redaction shares source provenance")
 	}
 }
