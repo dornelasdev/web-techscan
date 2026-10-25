@@ -37,14 +37,15 @@ guarantees. Missing findings do not establish that a technology is absent.
 
 ## Coverage
 
-The development catalog includes 39 technologies across ten categories:
+The development catalog includes 40 technologies across ten categories:
 web frameworks, JavaScript frameworks, JavaScript libraries, UI frameworks, CMSs,
 languages, web servers, CDN/edge providers, load balancers, and WAFs.
 `--techs` organizes these under Web development and Infrastructure.
 Python and Ruby are inferred from Django and Rails findings, respectively;
 they are not independent language detections.
 
-Default scans inspect the final response. `--assets` also inspects bounded,
+Default scans inspect the final response, including narrow shadcn/ui Sidebar
+HTML inference. `--assets` also inspects bounded,
 directly referenced same-origin JS/CSS. Asset rules currently cover Next.js
 manifests, React client/ReactDOM runtime markers, Vue 3-shaped renderer markers,
 Angular component-runtime markers, jQuery core-runtime indicators, Radix UI

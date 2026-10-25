@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Added inferred shadcn/ui-derived Sidebar identification from three paired
+  final-page HTML groups. No `--assets` requirement, generic button/card fallback,
+  cookie matching, Tailwind/Radix implications, version reporting or extra requests.
 - Added initial Radix UI inference from Popover or Tooltip variable-mapping
   objects in an accepted JavaScript capture. Requires `--assets`; no generic
   attribute/prefix fallback, version reporting, React/Tailwind/shadcn implications,
@@ -52,7 +55,7 @@
   fingerprints, and negotiated HTML with separate JS/CSS asset evidence.
 - Expanded combined Caddy/Fiber/FastAPI/Uvicorn/Gunicorn regressions, including
   page findings preserved through asset failures and redirect/asset isolation.
-- The development catalog contains 39 technologies across ten categories.
+- The development catalog contains 40 technologies across ten categories.
 
 ## v0.3.0 — 2026-10-16
 

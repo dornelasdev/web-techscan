@@ -3,7 +3,7 @@
 [README](../README.md) · [Usage](usage.md) · [Policies](policies.md)
 
 Rules are embedded in the binary. Use `webscan --techs` to list its catalog.
-The development catalog contains 39 technologies across ten categories.
+The development catalog contains 40 technologies across ten categories.
 The v0.3.0 release baseline contains 23.
 
 ## Evidence
@@ -871,6 +871,48 @@ bundle or external fingerprint dataset imported. Sources:
 [styling](https://www.radix-ui.com/primitives/docs/guides/styling),
 [server-side rendering](https://www.radix-ui.com/primitives/docs/guides/server-side-rendering),
 [MIT license](https://unpkg.com/@radix-ui/react-popover@1.1.15/LICENSE).
+
+### shadcn/ui
+
+Category: `ui_framework`. Rule: `sidebar-html`. State: `inferred`.
+Requires all three groups in final-page HTML; `--assets` is not required:
+
+| Group | Required attributes on one complete opening tag |
+| --- | --- |
+| Wrapper | Quoted `data-slot="sidebar-wrapper"` plus one quoted `style` attribute declaring nonempty `--sidebar-width` and `--sidebar-width-icon` values. |
+| Inner | Quoted `data-slot="sidebar-inner"` and `data-sidebar="sidebar"`. |
+| Menu | Quoted `data-slot="sidebar-menu"` and `data-sidebar="menu"`. |
+
+Allow either attribute order, single/double quotes, ASCII-case HTML tag/attribute
+names, other attributes and custom tag names. Slot/sidebar values and CSS property
+names are case-sensitive. Wrapper declarations may appear in either order, with
+other unquoted CSS declarations and custom values such as `calc(...)` or `var(...)`.
+Final semicolons are optional; the two declarations must have a semicolon between
+them and remain in one style attribute. Quoted CSS values and braces inside that
+style attribute are outside this initial shape.
+
+Each group records one HTML signal. Groups may appear in any order; raw matching
+does not establish DOM ancestry, resolve duplicate attributes, validate CSS values
+or prove component execution. Copied/commented markup or derived components can
+match. Evidence identifies a shadcn/ui-derived Sidebar shape, not use of its CLI,
+a particular release, or the rest of its component catalog.
+
+Generic `data-slot="button"`/`"card"`, Tailwind/Radix co-occurrence, a sidebar cookie,
+CSS variable names alone, split tags/attributes, redirect hops and asset bodies
+cannot complete the rule. No automatic React, Tailwind, Radix, Base UI, backend or
+version findings. Older/customized Sidebars, omitted menu/inner groups, encoded or
+unquoted target values, non-HTML responses and client-only markup can miss. JS/CSS
+fingerprints and browser execution remain outside this checkpoint.
+
+Reviewed 2026-10-25 against revision `617134d5810bba521803b3ed787190bacbb80b35`.
+Source-based baseline, not live-site validation. Own-authored rule and minimal
+synthetic fixture; no upstream component distribution or fingerprint dataset imported.
+Sources:
+[legacy Sidebar](https://github.com/shadcn-ui/ui/blob/617134d5810bba521803b3ed787190bacbb80b35/apps/v4/registry/new-york-v4/ui/sidebar.tsx),
+[Base UI Sidebar](https://github.com/shadcn-ui/ui/blob/617134d5810bba521803b3ed787190bacbb80b35/apps/v4/registry/bases/base/ui/sidebar.tsx),
+[Radix Sidebar](https://github.com/shadcn-ui/ui/blob/617134d5810bba521803b3ed787190bacbb80b35/apps/v4/registry/bases/radix/ui/sidebar.tsx),
+[editable component distribution](https://ui.shadcn.com/docs),
+[Sidebar reference](https://ui.shadcn.com/docs/components/base/sidebar).
 
 ### Tailwind CSS
 

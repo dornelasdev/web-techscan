@@ -176,6 +176,8 @@ Tailwind CSS checks cover v3.4/v4.1-shaped marker combinations, near misses,
 same-file/source isolation, failed captures, redirects and evidence provenance.
 Radix UI checks cover Popover/Tooltip mapping trios, same-object/file/source
 isolation, partial/mixed mappings, independent CSS findings and optional failures.
+shadcn/ui checks cover paired Sidebar HTML groups, same-tag/style boundaries,
+redirect/asset isolation and independent Radix/Tailwind findings.
 Passing fixtures are not a measurement of real-world detection accuracy.
 
 Optional checks, after building to create `bin/`:
@@ -214,6 +216,7 @@ After building, run in another terminal:
 | `rails-csrf.html` | Inferred Ruby on Rails and Ruby. |
 | `django-csrf.html` | No Django or Python finding; the server supplies no csrftoken cookie. |
 | `aspnet-core-antiforgery.html` | No ASP.NET Core finding; the server supplies no antiforgery cookie. |
+| `shadcn-sidebar.html` | Inferred shadcn/ui-derived Sidebar; no automatic Tailwind or Radix finding. |
 | `fastapi-swagger.html`, `fastapi-redoc.html` | Inferred FastAPI, without Python. Static documentation markup does not establish backend execution. |
 | `tomcat-error.html` | No Tomcat finding: the Python server returns this file with HTTP 200, not an error status. |
 | `spring-boot-servlet-error.html`, `spring-boot-reactive-error.html` | No Spring Boot finding: these files are returned with HTTP 200. |

@@ -43,6 +43,7 @@ it does not establish execution or report a version.
 `ui_framework` is displayed as UI framework in findings and UI frameworks in the
 catalog. Bootstrap/Tailwind CSS and Radix UI JavaScript evidence remains inferred,
 not proof of applied styles or execution.
+shadcn/ui Sidebar HTML evidence is also inferred and does not imply Tailwind/Radix.
 `cdn` is displayed as CDN/edge. It describes identifying edge-provider evidence,
 not enabled security services, cache behavior, or the hidden origin's identity.
 `load_balancer` is displayed as `load balancer` in findings and Load balancers
