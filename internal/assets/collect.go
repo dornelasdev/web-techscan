@@ -41,7 +41,8 @@ type Capture struct {
 
 type Collection struct {
 	Budget                   Budget
-	Status                   string // complete within the bounded scope, incomplete, or skipped.
+	AllowedOrigins           []string // Configured scope, not evidence of requests or ownership.
+	Status                   string   // complete within the bounded scope, incomplete, or skipped.
 	Reason                   string
 	Truncated                bool
 	SkippedDeclarations      int
@@ -55,24 +56,40 @@ type Collection struct {
 	Captures                 []Capture // Never included in reports or passed as page HTML.
 }
 
+// CollectionOptions combines a supported budget with additional explicit origins.
+type CollectionOptions struct {
+	Budget         Budget
+	AllowedOrigins []string
+}
+
 // Collect selects references only from the final HTML page. ctx must carry the
 // same deadline used for page fetching; it is never reset per asset. Failures
 // remain metadata, so valid page findings can still be reported.
 func Collect(ctx context.Context, client Fetcher, page fetch.Snapshot) Collection {
-	return collect(ctx, client, page, standardBudget())
+	return collect(ctx, client, page, standardBudget(), nil)
 }
 
 // CollectWithBudget applies one supported profile without changing selection,
 // attempts, deadline or fetch policies. Invalid budgets fail before any I/O.
 func CollectWithBudget(ctx context.Context, client Fetcher, page fetch.Snapshot, budget Budget) (Collection, error) {
-	if err := budget.validate(); err != nil {
-		return Collection{}, err
-	}
-	return collect(ctx, client, page, budget), nil
+	return CollectWithOptions(ctx, client, page, CollectionOptions{Budget: budget})
 }
 
-func collect(ctx context.Context, client Fetcher, page fetch.Snapshot, budget Budget) Collection {
-	result := Collection{Budget: budget, Status: "complete", Items: make([]Item, 0), Captures: make([]Capture, 0)}
+// CollectWithOptions validates budget and explicit origins before selection/I/O.
+// Allowed origins share all request, byte and deadline limits with same-origin assets.
+func CollectWithOptions(ctx context.Context, client Fetcher, page fetch.Snapshot, options CollectionOptions) (Collection, error) {
+	if err := options.Budget.validate(); err != nil {
+		return Collection{}, err
+	}
+	origins, err := NormalizeOrigins(options.AllowedOrigins)
+	if err != nil {
+		return Collection{}, err
+	}
+	return collect(ctx, client, page, options.Budget, origins), nil
+}
+
+func collect(ctx context.Context, client Fetcher, page fetch.Snapshot, budget Budget, origins []string) Collection {
+	result := Collection{Budget: budget, AllowedOrigins: append([]string{}, origins...), Status: "complete", Items: make([]Item, 0), Captures: make([]Capture, 0)}
 	if ctx.Err() != nil {
 		result.Status, result.Reason = "skipped", failureReason(ctx.Err())
 		return result
@@ -83,6 +100,7 @@ func collect(ctx context.Context, client Fetcher, page fetch.Snapshot, budget Bu
 	}
 	options := DefaultOptions()
 	options.MaxReferences = MaxAttempts
+	options.AllowedOrigins = origins
 	refs, err := Extract(page.FinalURL, page.Body, options)
 	if err != nil {
 		result.Status, result.Reason = "skipped", "extraction_failed"

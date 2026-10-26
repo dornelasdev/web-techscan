@@ -32,8 +32,19 @@ func Terminal(w io.Writer, report Report, color bool) error {
 		fmt.Fprintln(&text, "Findings describe the returned HTTP error page.")
 	}
 	if assets := report.Assets; assets != nil {
-		fmt.Fprintf(&text, "Assets: %s — %d collected / %d attempted (direct same-origin scope)\n",
-			plain(assets.Status), assets.Collected, assets.Attempted)
+		scope := "direct same-origin scope"
+		if len(assets.AllowedOrigins) > 0 {
+			scope = "direct same-origin and allowed-origin scope"
+		}
+		fmt.Fprintf(&text, "Assets: %s — %d collected / %d attempted (%s)\n",
+			plain(assets.Status), assets.Collected, assets.Attempted, scope)
+		if len(assets.AllowedOrigins) > 0 {
+			fmt.Fprintln(&text, "  Allowed asset origins (configured; references only):")
+			for _, origin := range assets.AllowedOrigins {
+				fmt.Fprintf(&text, "    - %s\n", plain(origin))
+			}
+			fmt.Fprintln(&text, "  HTTP assets from HTTPS pages remain excluded.")
+		}
 		budget := assets.Budget
 		fmt.Fprintf(&text, "  Budget: %s; per asset %d decoded / %d encoded bytes; combined %d decoded / %d encoded bytes\n",
 			plain(budget.Profile), budget.MaxAssetDecodedBytes, budget.MaxAssetEncodedBytes, budget.MaxTotalDecodedBytes, budget.MaxTotalEncodedBytes)

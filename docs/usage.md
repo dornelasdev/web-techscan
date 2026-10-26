@@ -37,6 +37,7 @@ updates, and prebuilt distribution are not provided.
 ./bin/webscan --prefer-html https://example.com
 ./bin/webscan --assets --redact-query --json https://example.com
 ./bin/webscan --assets --asset-budget expanded --json https://example.com
+./bin/webscan --assets --asset-origin https://cdn.example.com --json https://example.com
 ./bin/webscan --timeout 10s --max-redirects 3 --max-body 1048576 https://example.com
 ./bin/webscan --redact-query --json 'https://example.com/page?token=secret'
 ./bin/webscan --techs
@@ -57,6 +58,7 @@ help. URLs containing credentials are rejected; fragments are removed.
 | `--prefer-html` | false | Prefer HTML for page requests, not assets. |
 | `--assets` | false | Inspect eligible same-origin JS/CSS and list skipped external origins. |
 | `--asset-budget standard\|expanded` | standard | Select asset payload limits; requires `--assets`. |
+| `--asset-origin origin` | — | Allow an additional exact asset origin; repeatable, requires `--assets`. |
 | `--redact-query` | false | Replace queries in report URLs. |
 | `--color auto\|always\|never` | auto | Set terminal color behavior. |
 | `--no-color` | false | Disable color, overriding `--color`. |
@@ -96,7 +98,29 @@ External asset origins skipped (not requested; declaration counts):
 Counts describe declarations, including repeats, not unique files. The list holds
 at most 20 origins with an explicit truncation notice. JSON includes
 `assets.external_origins` and `assets.external_origins_truncated`.
-External assets remain unfetched. Page-only scans omit this summary.
+External assets outside the allowed scope remain unfetched. Page-only scans omit
+this summary.
+
+Use a listed origin to allow its directly referenced assets on another scan:
+
+```sh
+./bin/webscan --assets --asset-origin https://a.espncdn.com https://www.espn.com/
+```
+
+Repeat `--asset-origin` for multiple origins, up to 20 distinct values. Supply
+`http://` or `https://`, hostname and optional port; a trailing `/` is accepted.
+Credentials, other paths, queries, fragments, wildcards and whitespace are rejected.
+Hostname case and numeric/default ports are normalized; duplicates are collapsed.
+The flag requires a URL scan with `--assets`; it rejects `--techs` and `--version`.
+
+Same-origin and allowed assets share five attempts, payload budgets and timeout,
+in document order. An early external reference can consume a slot before a later
+same-origin file. No requests are made just because an origin is configured.
+HTTP assets from HTTPS pages remain excluded, including with
+`--allow-http-downgrade`. Asset redirects are never followed.
+Reports include configured `assets.allowed_origins`; `external_origins` lists only
+origins still excluded. Configured HTTP origins can appear in both lists when the
+final page is HTTPS. See [policies](policies.md#asset-inspection).
 
 ### Catalog mode
 
@@ -122,7 +146,8 @@ finding, respectively. Listing them does not mean they have direct language rule
 
 `--techs` rejects a URL, `--version`, and explicitly supplied scan options:
 `--timeout`, `--max-redirects`, `--max-body`, `--max-encoded-body`,
-`--allow-http-downgrade`, `--prefer-html`, `--assets`, `--asset-budget`, and `--redact-query`.
+`--allow-http-downgrade`, `--prefer-html`, `--assets`, `--asset-budget`,
+`--asset-origin`, and `--redact-query`.
 Explicit false values are also rejected. Color options are accepted; catalog
 output always remains plain.
 

@@ -6,6 +6,7 @@ import "webscan/internal/assets"
 // deliberately absent. Complete means the selected bounded scope, not a site.
 type AssetReport struct {
 	Budget                   AssetBudget      `json:"budget"`
+	AllowedOrigins           []string         `json:"allowed_origins"`
 	Mode                     string           `json:"mode"`
 	Status                   string           `json:"status"`
 	Reason                   string           `json:"reason,omitempty"`
@@ -61,6 +62,7 @@ func NewAssetReport(collection assets.Collection) *AssetReport {
 		Duplicates: collection.Duplicates, Attempted: collection.Attempted, Collected: collection.Collected,
 		DecodedBytes: collection.Usage.Decoded, EncodedBytes: collection.Usage.Encoded,
 		Items:                    make([]AssetItem, 0, len(collection.Items)),
+		AllowedOrigins:           append([]string{}, collection.AllowedOrigins...),
 		ExternalOrigins:          make([]ExternalOrigin, 0, len(collection.ExternalOrigins)),
 		ExternalOriginsTruncated: collection.ExternalOriginsTruncated,
 	}

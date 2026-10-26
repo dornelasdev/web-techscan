@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Added repeatable `--asset-origin` for explicit additional asset origins with
+  `--assets`, plus configured-origin metadata. Shared request/byte/time limits,
+  normal TLS/MIME checks and no asset redirects or credential forwarding remain.
+  HTTPS pages cannot collect HTTP assets.
 - Added skipped external asset-origin summaries with `--assets`, including
   script/stylesheet declaration counts and a separate 20-origin truncation flag
   in terminal/JSON output. No external fetching or additional requests.

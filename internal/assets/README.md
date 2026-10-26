@@ -51,9 +51,10 @@ documents as new references. This is not a browser or a sanitizer for HTML reuse
   embedded tabs/newlines/form feeds, NULs, and literal backslashes in parsed URL
   values. This deliberately does not reproduce every browser URL repair rule.
 - Reuse fetch URL validation: explicit resolved HTTP(S), no credentials, valid
-  ports, no opaque URLs, and fragments removed. Only the final page's origin
-  qualifies (scheme, case-insensitive hostname, effective port). No DNS, alias,
-  IP-address or private-network inference. Same-origin local targets are valid.
+  ports, no opaque URLs, and fragments removed. The final page's origin qualifies
+  by default (scheme, case-insensitive hostname, effective port). Options may
+  explicitly allow additional exact origins; see below. No DNS, alias,
+  IP-address or private-network inference. Local targets remain valid.
 - Skip empty/fragment-only references and normalized references to the final
   page itself. Keep queries exactly, including query-only references; later
   collection must verify successful response status and suitable content type.
@@ -93,15 +94,31 @@ independently at 20; `ExternalOriginsTruncated` means another origin was omitted
 Later declarations for retained origins still increment their counts. An empty
 successful extraction has an empty origin slice. Discovery performs no I/O.
 
+`Options.AllowedOrigins` adds exact HTTP(S) origins via `NormalizeOrigins`.
+Accept at most 20 distinct origins in input order; normalize hostname case and
+numeric/default ports and deduplicate with `fetch.SameOrigin`. Reject credentials,
+paths other than empty or `/`, escaped paths, queries/fragments including empty
+delimiters, wildcards, backslashes, controls, whitespace and invalid UTF-8.
+Validation errors omit input. Invalid configuration yields no extraction result.
+Matching reuses `fetch.SameOrigin`, not suffix, IP/DNS or ownership comparisons.
+HTTPS final pages cannot select HTTP assets, regardless of configured origins or
+page downgrade settings. Such declarations still enter skipped-origin metadata.
+Allowed references otherwise share the same candidate order, deduplication and
+five-reference cap; allowed origins are not automatically fetched or probed.
+
 Reference URLs can still contain sensitive queries. Reporting applies existing
 query-redaction and terminal-sanitization policies to all asset URLs.
 
 ## Collection policy
 
-`Collect` retains the standard profile. `BudgetForProfile` resolves exact
+`Collect` retains the standard profile and same-origin scope. `BudgetForProfile` resolves exact
 `standard`/`expanded` names to independent value copies; `CollectWithBudget`
 accepts only an unchanged supported budget and rejects invalid configuration
-before selection or I/O. Both collection paths take a final-page snapshot and
+before selection or I/O. `CollectWithOptions` accepts a supported `Budget` and
+`AllowedOrigins`, validating both before selection/I/O. Existing collection APIs
+retain same-origin defaults. Normalized configured origins are independently
+copied into `Collection.AllowedOrigins`, even for empty/skipped passes; they are
+scope metadata, not proof of requests. All collection paths take a final-page snapshot and
 the same context/deadline used for its fetch. Budget metadata survives canceled,
 unsupported and empty scopes. The CLI starts that context before requesting the
 page. Sequential asset requests never reset the deadline; no requests start
@@ -120,8 +137,10 @@ At most five selected URLs are attempted, including failures. There is no retry
 loop, cookie jar, authentication, Referer, recursive discovery or script execution.
 Go's transport retains its standard connection handling. Asset redirects are
 never followed, even same-origin redirects or when page downgrade opt-in is set.
-Normal TLS and proxy behavior remain unchanged; same-origin private/local targets
-are allowed, just like page fetching. This is not a public untrusted-URL service.
+Normal TLS and proxy behavior remain unchanged; same-origin and explicitly allowed
+private/local targets are valid, just like page fetching. This is not a public
+untrusted-URL service. Configured origins never expand attempts, byte profiles or
+deadline, and never relax the HTTPS-page/HTTP-asset exclusion.
 
 The fetch layer rejects non-2xx, 206 and Content-Range responses before reading
 their bodies. It requires exactly one valid Content-Type: `text/css` for styles,
@@ -151,7 +170,7 @@ discarding partial bodies. Captures are not serialized. Item statuses are
 `collected`, `failed` (attempted), or `skipped` (not attempted). Collection is
 `incomplete` if selection truncates or any selected item fails/is skipped;
 `skipped` means the whole pass could not begin; otherwise `complete` means only
-the bounded eligible scope. Off-origin/ineligible declarations are counted,
+the bounded eligible scope. Excluded-origin/ineligible declarations are counted,
 not coverage failures. Zero eligible assets can be complete. Page findings
 survive all optional failures; JSON/terminal metadata makes limitations explicit.
 Origin summaries and their separate truncation flag survive optional asset

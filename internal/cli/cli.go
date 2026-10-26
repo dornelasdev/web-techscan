@@ -37,6 +37,7 @@ Options:
   --prefer-html             Prefer HTML responses for pages, not assets (default false)
   --assets                  Inspect bounded same-origin JS/CSS; list skipped external origins
   --asset-budget profile    Asset budget: standard or expanded (default standard; requires --assets)
+  --asset-origin origin     Allow an additional asset origin (repeatable; requires --assets)
   --color mode              Color: auto, always, never (default auto)
   --no-color                Disable color, overriding --color
   --timeout duration        Total page-and-assets timeout (default 15s)
@@ -58,6 +59,12 @@ func Run(args []string, stdout, stderr io.Writer, version string) int {
 	showTechs := flags.Bool("techs", false, "List supported technologies")
 	collectAssets := flags.Bool("assets", false, "Inspect bounded same-origin JS/CSS and list skipped external origins")
 	assetBudgetProfile := flags.String("asset-budget", "standard", "Asset budget profile: standard or expanded")
+	var originInputs []string
+	flags.Func("asset-origin", "Allow an additional asset origin (repeatable; requires --assets)", func(value string) error {
+		// Validate after parsing so flag errors cannot echo rejected secrets.
+		originInputs = append(originInputs, value)
+		return nil
+	})
 	presentation := outputOptions{}
 	flags.BoolVar(&presentation.json, "json", false, "Print a JSON scan report or technology catalog")
 	flags.StringVar(&presentation.color, "color", "auto", "Color: auto, always, never")
@@ -97,7 +104,7 @@ func Run(args []string, stdout, stderr io.Writer, version string) int {
 				redactionFlag = true
 			}
 			switch f.Name {
-			case "timeout", "max-redirects", "max-body", "max-encoded-body", "allow-http-downgrade", "prefer-html", "assets", "asset-budget":
+			case "timeout", "max-redirects", "max-body", "max-encoded-body", "allow-http-downgrade", "prefer-html", "assets", "asset-budget", "asset-origin":
 				if fetchFlag == "" {
 					fetchFlag = f.Name
 				}
@@ -125,6 +132,13 @@ func Run(args []string, stdout, stderr io.Writer, version string) int {
 	if budgetExplicit && (!*collectAssets || *showVersion) {
 		return usageError(stderr, "--asset-budget requires a scan with --assets")
 	}
+	if len(originInputs) > 0 && (!*collectAssets || *showVersion || flags.NArg() != 1) {
+		return usageError(stderr, "--asset-origin requires a scan with --assets")
+	}
+	allowedOrigins, err := assets.NormalizeOrigins(originInputs)
+	if err != nil {
+		return usageError(stderr, err.Error())
+	}
 
 	if *showVersion {
 		if flags.NArg() != 0 {
@@ -142,7 +156,7 @@ func Run(args []string, stdout, stderr io.Writer, version string) int {
 		if flags.Arg(0) == "" {
 			return usageError(stderr, "URL must not be empty")
 		}
-		return fetchPage(flags.Arg(0), options, presentation, *collectAssets, budget, stdout, stderr)
+		return fetchPage(flags.Arg(0), options, presentation, *collectAssets, assets.CollectionOptions{Budget: budget, AllowedOrigins: allowedOrigins}, stdout, stderr)
 	default:
 		return usageError(stderr, "expected a single URL; place options before the URL")
 	}
@@ -167,7 +181,7 @@ func listTechnologies(asJSON bool, stdout, stderr io.Writer) int {
 	return exitOK
 }
 
-func fetchPage(target string, options fetch.Options, presentation outputOptions, collectAssets bool, budget assets.Budget, stdout, stderr io.Writer) int {
+func fetchPage(target string, options fetch.Options, presentation outputOptions, collectAssets bool, assetOptions assets.CollectionOptions, stdout, stderr io.Writer) int {
 	client, err := fetch.New(options)
 	if err != nil {
 		return usageError(stderr, err.Error())
@@ -196,7 +210,7 @@ func fetchPage(target string, options fetch.Options, presentation outputOptions,
 	}
 	var assetReport *output.AssetReport
 	if collectAssets {
-		collection, err := assets.CollectWithBudget(ctx, client, *snapshot, budget)
+		collection, err := assets.CollectWithOptions(ctx, client, *snapshot, assetOptions)
 		if err != nil {
 			return usageError(stderr, err.Error())
 		}

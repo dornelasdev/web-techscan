@@ -1,5 +1,6 @@
 // Package assets extracts static references and optionally collects bounded,
-// same-origin assets. It never executes scripts or follows nested references.
+// same-origin or explicitly allowed assets. It never executes scripts or follows
+// nested references.
 package assets
 
 import (
@@ -40,8 +41,9 @@ type Reference struct {
 }
 
 type Options struct {
-	MaxHTMLBytes  int64
-	MaxReferences int
+	MaxHTMLBytes   int64
+	MaxReferences  int
+	AllowedOrigins []string // Additional explicit HTTP(S) origins; empty keeps same-origin scope.
 }
 
 func DefaultOptions() Options {
@@ -68,6 +70,15 @@ var (
 func Extract(finalURL string, body []byte, options Options) (Result, error) {
 	if options.MaxHTMLBytes <= 0 || options.MaxReferences <= 0 {
 		return Result{}, errors.New("asset extraction limits must be positive")
+	}
+	originNames, err := NormalizeOrigins(options.AllowedOrigins)
+	if err != nil {
+		return Result{}, err
+	}
+	allowed := make([]*url.URL, 0, len(originNames))
+	for _, name := range originNames {
+		u, _ := fetch.ParseURL(name) // NormalizeOrigins already validated these URLs.
+		allowed = append(allowed, u)
 	}
 	page, err := fetch.ParseURL(finalURL)
 	if err != nil {
@@ -117,11 +128,9 @@ func Extract(finalURL string, body []byte, options Options) (Result, error) {
 			result.Skipped++
 			return true
 		}
-		if !fetch.SameOrigin(page, u) {
+		if !eligibleOrigin(page, u, allowed) {
 			result.Skipped++
-			// Build a fresh URL so paths, queries, fragments and credentials
-			// cannot enter discovery metadata. Reuse dedup origin normalization.
-			origin := strings.TrimSuffix(urlKey(&url.URL{Scheme: u.Scheme, Host: u.Host}), "/")
+			origin := originKey(u)
 			index, ok := origins[origin]
 			if !ok {
 				if len(result.ExternalOrigins) == MaxExternalOrigins {

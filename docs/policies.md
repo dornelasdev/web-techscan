@@ -77,12 +77,27 @@ Enable with `--assets`. Default scans fetch only the page redirect chain.
 - Require UTF-8 HTML: absent/UTF-8/US-ASCII charset and valid UTF-8 bytes.
   Skip XHTML, declared legacy charsets, and unsupported page types.
 - Use the first non-inert base declaration and resolve against the final URL.
-- Keep only same-origin HTTP(S) URLs, with strict URL validation.
+- Keep same-origin HTTP(S) URLs and explicitly allowed origins, with strict URL validation.
 - Deduplicate resolved URLs and retain the first five eligible references.
 - Ignore comments, templates, noscript, foreign markup, imports, source maps,
   preloads, guessed paths, and other linked pages.
-- Do not fetch third-party/CDN origins. HTML URL fingerprints can still recognize
-  supported path markers without downloading those assets.
+- Additional origins require repeatable `--asset-origin` with `--assets`.
+  HTML URL fingerprints can still recognize supported path markers without
+  downloading those assets.
+
+Allow at most 20 distinct additional origins, matched by scheme, case-insensitive
+hostname and effective port. Normalize hostname case and numeric/default ports;
+collapse duplicates in input order. Accept an optional trailing `/`, but reject
+credentials, other paths, queries/fragments (including empty delimiters),
+wildcards, backslashes, controls and whitespace. No DNS/alias/subdomain ownership
+inference or automatic approval of other origins. Local/private origins may be
+explicitly allowed. This remains a personal CLI, not an untrusted fetch service.
+
+Only direct supported references qualify. No origin-only probe, imports or
+modulepreload discovery is added. All eligible origins share the first five
+candidate slots in document order, including failures, the byte budgets and the
+page-plus-assets deadline. HTTP asset URLs are excluded when the final page is
+HTTPS, even if explicitly allowed or page downgrade permission is enabled.
 
 With `--assets`, report up to 20 skipped external origins in first-seen parsed
 order, with script/stylesheet declaration counts. Repeated declarations count
@@ -92,6 +107,10 @@ It makes no additional requests and does not establish ownership or technology.
 Discovery continues past the five fetch candidates. A separate truncation flag
 reports omitted origins; counts for retained origins continue through the page.
 This flag does not change collection completeness or the fetch-reference limit.
+Allowed origins disappear from this skipped list unless another origin policy
+excludes them (such as HTTPS-to-HTTP assets). Reports separately record normalized
+configured origins, including unused entries and skipped collection passes;
+configuration does not establish requests, ownership or technology use.
 
 The [extractor reference](../internal/assets/README.md) defines type hints, base
 handling, URL normalization, and parser limits.

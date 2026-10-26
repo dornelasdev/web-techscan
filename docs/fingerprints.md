@@ -15,6 +15,7 @@ The v0.3.0 release baseline contains 23.
 - Optional status ranges constrain page rules using the final HTTP status;
   a status code alone never identifies a technology.
 - Asset rules require `--assets` and all markers within one accepted body.
+  External origins additionally require `--asset-origin`; collection policies apply.
 - Direct detections take precedence while retaining other supporting evidence.
 - Evidence records rule IDs and signal locations; asset evidence includes its URL.
 - Versions constrain some patterns but are not extracted or reported.
@@ -620,7 +621,7 @@ not evidence of one site-wide version or coverage across all Angular releases.
 The 3,151,142-byte main exceeds the standard 512 KiB per-asset and 2 MiB combined
 decoded budgets; expanded budgets accommodate that decoded size, but successful
 collection/detection still depends on encoded input, response policies and time.
-Its small loader lacks the triple. Larger, split, off-origin,
+Its small loader lacks the triple. Larger, split, excluded external,
 tree-shaken or differently compiled bundles can be missed; imports are not followed.
 
 Both rules produce one Angular finding with independent HTML/asset evidence.
@@ -689,7 +690,7 @@ Readable/compact fixtures are authored scaffolds, not full upstream bundles.
 Neither rule reports a version or establishes an entire React major-version range.
 Both rules produce one React finding with separate supporting evidence when present.
 
-Inline scripts, off-origin assets, oversized/unselected bundles, and tree-shaken
+Inline scripts, excluded external assets, oversized/unselected bundles, and tree-shaken
 or split runtime output can be missed. Copied/commented code and forks retaining
 the marker sets can match; runtime execution/use is not established. Next.js
 does not automatically imply React. No backend language implication.
@@ -736,7 +737,7 @@ hooks are absent and are not required. Readable/compact fixtures are authored
 scaffolds, not imported bundles. This does not establish all Vue 3 build forms
 or versions; no Vue 2 fallback or version reporting is included.
 
-Inline scripts, off-origin assets, oversized/unselected bundles, tree-shaken
+Inline scripts, excluded external assets, oversized/unselected bundles, tree-shaken
 code and runtime markers split across imports/chunks can be missed. Copied or
 commented code and forks retaining the markers can match; execution, mounting
 and browser DOM use are not established. Nuxt does not automatically imply Vue.
@@ -813,7 +814,7 @@ declarations, and component-only grid/reboot builds can be missed. No separate
 RTL coverage claim. Forks retaining the markers can match.
 
 The rule does not establish applied styles, Bootstrap JS use, or a backend.
-Same-origin and asset budgets apply; off-origin CDN stylesheets are not fetched.
+Origin restrictions and asset budgets apply; external CDN stylesheets require `--asset-origin`.
 
 Reviewed 2026-10-10. Sources:
 [v5.2.3 CSS](https://github.com/twbs/bootstrap/blob/v5.2.3/dist/css/bootstrap.css),
@@ -859,7 +860,7 @@ match. Changed/reordered/interleaved mappings, escapes, computed keys, template
 strings or nested braces within the selected flat object can miss. Comments
 between required tokens and CSS whitespace inside the quoted values are not
 supported. Components without these mappings do not establish Radix via this rule.
-Lazy/import-only, off-origin, failed, incomplete and over-budget chunks can miss;
+Lazy/import-only, excluded external, failed, incomplete and over-budget chunks can miss;
 the collector does not follow the module graph or execute UI interactions.
 HTML and CSS fingerprints remain deferred.
 

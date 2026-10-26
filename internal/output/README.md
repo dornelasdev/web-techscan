@@ -95,7 +95,8 @@ Escaped path delimiters such as `%3F` are preserved without decoding.
 were query-free. It is an additive optional field in schema 1; default report
 bytes are unchanged. Redacted URLs are display/export representations and must
 not be interpreted as the exact requested URLs. Redaction copies the report's
-URL fields, redirect slice, asset metadata/item/origin slices and finding/evidence slices;
+URL fields, redirect slice, asset metadata/item/origin/allowed-origin slices and
+finding/evidence slices;
 it never mutates the source report/snapshot or changes non-URL evidence, actual
 requests, referrers, or fetch-error behavior.
 
@@ -124,10 +125,11 @@ all selected assets must check the collection status and individual items.
 | --- | --- |
 | `mode` | Currently `fingerprint_inspection`; supported rules inspect captured content without execution |
 | `budget` | Configured profile and four payload limits, including for skipped/empty collection scopes |
+| `allowed_origins` | Normalized explicitly configured origins, in input order after deduplication; always an array |
 | `status` | `complete` within bounded eligible scope, `incomplete`, or whole-pass `skipped` |
 | `reason` | Optional safe summary code |
 | `truncated` | More eligible distinct references existed than the five retained |
-| `skipped_declarations` | Ineligible/off-origin script or stylesheet declarations, not every HTML node |
+| `skipped_declarations` | Ineligible or excluded-origin script/stylesheet declarations, not every HTML node |
 | `duplicates` | Repeat URLs among the retained candidates |
 | `external_origins` | First 20 skipped external origins in parsed order; always an array |
 | `external_origins_truncated` | Another external origin could not be retained; independent of `truncated` |
@@ -154,6 +156,16 @@ empty array and false flag. Terminal output shows the same counts/truncation and
 sanitizes origins. Report construction and query redaction copy the origin slice;
 query-free origins are unaffected by redaction. These are additive schema-1 fields.
 
+`allowed_origins` contains up to 20 normalized origin-only strings. Configuration
+survives skipped/empty passes and does not establish that any file was requested.
+Unused or same-origin entries may appear. Only referenced assets become candidates.
+HTTP origins may also appear in `external_origins` when the final page is HTTPS;
+page downgrade permission does not relax this exclusion. Otherwise allowed
+origins no longer contribute to the skipped-origin summary. Report construction
+and query redaction copy this slice; terminal output sanitizes each origin and
+shows configured scope separately from skipped-origin declarations and asset items.
+Empty configuration is `[]`; page-only reports still omit the entire assets object.
+
 `budget` contains `profile` (`standard`/`expanded`), `max_asset_decoded_bytes`,
 `max_asset_encoded_bytes`, `max_total_decoded_bytes`, and
 `max_total_encoded_bytes`. Values are configured bounds, not remaining budgets,
@@ -171,8 +183,8 @@ Consumers should tolerate future reason codes. A malformed redirect parsed by
 Go before its redirect hook can be a generic request error instead of a redirect
 policy reason; neither exposes its raw destination.
 
-`complete` does not mean complete site coverage: third-party assets and nested
-references are out of scope, and no eligible assets is also complete. Truncation
+`complete` does not mean complete site coverage: external assets outside allowed
+scope and nested references remain excluded; no eligible assets is also complete. Truncation
 or a failed/skipped selected asset makes the pass incomplete. See the
 [profile limits and conservative aggregate-boundary policy](../assets/README.md#collection-policy).
 Byte counts are not file sizes or total wire traffic; they exclude transport
