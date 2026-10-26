@@ -44,15 +44,16 @@ func TestRecentBackendFailedAssetsAndSplitEvidenceThroughCLI(t *testing.T) {
 	for _, tc := range []struct {
 		name, page, server, jsReason, cssReason, ids string
 		upgrade, noPageHeaders, nonHTML, prefer      bool
+		externalScripts                              int
 	}{
-		{name: "failed-js-keeps-upgraded-caddy-and-both-doc-rules", page: "both", server: "uvicorn", upgrade: true, prefer: true, jsReason: "unsuccessful_status", ids: "bootstrap caddy fastapi fiber uvicorn"},
-		{name: "late-css-failure-keeps-page-and-react", page: "swagger", server: "gunicorn", cssReason: "unsuccessful_status", ids: "caddy fastapi fiber gunicorn react"},
-		{name: "wrong-js-mime-keeps-page-and-css", page: "swagger", server: "uvicorn", prefer: true, jsReason: "unsuitable_content_type", ids: "bootstrap caddy fastapi fiber uvicorn"},
-		{name: "viewer-cannot-borrow-icon-from-hop-or-assets", page: "viewer", server: "gunicorn", cssReason: "unsuccessful_status", ids: "caddy fiber gunicorn react"},
+		{name: "failed-js-keeps-upgraded-caddy-and-both-doc-rules", page: "both", server: "uvicorn", upgrade: true, prefer: true, jsReason: "unsuccessful_status", externalScripts: 2, ids: "bootstrap caddy fastapi fiber uvicorn"},
+		{name: "late-css-failure-keeps-page-and-react", page: "swagger", server: "gunicorn", cssReason: "unsuccessful_status", externalScripts: 1, ids: "caddy fastapi fiber gunicorn react"},
+		{name: "wrong-js-mime-keeps-page-and-css", page: "swagger", server: "uvicorn", prefer: true, jsReason: "unsuitable_content_type", externalScripts: 1, ids: "bootstrap caddy fastapi fiber uvicorn"},
+		{name: "viewer-cannot-borrow-icon-from-hop-or-assets", page: "viewer", server: "gunicorn", cssReason: "unsuccessful_status", externalScripts: 1, ids: "caddy fiber gunicorn react"},
 		{name: "icon-cannot-borrow-viewer-from-hop-or-assets", page: "icon", server: "uvicorn", jsReason: "unsuccessful_status", ids: "bootstrap caddy fiber uvicorn"},
 		{name: "hop-and-asset-identities-do-not-become-page-findings", page: "empty", noPageHeaders: true, ids: "bootstrap react"},
 		{name: "non-html-page-keeps-headers-without-docs-or-assets", page: "both", server: "uvicorn", nonHTML: true, ids: "caddy fiber uvicorn"},
-		{name: "hop-and-asset-server-cannot-upgrade-final-via", page: "both", server: "gunicorn", prefer: true, ids: "bootstrap caddy fastapi fiber gunicorn react"},
+		{name: "hop-and-asset-server-cannot-upgrade-final-via", page: "both", server: "gunicorn", prefer: true, externalScripts: 2, ids: "bootstrap caddy fastapi fiber gunicorn react"},
 	} {
 		for _, format := range []string{"plain", "color", "json"} {
 			t.Run(tc.name+"/"+format, func(t *testing.T) {
@@ -164,10 +165,13 @@ func TestRecentBackendFailedAssetsAndSplitEvidenceThroughCLI(t *testing.T) {
 				if !reflect.DeepEqual(visited, wantPaths) {
 					t.Errorf("requests=%v want=%v; no schema/viewer/favicon/path discovery", visited, wantPaths)
 				}
-				for _, raw := range []string{"private-", "cAdDy", "fIbEr", "gUnIcOrN", "uViCoRn", "csrftoken", "csrfmiddlewaretoken", "SwaggerUIBundle", "fastapi.tiangolo.com", "cdn.jsdelivr.net"} {
+				for _, raw := range []string{"private-", "cAdDy", "fIbEr", "gUnIcOrN", "uViCoRn", "csrftoken", "csrfmiddlewaretoken", "SwaggerUIBundle", "fastapi.tiangolo.com", "/npm/swagger-ui-dist@5/swagger-ui-bundle.js", "/npm/redoc@2/bundles/redoc.standalone.js"} {
 					if strings.Contains(stdout.String(), raw) {
 						t.Errorf("raw response data leaked: %q", raw)
 					}
+				}
+				if strings.Contains(stdout.String(), "cdn.jsdelivr.net") != (tc.externalScripts > 0) {
+					t.Errorf("unexpected external origin visibility: %s", &stdout)
 				}
 				caddyRules, caddyState := []mixedEvidence{mixedHeader("via-header", "Via")}, "inferred"
 				if tc.upgrade {
@@ -202,6 +206,9 @@ func TestRecentBackendFailedAssetsAndSplitEvidenceThroughCLI(t *testing.T) {
 					t.Error("incorrect color handling")
 				}
 				if format != "json" {
+					if tc.externalScripts > 0 && !strings.Contains(stdout.String(), fmt.Sprintf("https://cdn.jsdelivr.net (scripts: %d, stylesheets: 0)", tc.externalScripts)) {
+						t.Error("missing exact external declaration counts")
+					}
 					strip := strings.NewReplacer("\x1b[32m", "", "\x1b[33m", "", "\x1b[0m", "")
 					gotLines, wantLines := []string{}, []string{}
 					for _, line := range strings.Split(stdout.String(), "\n") {
@@ -262,6 +269,13 @@ func TestRecentBackendFailedAssetsAndSplitEvidenceThroughCLI(t *testing.T) {
 				a := report.Assets
 				if a == nil {
 					t.Fatal("missing asset metadata")
+				}
+				origins := []output.ExternalOrigin{}
+				if tc.externalScripts > 0 {
+					origins = append(origins, output.ExternalOrigin{Origin: "https://cdn.jsdelivr.net", Scripts: tc.externalScripts})
+				}
+				if !reflect.DeepEqual(a.ExternalOrigins, origins) || a.ExternalOriginsTruncated {
+					t.Fatalf("unexpected external origins: %+v", a)
 				}
 				attempted := len(wantPaths) - 2
 				if a.Mode != "fingerprint_inspection" || a.Status != status || a.Reason != reason || a.Attempted != attempted || a.Collected != collected || a.Items == nil || len(a.Items) != attempted {

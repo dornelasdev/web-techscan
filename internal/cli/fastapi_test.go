@@ -35,6 +35,7 @@ func TestFastAPIDocumentationThroughCLI(t *testing.T) {
 	for _, tc := range []struct {
 		name, body, contentType, hop string
 		status                       int
+		externalScripts              int
 		assets, prefer, nginx        bool
 		rules                        []string
 	}{
@@ -57,8 +58,8 @@ func TestFastAPIDocumentationThroughCLI(t *testing.T) {
 		{name: "redirect-to-redoc", body: redoc, hop: empty, status: 200, prefer: true, rules: []string{"redoc-html"}},
 		{name: "asset-only-docs", body: empty, status: 200, assets: true},
 		{name: "asset-viewer-cannot-complete-page", body: favicon, status: 200, assets: true},
-		{name: "asset-icon-cannot-complete-page", body: swaggerViewer, status: 200, assets: true},
-		{name: "page-docs-and-assets", body: redoc, status: 403, assets: true, prefer: true, nginx: true, rules: []string{"redoc-html"}},
+		{name: "asset-icon-cannot-complete-page", body: swaggerViewer, status: 200, assets: true, externalScripts: 1},
+		{name: "page-docs-and-assets", body: redoc, status: 403, assets: true, prefer: true, nginx: true, externalScripts: 1, rules: []string{"redoc-html"}},
 	} {
 		for _, format := range []string{"plain", "color", "json"} {
 			t.Run(tc.name+"/"+format, func(t *testing.T) {
@@ -157,10 +158,15 @@ func TestFastAPIDocumentationThroughCLI(t *testing.T) {
 				if !reflect.DeepEqual(visited, wantPaths) {
 					t.Errorf("requests=%v want=%v; no schema, favicon, viewer or docs probes", visited, wantPaths)
 				}
-				for _, raw := range []string{"private-", "uViCoRn", "Fiber", "Example API", "fastapi.tiangolo.com", "cdn.jsdelivr.net", "SwaggerUIBundle"} {
+				for _, raw := range []string{"private-", "uViCoRn", "Fiber", "Example API", "fastapi.tiangolo.com", "/npm/swagger-ui-dist@5/swagger-ui-bundle.js", "/npm/redoc@2/bundles/redoc.standalone.js", "SwaggerUIBundle"} {
 					if strings.Contains(stdout.String(), raw) {
 						t.Errorf("raw body/header value leaked: %q", raw)
 					}
+				}
+				// Origin-only discovery is intentional report metadata. Full viewer
+				// URLs and content remain private, including asset/hop-only decoys.
+				if strings.Contains(stdout.String(), "cdn.jsdelivr.net") != (tc.externalScripts > 0) {
+					t.Errorf("unexpected external origin visibility: %s", &stdout)
 				}
 				ids := []string{}
 				if len(tc.rules) != 0 {
@@ -190,6 +196,9 @@ func TestFastAPIDocumentationThroughCLI(t *testing.T) {
 					t.Error("incorrect color handling")
 				}
 				if format != "json" {
+					if tc.externalScripts > 0 && !strings.Contains(stdout.String(), fmt.Sprintf("https://cdn.jsdelivr.net (scripts: %d, stylesheets: 0)", tc.externalScripts)) {
+						t.Error("missing exact external declaration counts")
+					}
 					strip := strings.NewReplacer("\x1b[32m", "", "\x1b[33m", "", "\x1b[0m", "")
 					gotLines, wantLines := []string{}, []string{}
 					for _, line := range strings.Split(stdout.String(), "\n") {
@@ -249,6 +258,13 @@ func TestFastAPIDocumentationThroughCLI(t *testing.T) {
 				}
 				if tc.assets {
 					a := report.Assets
+					origins := []output.ExternalOrigin{}
+					if tc.externalScripts > 0 {
+						origins = append(origins, output.ExternalOrigin{Origin: "https://cdn.jsdelivr.net", Scripts: tc.externalScripts})
+					}
+					if !reflect.DeepEqual(a.ExternalOrigins, origins) || a.ExternalOriginsTruncated {
+						t.Fatalf("unexpected external origins: %+v", a)
+					}
 					if a.Status != "complete" || a.Attempted != 2 || a.Collected != 2 || len(a.Items) != 2 {
 						t.Fatalf("unexpected asset scope: %+v", a)
 					}

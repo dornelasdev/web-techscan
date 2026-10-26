@@ -50,6 +50,7 @@ directly referenced same-origin JS/CSS. Asset rules currently cover Next.js
 manifests, React client/ReactDOM runtime markers, Vue 3-shaped renderer markers,
 Angular component-runtime markers, jQuery core-runtime indicators, Radix UI
 component-style mappings, Bootstrap CSS, and conservative Tailwind CSS build markers.
+It also lists skipped external asset origins and declaration counts from the HTML.
 
 There is no crawling, JavaScript execution, version extraction, bulk scanning,
 or vulnerability testing. Findings describe exposed signals; intermediaries

@@ -23,6 +23,17 @@ const (
 	Stylesheet Kind = "stylesheet"
 )
 
+// MaxExternalOrigins bounds discovery metadata independently of fetch slots.
+const MaxExternalOrigins = 20
+
+// ExternalOrigin summarizes valid direct declarations excluded by origin policy.
+// Counts include repeated declarations; Origin never contains a path or query.
+type ExternalOrigin struct {
+	Origin      string
+	Scripts     int
+	Stylesheets int
+}
+
 type Reference struct {
 	URL  string
 	Kind Kind // Declaration hint only; later collection must validate the response.
@@ -38,10 +49,12 @@ func DefaultOptions() Options {
 }
 
 type Result struct {
-	References []Reference // Unique eligible URLs in parsed document order.
-	Truncated  bool        // At least one more eligible URL exceeded MaxReferences.
-	Skipped    int         // Unsupported, invalid, off-origin or self references.
-	Duplicates int         // Repeated eligible URLs among the retained candidates.
+	References               []Reference      // Unique eligible URLs in parsed document order.
+	Truncated                bool             // At least one more eligible URL exceeded MaxReferences.
+	Skipped                  int              // Unsupported, invalid, off-origin or self references.
+	Duplicates               int              // Repeated eligible URLs among the retained candidates.
+	ExternalOrigins          []ExternalOrigin // First-seen order, at most MaxExternalOrigins.
+	ExternalOriginsTruncated bool             // Another external origin could not be retained.
 }
 
 var (
@@ -86,8 +99,9 @@ func Extract(finalURL string, body []byte, options Options) (Result, error) {
 		}
 		return true
 	})
-	result := Result{References: make([]Reference, 0)}
+	result := Result{References: make([]Reference, 0), ExternalOrigins: make([]ExternalOrigin, 0)}
 	seen := make(map[string]bool)
+	origins := make(map[string]int)
 	pageKey := urlKey(page)
 	walk(doc, func(n *html.Node) bool {
 		if inert(n) {
@@ -99,11 +113,37 @@ func Extract(finalURL string, body []byte, options Options) (Result, error) {
 		}
 		raw = trimSpace(raw)
 		u := resolve(base, raw)
-		if kind == "" || raw == "" || strings.HasPrefix(raw, "#") || u == nil || !fetch.SameOrigin(page, u) || urlKey(u) == pageKey {
+		if kind == "" || raw == "" || strings.HasPrefix(raw, "#") || u == nil {
 			result.Skipped++
 			return true
 		}
+		if !fetch.SameOrigin(page, u) {
+			result.Skipped++
+			// Build a fresh URL so paths, queries, fragments and credentials
+			// cannot enter discovery metadata. Reuse dedup origin normalization.
+			origin := strings.TrimSuffix(urlKey(&url.URL{Scheme: u.Scheme, Host: u.Host}), "/")
+			index, ok := origins[origin]
+			if !ok {
+				if len(result.ExternalOrigins) == MaxExternalOrigins {
+					result.ExternalOriginsTruncated = true
+					return true
+				}
+				index = len(result.ExternalOrigins)
+				origins[origin] = index
+				result.ExternalOrigins = append(result.ExternalOrigins, ExternalOrigin{Origin: origin})
+			}
+			if kind == JavaScript {
+				result.ExternalOrigins[index].Scripts++
+			} else {
+				result.ExternalOrigins[index].Stylesheets++
+			}
+			return true
+		}
 		key := urlKey(u)
+		if key == pageKey {
+			result.Skipped++
+			return true
+		}
 		if seen[key] {
 			result.Duplicates++
 			return true

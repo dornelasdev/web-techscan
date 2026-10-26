@@ -35,7 +35,7 @@ Options:
   --json                    Print a JSON scan report or technology catalog
   --redact-query            Redact URL queries in scan reports (default false)
   --prefer-html             Prefer HTML responses for pages, not assets (default false)
-  --assets                  Inspect bounded same-origin JS/CSS with asset fingerprints
+  --assets                  Inspect bounded same-origin JS/CSS; list skipped external origins
   --asset-budget profile    Asset budget: standard or expanded (default standard; requires --assets)
   --color mode              Color: auto, always, never (default auto)
   --no-color                Disable color, overriding --color
@@ -56,7 +56,7 @@ func Run(args []string, stdout, stderr io.Writer, version string) int {
 	flags.SetOutput(io.Discard)
 	showVersion := flags.Bool("version", false, "Show version")
 	showTechs := flags.Bool("techs", false, "List supported technologies")
-	collectAssets := flags.Bool("assets", false, "Collect bounded same-origin JS/CSS")
+	collectAssets := flags.Bool("assets", false, "Inspect bounded same-origin JS/CSS and list skipped external origins")
 	assetBudgetProfile := flags.String("asset-budget", "standard", "Asset budget profile: standard or expanded")
 	presentation := outputOptions{}
 	flags.BoolVar(&presentation.json, "json", false, "Print a JSON scan report or technology catalog")

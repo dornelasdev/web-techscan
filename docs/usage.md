@@ -55,7 +55,7 @@ help. URLs containing credentials are rejected; fragments are removed.
 | `--techs` | false | List bundled technologies without network access. |
 | `--json` | false | Render a scan report or catalog as JSON. |
 | `--prefer-html` | false | Prefer HTML for page requests, not assets. |
-| `--assets` | false | Inspect eligible same-origin JS/CSS. |
+| `--assets` | false | Inspect eligible same-origin JS/CSS and list skipped external origins. |
 | `--asset-budget standard\|expanded` | standard | Select asset payload limits; requires `--assets`. |
 | `--redact-query` | false | Replace queries in report URLs. |
 | `--color auto\|always\|never` | auto | Set terminal color behavior. |
@@ -83,6 +83,20 @@ This can expose HTML signals when a server otherwise selects JSON. It does not
 execute JavaScript or guarantee HTML. Servers may ignore it or return HTTP 406;
 the returned response is inspected normally, without a fallback request.
 Findings describe that selected representation, not all representations of a URL.
+
+### External asset origins
+
+`--assets` also lists skipped external origins from the final HTML:
+
+```text
+External asset origins skipped (not requested; declaration counts):
+  - https://a.espncdn.com (scripts: 3, stylesheets: 3)
+```
+
+Counts describe declarations, including repeats, not unique files. The list holds
+at most 20 origins with an explicit truncation notice. JSON includes
+`assets.external_origins` and `assets.external_origins_truncated`.
+External assets remain unfetched. Page-only scans omit this summary.
 
 ### Catalog mode
 

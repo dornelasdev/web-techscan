@@ -40,17 +40,19 @@ type Capture struct {
 }
 
 type Collection struct {
-	Budget              Budget
-	Status              string // complete within the bounded scope, incomplete, or skipped.
-	Reason              string
-	Truncated           bool
-	SkippedDeclarations int
-	Duplicates          int
-	Attempted           int
-	Collected           int
-	Usage               fetch.BodyUsage
-	Items               []Item
-	Captures            []Capture // Never included in reports or passed as page HTML.
+	Budget                   Budget
+	Status                   string // complete within the bounded scope, incomplete, or skipped.
+	Reason                   string
+	Truncated                bool
+	SkippedDeclarations      int
+	Duplicates               int
+	ExternalOrigins          []ExternalOrigin
+	ExternalOriginsTruncated bool
+	Attempted                int
+	Collected                int
+	Usage                    fetch.BodyUsage
+	Items                    []Item
+	Captures                 []Capture // Never included in reports or passed as page HTML.
 }
 
 // Collect selects references only from the final HTML page. ctx must carry the
@@ -92,6 +94,7 @@ func collect(ctx context.Context, client Fetcher, page fetch.Snapshot, budget Bu
 		return result
 	}
 	result.Truncated, result.SkippedDeclarations, result.Duplicates = refs.Truncated, refs.Skipped, refs.Duplicates
+	result.ExternalOrigins, result.ExternalOriginsTruncated = refs.ExternalOrigins, refs.ExternalOriginsTruncated
 	if refs.Truncated {
 		result.Status, result.Reason = "incomplete", "reference_limit"
 	}

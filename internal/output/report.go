@@ -109,6 +109,7 @@ func (r Report) RedactQueries() Report {
 	if r.Assets != nil {
 		copy := *r.Assets
 		copy.Items = slices.Clone(copy.Items)
+		copy.ExternalOrigins = slices.Clone(copy.ExternalOrigins)
 		for i := range copy.Items {
 			copy.Items[i].URL = redactURLQuery(copy.Items[i].URL)
 		}

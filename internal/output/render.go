@@ -43,6 +43,15 @@ func Terminal(w io.Writer, report Report, color bool) error {
 		fmt.Fprintf(&text, "  Payload read: %d decoded / %d encoded bytes (includes failed reads/probes)\n", assets.DecodedBytes, assets.EncodedBytes)
 		fmt.Fprintf(&text, "  Excluded declarations: %d; retained duplicates: %d; reference limit reached: %t\n",
 			assets.SkippedDeclarations, assets.Duplicates, assets.Truncated)
+		if len(assets.ExternalOrigins) > 0 {
+			fmt.Fprintln(&text, "  External asset origins skipped (not requested; declaration counts):")
+			for _, origin := range assets.ExternalOrigins {
+				fmt.Fprintf(&text, "    - %s (scripts: %d, stylesheets: %d)\n", plain(origin.Origin), origin.Scripts, origin.Stylesheets)
+			}
+		}
+		if assets.ExternalOriginsTruncated {
+			fmt.Fprintln(&text, "  External origin list truncated; additional origins omitted.")
+		}
 		for _, item := range assets.Items {
 			fmt.Fprintf(&text, "  - %s [%s] %s", plain(item.Status), plain(item.Kind), plain(item.URL))
 			if item.Reason != "" {

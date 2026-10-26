@@ -95,7 +95,7 @@ Escaped path delimiters such as `%3F` are preserved without decoding.
 were query-free. It is an additive optional field in schema 1; default report
 bytes are unchanged. Redacted URLs are display/export representations and must
 not be interpreted as the exact requested URLs. Redaction copies the report's
-URL fields, redirect slice, asset metadata/item slice and finding/evidence slices;
+URL fields, redirect slice, asset metadata/item/origin slices and finding/evidence slices;
 it never mutates the source report/snapshot or changes non-URL evidence, actual
 requests, referrers, or fetch-error behavior.
 
@@ -129,6 +129,8 @@ all selected assets must check the collection status and individual items.
 | `truncated` | More eligible distinct references existed than the five retained |
 | `skipped_declarations` | Ineligible/off-origin script or stylesheet declarations, not every HTML node |
 | `duplicates` | Repeat URLs among the retained candidates |
+| `external_origins` | First 20 skipped external origins in parsed order; always an array |
+| `external_origins_truncated` | Another external origin could not be retained; independent of `truncated` |
 | `attempted`, `collected` | Attempted requests (including failures) and accepted complete bodies |
 | `decoded_bytes`, `encoded_bytes` | Payload bytes consumed, including failed reads and overflow probes |
 | `items` | Selected assets in document order; always an array, including when empty |
@@ -139,6 +141,18 @@ a response was available, and `decoded_bytes`/`encoded_bytes`. Failed items were
 attempted; skipped items were not. Bodies, header values, redirect targets and
 raw error messages are never serialized. Queries remain present by default;
 `--redact-query` covers every item, even failed/skipped ones.
+
+Each external origin contains `origin` (scheme, normalized hostname and
+non-default port), `scripts`, and `stylesheets`. Counts describe otherwise valid
+direct declarations, including repeated URLs, excluded by the origin policy.
+No asset path/query/fragment, ownership assertion or technology finding is
+included. No external request occurs. Discovery continues beyond the fetch
+candidate limit; retained-origin counts continue after the origin cap is reached.
+Only the first 20 origins are stored. `external_origins_truncated` does not alter
+collection status or eligible-reference truncation. Whole-pass skips report an
+empty array and false flag. Terminal output shows the same counts/truncation and
+sanitizes origins. Report construction and query redaction copy the origin slice;
+query-free origins are unaffected by redaction. These are additive schema-1 fields.
 
 `budget` contains `profile` (`standard`/`expanded`), `max_asset_decoded_bytes`,
 `max_asset_encoded_bytes`, `max_total_decoded_bytes`, and

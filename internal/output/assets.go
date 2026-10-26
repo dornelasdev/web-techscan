@@ -5,18 +5,27 @@ import "webscan/internal/assets"
 // AssetReport is collection metadata only. Bodies and response headers are
 // deliberately absent. Complete means the selected bounded scope, not a site.
 type AssetReport struct {
-	Budget              AssetBudget `json:"budget"`
-	Mode                string      `json:"mode"`
-	Status              string      `json:"status"`
-	Reason              string      `json:"reason,omitempty"`
-	Truncated           bool        `json:"truncated"`
-	SkippedDeclarations int         `json:"skipped_declarations"`
-	Duplicates          int         `json:"duplicates"`
-	Attempted           int         `json:"attempted"`
-	Collected           int         `json:"collected"`
-	DecodedBytes        int64       `json:"decoded_bytes"`
-	EncodedBytes        int64       `json:"encoded_bytes"`
-	Items               []AssetItem `json:"items"`
+	Budget                   AssetBudget      `json:"budget"`
+	Mode                     string           `json:"mode"`
+	Status                   string           `json:"status"`
+	Reason                   string           `json:"reason,omitempty"`
+	Truncated                bool             `json:"truncated"`
+	SkippedDeclarations      int              `json:"skipped_declarations"`
+	Duplicates               int              `json:"duplicates"`
+	ExternalOrigins          []ExternalOrigin `json:"external_origins"`
+	ExternalOriginsTruncated bool             `json:"external_origins_truncated"`
+	Attempted                int              `json:"attempted"`
+	Collected                int              `json:"collected"`
+	DecodedBytes             int64            `json:"decoded_bytes"`
+	EncodedBytes             int64            `json:"encoded_bytes"`
+	Items                    []AssetItem      `json:"items"`
+}
+
+// ExternalOrigin contains origin-only metadata, never full asset URLs.
+type ExternalOrigin struct {
+	Origin      string `json:"origin"`
+	Scripts     int    `json:"scripts"`
+	Stylesheets int    `json:"stylesheets"`
 }
 
 // AssetBudget records configured bounds, not remaining bytes or memory limits.
@@ -51,7 +60,14 @@ func NewAssetReport(collection assets.Collection) *AssetReport {
 		Truncated: collection.Truncated, SkippedDeclarations: collection.SkippedDeclarations,
 		Duplicates: collection.Duplicates, Attempted: collection.Attempted, Collected: collection.Collected,
 		DecodedBytes: collection.Usage.Decoded, EncodedBytes: collection.Usage.Encoded,
-		Items: make([]AssetItem, 0, len(collection.Items)),
+		Items:                    make([]AssetItem, 0, len(collection.Items)),
+		ExternalOrigins:          make([]ExternalOrigin, 0, len(collection.ExternalOrigins)),
+		ExternalOriginsTruncated: collection.ExternalOriginsTruncated,
+	}
+	for _, origin := range collection.ExternalOrigins {
+		report.ExternalOrigins = append(report.ExternalOrigins, ExternalOrigin{
+			Origin: origin.Origin, Scripts: origin.Scripts, Stylesheets: origin.Stylesheets,
+		})
 	}
 	for _, item := range collection.Items {
 		report.Items = append(report.Items, AssetItem{

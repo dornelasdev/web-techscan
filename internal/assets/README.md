@@ -78,6 +78,21 @@ the cap are not stored merely to count their duplicates. No excluded URL/raw
 attribute text is copied into diagnostics. An empty successful result has a
 non-nil empty reference slice.
 
+`ExternalOrigins` summarizes otherwise valid direct script/stylesheet declarations
+excluded by the origin check. Keep the first 20 distinct origins in parsed order,
+with separate script/stylesheet declaration counts. Repeated URLs count again;
+these are not unique-file counts. Normalize hostname case and numeric/default
+ports using the existing URL comparison key. Retain only scheme, host and
+non-default port, never credentials, paths, queries or fragments. No ownership,
+CDN identity, browser execution or technology finding is implied.
+
+Origin summaries reuse declaration, base, URL and inert-subtree policies; invalid
+references, unsupported types and preload-only links do not contribute. Discovery
+continues beyond the five retained fetch candidates. Its map/slice are capped
+independently at 20; `ExternalOriginsTruncated` means another origin was omitted.
+Later declarations for retained origins still increment their counts. An empty
+successful extraction has an empty origin slice. Discovery performs no I/O.
+
 Reference URLs can still contain sensitive queries. Reporting applies existing
 query-redaction and terminal-sanitization policies to all asset URLs.
 
@@ -139,6 +154,9 @@ discarding partial bodies. Captures are not serialized. Item statuses are
 the bounded eligible scope. Off-origin/ineligible declarations are counted,
 not coverage failures. Zero eligible assets can be complete. Page findings
 survive all optional failures; JSON/terminal metadata makes limitations explicit.
+Origin summaries and their separate truncation flag survive optional asset
+failures. Origin-summary truncation alone does not change collection status or
+the existing eligible-reference `Truncated` flag.
 
 ## Offline detection handoff
 

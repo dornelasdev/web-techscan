@@ -84,6 +84,15 @@ Enable with `--assets`. Default scans fetch only the page redirect chain.
 - Do not fetch third-party/CDN origins. HTML URL fingerprints can still recognize
   supported path markers without downloading those assets.
 
+With `--assets`, report up to 20 skipped external origins in first-seen parsed
+order, with script/stylesheet declaration counts. Repeated declarations count
+again. Only valid, supported direct references contribute; the summary contains
+scheme, hostname and non-default port, without asset paths, queries or fragments.
+It makes no additional requests and does not establish ownership or technology.
+Discovery continues past the five fetch candidates. A separate truncation flag
+reports omitted origins; counts for retained origins continue through the page.
+This flag does not change collection completeness or the fetch-reference limit.
+
 The [extractor reference](../internal/assets/README.md) defines type hints, base
 handling, URL normalization, and parser limits.
 

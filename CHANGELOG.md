@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Added skipped external asset-origin summaries with `--assets`, including
+  script/stylesheet declaration counts and a separate 20-origin truncation flag
+  in terminal/JSON output. No external fetching or additional requests.
 - Added inferred shadcn/ui-derived Sidebar identification from three paired
   final-page HTML groups. No `--assets` requirement, generic button/card fallback,
   cookie matching, Tailwind/Radix implications, version reporting or extra requests.
