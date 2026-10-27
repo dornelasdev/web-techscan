@@ -55,7 +55,7 @@ func TestCLITailwindCSS(t *testing.T) {
 				{name: "incomplete-prefix", enabled: true, reason: "request_or_body_error"},
 				{name: "javascript-kind", enabled: true},
 				{name: "redirect-only", enabled: true},
-				{name: "inline-only", enabled: true},
+				{name: "inert-style-only", enabled: true},
 			} {
 				t.Run(fixture.file+"/"+format+"/"+tc.name, func(t *testing.T) {
 					var mu sync.Mutex
@@ -89,8 +89,8 @@ func TestCLITailwindCSS(t *testing.T) {
 								fmt.Fprint(w, "<p>empty</p>")
 								return
 							}
-							fmt.Fprintf(w, `<style>%s</style>`, body)
-							if tc.name == "inline-only" {
+							fmt.Fprintf(w, `<template><style>%s</style></template>`, body)
+							if tc.name == "inert-style-only" {
 								return
 							}
 							if tc.name == "javascript-kind" {
@@ -177,7 +177,7 @@ func TestCLITailwindCSS(t *testing.T) {
 						t.Fatalf("code=%d stderr=%s", code, &stderr)
 					}
 					wantRequests := []string{"/start?private-start=1", "/page?private-page=1"}
-					if tc.enabled && tc.name != "inline-only" && tc.name != "redirect-only" {
+					if tc.enabled && tc.name != "inert-style-only" && tc.name != "redirect-only" {
 						wantRequests = append(wantRequests, "/renamed?private-asset=1")
 						if tc.name == "split-files" {
 							wantRequests = append(wantRequests, "/part")

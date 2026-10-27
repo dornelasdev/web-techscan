@@ -40,6 +40,7 @@ type Capture struct {
 }
 
 type Collection struct {
+	InlineCSS                InlineCSSCollection
 	Budget                   Budget
 	AllowedOrigins           []string // Configured scope, not evidence of requests or ownership.
 	Status                   string   // complete within the bounded scope, incomplete, or skipped.
@@ -89,13 +90,15 @@ func CollectWithOptions(ctx context.Context, client Fetcher, page fetch.Snapshot
 }
 
 func collect(ctx context.Context, client Fetcher, page fetch.Snapshot, budget Budget, origins []string) Collection {
-	result := Collection{Budget: budget, AllowedOrigins: append([]string{}, origins...), Status: "complete", Items: make([]Item, 0), Captures: make([]Capture, 0)}
+	result := Collection{Budget: budget, AllowedOrigins: append([]string{}, origins...), Status: "complete", Items: make([]Item, 0), Captures: make([]Capture, 0), InlineCSS: newInlineCSS("skipped", "not_started")}
 	if ctx.Err() != nil {
 		result.Status, result.Reason = "skipped", failureReason(ctx.Err())
+		result.InlineCSS.Reason = result.Reason
 		return result
 	}
 	if !extractableHTML(page) {
 		result.Status, result.Reason = "skipped", "unsupported_page_type"
+		result.InlineCSS.Reason = result.Reason
 		return result
 	}
 	options := DefaultOptions()
@@ -109,10 +112,12 @@ func collect(ctx context.Context, client Fetcher, page fetch.Snapshot, budget Bu
 		} else if errors.Is(err, ErrInvalidHTML) {
 			result.Reason = "invalid_utf8_html"
 		}
+		result.InlineCSS.Reason = result.Reason
 		return result
 	}
 	result.Truncated, result.SkippedDeclarations, result.Duplicates = refs.Truncated, refs.Skipped, refs.Duplicates
 	result.ExternalOrigins, result.ExternalOriginsTruncated = refs.ExternalOrigins, refs.ExternalOriginsTruncated
+	result.InlineCSS = refs.InlineCSS
 	if refs.Truncated {
 		result.Status, result.Reason = "incomplete", "reference_limit"
 	}

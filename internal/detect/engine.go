@@ -23,7 +23,7 @@ type compiledRule struct {
 	id, description string
 	state           State
 	matchers        []compiledMatcher
-	assetSource     Source // Empty for page rules; otherwise all matchers share it.
+	bodySource      Source // Empty for page rules; otherwise one asset/inline source.
 	httpStatus      *httpStatusRange
 }
 
@@ -105,30 +105,43 @@ func (r compiledRule) evidence(input Input, headers map[string][]string) []Evide
 	if r.httpStatus != nil && (input.HTTPStatus < r.httpStatus.Min || input.HTTPStatus > r.httpStatus.Max) {
 		return nil
 	}
-	makeEvidence := func(url string) Evidence {
-		item := Evidence{RuleID: r.id, Description: r.description, AssetURL: url}
+	makeEvidence := func(url string, block int) Evidence {
+		item := Evidence{RuleID: r.id, Description: r.description, AssetURL: url, StyleBlock: block}
 		for _, matcher := range r.matchers {
 			item.Signals = append(item.Signals, Signal{Source: matcher.source, Name: matcher.name})
 		}
 		return item
 	}
-	if r.assetSource == "" {
+	if r.bodySource == "" {
 		if r.matches(input, headers, nil) {
-			return []Evidence{makeEvidence("")}
+			return []Evidence{makeEvidence("", 0)}
 		}
 		return nil
 	}
 	var result []Evidence
+	if r.bodySource == InlineCSS {
+		seen := make(map[int]bool)
+		for _, block := range input.InlineStyles {
+			if block.Index <= 0 || seen[block.Index] {
+				continue
+			}
+			if r.matches(input, headers, block.Body) {
+				seen[block.Index] = true
+				result = append(result, makeEvidence("", block.Index))
+			}
+		}
+		return result
+	}
 	seen := make(map[string]bool)
 	for _, asset := range input.Assets {
-		if asset.Source != r.assetSource || asset.URL == "" || seen[asset.URL] {
+		if asset.Source != r.bodySource || asset.URL == "" || seen[asset.URL] {
 			continue
 		}
 		// All conditions must match this body, never a concatenation or a
 		// pair split across files. Input order preserves collection order.
 		if r.matches(input, headers, asset.Body) {
 			seen[asset.URL] = true
-			result = append(result, makeEvidence(asset.URL))
+			result = append(result, makeEvidence(asset.URL, 0))
 		}
 	}
 	return result
@@ -144,7 +157,7 @@ func (r compiledRule) matches(input Input, headers map[string][]string, assetBod
 			matched = matchesAny(matcher.pattern, input.CookieNames)
 		case HTML:
 			matched = matcher.pattern.Match(input.HTML)
-		case AssetJavaScript, AssetCSS:
+		case AssetJavaScript, AssetCSS, InlineCSS:
 			matched = matcher.pattern.Match(assetBody)
 		}
 		if !matched {

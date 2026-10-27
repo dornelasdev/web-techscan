@@ -1,6 +1,6 @@
 # Bounded asset collection
 
-`Extract` is offline reference discovery. `Collect` connects it to opt-in
+`Extract` discovers references and inline CSS offline. `Collect` connects it to opt-in
 `--assets` collection, preserving each captured body separately. The CLI passes
 accepted captures to the offline detector's separate JS/CSS inputs. Current
 content fingerprints cover Next.js manifests, React client/ReactDOM, Vue and
@@ -106,6 +106,38 @@ page downgrade settings. Such declarations still enter skipped-origin metadata.
 Allowed references otherwise share the same candidate order, deduplication and
 five-reference cap; allowed origins are not automatically fetched or probed.
 
+## Inline CSS extraction
+
+The same non-inert tree walk collects actual `style` elements with absent/empty
+type or `text/css` (outer ASCII whitespace/case variations accepted). No style
+attributes, JS strings, fake elements in comments, foreign/template/noscript or
+iframe content. Media conditions and CSS syntax are not interpreted. Use parsed
+text children without decoding CSS escapes or fetching imports. HTML parser text
+handling applies; these are not source byte offsets or a rendered stylesheet.
+
+`Result.InlineCSS` has independent local limits: the first 20 eligible element
+slots, 512 KiB per parsed block and 1 MiB of retained CSS combined. Empty and
+rejected blocks consume slots. Measure before copying; skip oversized/over-budget
+blocks whole and allow smaller later blocks within the first 20 slots. Never keep
+a rejected prefix. Beyond slot 20, count skipped blocks and set inline `Truncated`
+without retaining more bodies/items. The fixed HTML input cap still bounds parsing.
+
+`InlineStyle.Index` is one-based among eligible CSS elements in parsed order,
+including empty/skipped blocks. `Blocks` holds accepted bodies only. `Items`
+holds safe index/status/reason/full parsed size metadata for the first 20 slots.
+`Seen` counts all eligible elements; `Collected` counts accepted blocks, `Skipped`
+counts rejected blocks including those beyond the cap, and `Bytes` counts retained
+CSS only. Complete includes an empty successful pass. Any local cap yields
+`incomplete` with the first reason (`block_limit`, `block_byte_limit` or
+`total_byte_limit`). No raw body is serialized.
+
+Collection preserves inline data before asset requests. Whole-pass failures use
+the same safe skip reason for inline inspection. Inline status/truncation are
+independent of network status, attempt counts, encoded/decoded read usage,
+origins, profile and deadline. Expanded profiles do not change inline limits.
+Network failures cannot discard already accepted inline blocks. The CLI supplies
+them as separate detector `InlineStyles`, never `AssetCSS` or synthetic URLs.
+
 Reference URLs can still contain sensitive queries. Reporting applies existing
 query-redaction and terminal-sanitization policies to all asset URLs.
 
@@ -190,6 +222,8 @@ Production asset rules cover Next.js manifests, React client/ReactDOM, Vue,
 Angular component-runtime shapes, jQuery core indicators, Radix UI style mappings,
 Bootstrap CSS and Tailwind CSS build markers. Evidence retains
 each matched asset URL, subject to report redaction and display sanitization.
+Separate inline CSS rules cover Bootstrap/Tailwind with their existing patterns,
+requiring all markers within one block and retaining only its ordinal as provenance.
 See [rule rationale and sources](../../docs/fingerprints.md).
 
 User-run checks: `go test ./...`. Tests use inline fixtures and local servers,

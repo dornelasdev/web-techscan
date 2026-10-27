@@ -164,6 +164,36 @@ for skipped or empty scopes. `complete` means the selected bounded scope, not
 all resources or complete technology coverage. Optional failures preserve exit
 0; page failures remain fatal. See the [asset output contract](../internal/output/README.md#optional-asset-collection).
 
+### Inline CSS
+
+With `--assets`, inspect actual HTML `<style>` elements whose type is absent,
+empty or `text/css` (case-insensitive, outer ASCII whitespace allowed). Reuse the
+same final-page HTML/UTF-8/input/parser gates and inert-subtree exclusions as asset
+selection. Ignore style attributes, script strings, comments containing fake
+elements, templates, noscript, foreign markup and iframe documents. Media/disabled
+conditions are not evaluated. Nothing executes or establishes applied styles.
+
+Retain at most the first 20 eligible style-element slots, including empty and
+oversized blocks. Each block is capped at 512 KiB of parsed CSS text; combined
+retained CSS is capped at 1 MiB. Measure before copying. Skip rejected blocks
+whole, retain earlier blocks and allow later smaller blocks to fit the remaining
+budget within the first 20 slots. No prefix matching, cross-block/asset joins,
+CSS imports, transcoding or expansion of limits with `--asset-budget`.
+
+Block numbers are one-based ordinals among eligible CSS style elements in parsed
+order, including skipped/empty slots. They are not line numbers or DOM selectors.
+Match Bootstrap/Tailwind rules in a separate `inline_css` source; preserve inferred
+state, requirements and existing raw-text/copied-content limitations. Inline
+evidence has `style_block` and no asset URL. Raw CSS remains absent from reports.
+
+`assets.inline_css` reports its own `complete`, `incomplete` or `skipped` status,
+limits, counts, retained bytes and metadata for the first 20 eligible blocks.
+Count limits set its own truncation flag. Its status does not change downloaded
+asset status, requests, byte counters, profiles, origins or deadline. Download
+failures retain inline evidence; inline limits retain valid page/asset findings
+and exit 0. Whole-pass selection failures report skipped inline inspection too.
+The existing network timeout does not preempt local parsing or matching.
+
 ## Privacy
 
 Reports include URLs and evidence locations. They omit raw bodies, header

@@ -71,6 +71,19 @@ func Terminal(w io.Writer, report Report, color bool) error {
 			fmt.Fprintln(&text)
 		}
 		fmt.Fprintln(&text, "  Captured assets are checked against supported content fingerprints; scripts are not executed.")
+		inline := assets.InlineCSS
+		fmt.Fprintf(&text, "Inline CSS: %s — %d collected / %d eligible blocks; %d skipped; %d retained bytes\n",
+			plain(inline.Status), inline.Collected, inline.Seen, inline.Skipped, inline.Bytes)
+		fmt.Fprintf(&text, "  Limits: %d blocks; %d bytes per block; %d bytes combined; block limit reached: %t\n",
+			inline.MaxBlocks, inline.MaxBlockBytes, inline.MaxTotalBytes, inline.Truncated)
+		if inline.Reason != "" {
+			fmt.Fprintf(&text, "  Reason: %s\n", plain(inline.Reason))
+		}
+		for _, item := range inline.Items {
+			if item.Reason != "" {
+				fmt.Fprintf(&text, "  - Style block %d: %s (%s)\n", item.Index, plain(item.Status), plain(item.Reason))
+			}
+		}
 		fmt.Fprintln(&text)
 	}
 	if report.CatalogSize == 0 {
@@ -85,6 +98,9 @@ func Terminal(w io.Writer, report Report, color bool) error {
 				fmt.Fprintf(&text, "  - %s\n", plain(evidence.Description))
 				if evidence.AssetURL != "" {
 					fmt.Fprintf(&text, "    Asset: %s\n", plain(evidence.AssetURL))
+				}
+				if evidence.StyleBlock > 0 {
+					fmt.Fprintf(&text, "    Inline style block: %d\n", evidence.StyleBlock)
 				}
 			}
 		}

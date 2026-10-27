@@ -51,6 +51,7 @@ origins. Asset rules currently cover Next.js
 manifests, React client/ReactDOM runtime markers, Vue 3-shaped renderer markers,
 Angular component-runtime markers, jQuery core-runtime indicators, Radix UI
 component-style mappings, Bootstrap CSS, and conservative Tailwind CSS build markers.
+Bootstrap and Tailwind also support bounded inline `<style>` inspection with `--assets`.
 `--assets` also lists skipped external asset origins and declaration counts from the HTML.
 
 There is no crawling, JavaScript execution, version extraction, bulk scanning,

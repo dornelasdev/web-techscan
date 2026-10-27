@@ -44,6 +44,7 @@ type Evidence struct {
 	Signals      []Signal `json:"signals"`
 	InferredFrom string   `json:"inferred_from,omitempty"`
 	AssetURL     string   `json:"asset_url,omitempty"`
+	StyleBlock   int      `json:"style_block,omitempty"`
 }
 
 type Signal struct {
@@ -82,7 +83,8 @@ func NewReport(snapshot fetch.Snapshot, findings []detect.Finding, catalogSize i
 			detail := Evidence{
 				RuleID: evidence.RuleID, Description: evidence.Description,
 				InferredFrom: evidence.InferredFrom, Signals: make([]Signal, 0, len(evidence.Signals)),
-				AssetURL: evidence.AssetURL,
+				AssetURL:   evidence.AssetURL,
+				StyleBlock: evidence.StyleBlock,
 			}
 			for _, signal := range evidence.Signals {
 				detail.Signals = append(detail.Signals, Signal{Source: string(signal.Source), Name: signal.Name})
@@ -111,6 +113,7 @@ func (r Report) RedactQueries() Report {
 		copy.Items = slices.Clone(copy.Items)
 		copy.ExternalOrigins = slices.Clone(copy.ExternalOrigins)
 		copy.AllowedOrigins = slices.Clone(copy.AllowedOrigins)
+		copy.InlineCSS.Items = slices.Clone(copy.InlineCSS.Items)
 		for i := range copy.Items {
 			copy.Items[i].URL = redactURLQuery(copy.Items[i].URL)
 		}

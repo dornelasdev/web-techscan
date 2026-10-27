@@ -124,7 +124,7 @@ func compileTechnology(tech technology) (*compiledTechnology, error) {
 				if m.Name == "Set-Cookie" || m.Name == "Cookie" {
 					return nil, fmt.Errorf("rule %q: use cookie-name matchers instead of cookie headers", r.ID)
 				}
-			case Cookie, HTML, AssetJavaScript, AssetCSS:
+			case Cookie, HTML, AssetJavaScript, AssetCSS, InlineCSS:
 				if m.Name != "" {
 					return nil, fmt.Errorf("rule %q: name is only valid for header matchers", r.ID)
 				}
@@ -139,16 +139,19 @@ func compileTechnology(tech technology) (*compiledTechnology, error) {
 				return nil, fmt.Errorf("rule %q: patterns must not match empty input", r.ID)
 			}
 			cr.matchers = append(cr.matchers, compiledMatcher{source: m.Source, name: m.Name, pattern: pattern})
-			if m.Source == AssetJavaScript || m.Source == AssetCSS {
-				cr.assetSource = m.Source
+			if m.Source == AssetJavaScript || m.Source == AssetCSS || m.Source == InlineCSS {
+				cr.bodySource = m.Source
 			}
 		}
-		if cr.assetSource != "" {
+		if cr.bodySource != "" {
 			if cr.httpStatus != nil {
 				return nil, fmt.Errorf("rule %q: http_status is only valid for page rules", r.ID)
 			}
 			for _, m := range cr.matchers {
-				if m.source != cr.assetSource {
+				if m.source != cr.bodySource {
+					if m.source == InlineCSS || cr.bodySource == InlineCSS {
+						return nil, fmt.Errorf("rule %q: inline CSS rules must use one block source without page or asset matchers", r.ID)
+					}
 					return nil, fmt.Errorf("rule %q: asset rules must use one asset source without page matchers", r.ID)
 				}
 			}

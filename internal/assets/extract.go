@@ -1,6 +1,6 @@
 // Package assets extracts static references and optionally collects bounded,
-// same-origin or explicitly allowed assets. It never executes scripts or follows
-// nested references.
+// same-origin or explicitly allowed assets and inline CSS. It never executes
+// scripts or follows nested references.
 package assets
 
 import (
@@ -51,9 +51,10 @@ func DefaultOptions() Options {
 }
 
 type Result struct {
+	InlineCSS                InlineCSSCollection
 	References               []Reference      // Unique eligible URLs in parsed document order.
 	Truncated                bool             // At least one more eligible URL exceeded MaxReferences.
-	Skipped                  int              // Unsupported, invalid, off-origin or self references.
+	Skipped                  int              // Unsupported, invalid, excluded-origin or self references.
 	Duplicates               int              // Repeated eligible URLs among the retained candidates.
 	ExternalOrigins          []ExternalOrigin // First-seen order, at most MaxExternalOrigins.
 	ExternalOriginsTruncated bool             // Another external origin could not be retained.
@@ -110,7 +111,7 @@ func Extract(finalURL string, body []byte, options Options) (Result, error) {
 		}
 		return true
 	})
-	result := Result{References: make([]Reference, 0), ExternalOrigins: make([]ExternalOrigin, 0)}
+	result := Result{References: make([]Reference, 0), ExternalOrigins: make([]ExternalOrigin, 0), InlineCSS: newInlineCSS("complete", "")}
 	seen := make(map[string]bool)
 	origins := make(map[string]int)
 	pageKey := urlKey(page)
@@ -118,6 +119,7 @@ func Extract(finalURL string, body []byte, options Options) (Result, error) {
 		if inert(n) {
 			return false
 		}
+		collectInlineStyle(n, &result.InlineCSS)
 		raw, kind, declared := declaration(n)
 		if !declared {
 			return true

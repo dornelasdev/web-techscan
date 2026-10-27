@@ -5,6 +5,7 @@ import "webscan/internal/assets"
 // AssetReport is collection metadata only. Bodies and response headers are
 // deliberately absent. Complete means the selected bounded scope, not a site.
 type AssetReport struct {
+	InlineCSS                InlineCSSReport  `json:"inline_css"`
 	Budget                   AssetBudget      `json:"budget"`
 	AllowedOrigins           []string         `json:"allowed_origins"`
 	Mode                     string           `json:"mode"`
@@ -77,5 +78,6 @@ func NewAssetReport(collection assets.Collection) *AssetReport {
 			HTTPStatus: item.HTTPStatus, DecodedBytes: item.Usage.Decoded, EncodedBytes: item.Usage.Encoded,
 		})
 	}
+	report.InlineCSS = newInlineCSSReport(collection.InlineCSS)
 	return report
 }

@@ -16,6 +16,8 @@ The v0.3.0 release baseline contains 23.
   a status code alone never identifies a technology.
 - Asset rules require `--assets` and all markers within one accepted body.
   External origins additionally require `--asset-origin`; collection policies apply.
+- Inline CSS rules require `--assets` and all markers in one accepted `<style>`
+  block, with separate source/block-number evidence. They cover Bootstrap/Tailwind.
 - Direct detections take precedence while retaining other supporting evidence.
 - Evidence records rule IDs and signal locations; asset evidence includes its URL.
 - Versions constrain some patterns but are not extracted or reported.
@@ -775,7 +777,7 @@ either indicator alone and split-file pairs do not match. Quoted/bracket keys,
 reordered properties, escaped product strings, comments between required tokens,
 different initialization/serialization shapes and tree-shaken/split builds can be missed.
 There is no version reporting, full/slim classification or backend implication.
-Off-origin, inline, oversized and unselected assets remain outside coverage.
+Excluded external, inline, oversized and unselected JS remain outside coverage.
 
 Reviewed full/slim minified distributions for 3.7.1 and 4.0.0; both indicators
 occur in all four, independently of their banners. These are provenance baselines,
@@ -795,8 +797,9 @@ Reviewed 2026-10-14. Sources:
 
 ### Bootstrap
 
-Category: `ui_framework`. Rule: `asset-css-banner-and-buttons`. State: `inferred`.
-Requires both markers in one CSS capture:
+Category: `ui_framework`. Rules: `asset-css-banner-and-buttons` and
+`inline-css-banner-and-buttons`. State: `inferred`.
+Requires both markers in one accepted downloaded stylesheet or inline style block:
 
 - A closed `/*!` banner starting with Bootstrap, a stable `v5.2.x`/`v5.3.x` version,
   and the exact `https://getbootstrap.com/` project URL.
@@ -814,7 +817,8 @@ declarations, and component-only grid/reboot builds can be missed. No separate
 RTL coverage claim. Forks retaining the markers can match.
 
 The rule does not establish applied styles, Bootstrap JS use, or a backend.
-Origin restrictions and asset budgets apply; external CDN stylesheets require `--asset-origin`.
+Origin restrictions and asset budgets apply to downloads; external CDN stylesheets
+require `--asset-origin`. Inline CSS uses its separate [limits](policies.md#inline-css).
 
 Reviewed 2026-10-10. Sources:
 [v5.2.3 CSS](https://github.com/twbs/bootstrap/blob/v5.2.3/dist/css/bootstrap.css),
@@ -918,12 +922,17 @@ Sources:
 ### Tailwind CSS
 
 Category: `ui_framework`. State: `inferred`. Requires `--assets` and all markers
-for either rule in one accepted CSS capture:
+for a rule in one accepted CSS capture:
 
 | Rule | Required markers |
 | --- | --- |
 | `asset-css-v3-banner-and-preflight` | Closed official-shaped `/*! tailwindcss v3.4.x \| MIT License \| https://tailwindcss.com */` banner plus a closed before/after pseudo-element rule declaring empty `--tw-content`. |
 | `asset-css-v4-banner-and-translate` | Corresponding stable `v4.1.x` banner; closed `@property --tw-translate-x` registration with `syntax: "*"`, `inherits: false`, `initial-value: 0`; and a closed rule declaring `--tw-translate-x` before `translate: var(--tw-translate-x) var(--tw-translate-y)`. |
+
+`inline-css-v3-banner-and-preflight` and `inline-css-v4-banner-and-translate`
+apply identical patterns to one accepted inline style block under `--assets`.
+Evidence retains `inline_css` signals and a block number. Markers cannot be joined
+across inline blocks, downloaded files, HTML or JavaScript. Separate inline limits apply.
 
 Matching is case-sensitive. Allow whitespace and empty single/double quotes in
 v3 preflight; both pseudo-element selector orders and single/double colons are
@@ -932,7 +941,7 @@ registration retains the listed declaration order; translate blocks allow other
 declarations and custom translation values. Final semicolons are optional.
 
 Banner-only, class names, filenames, generic utility CSS, bare `--tw-` prefixes,
-inline styles, JavaScript bodies, split-file markers and mismatched banner/rule
+style attributes, JavaScript bodies, split-file/block markers and mismatched banner/rule
 families do not suffice. Neither rule establishes applied styles, execution,
 backend technology, Radix UI or shadcn/ui use. No versions are reported.
 
@@ -940,7 +949,7 @@ Initial baselines are upstream v3.4.17 preflight/banner generation and v4.1.0
 compiler snapshots, not every build in either family. Stripped/changed banners,
 prereleases, other version families, custom serialization/identifiers, disabled
 preflight in v3, and absence of the selected translate output in v4 can miss.
-Off-origin, imported-only, failed, incomplete and over-budget styles are not
+Excluded external, imported-only, failed, incomplete and over-budget styles are not
 inspected. Copied/commented CSS or forks retaining the markers can match.
 
 Reviewed 2026-10-22. Own-authored rules and minimal synthetic fixtures; no

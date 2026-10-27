@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Added bounded inline CSS inspection with `--assets` for existing Bootstrap and
+  Tailwind fingerprints, with separate `inline_css`/block-number evidence and
+  status metadata. Limits: 20 eligible blocks, 512 KiB each, 1 MiB retained total.
+  No extra requests, style-attribute matching, cross-block joins or JS execution.
 - Added repeatable `--asset-origin` for explicit additional asset origins with
   `--assets`, plus configured-origin metadata. Shared request/byte/time limits,
   normal TLS/MIME checks and no asset redirects or credential forwarding remain.

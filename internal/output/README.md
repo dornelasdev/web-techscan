@@ -65,7 +65,7 @@ an extracted application version or additional Actuator capability findings.
 
 Each evidence entry has a `description` and a `signals` array. Matched rules
 also have `rule_id`. A signal has `source` (`header`, `cookie`, `html`,
-`asset_javascript`, or `asset_css`) and
+`asset_javascript`, `asset_css`, or `inline_css`) and
 an optional `name` for header names. Inference relationships instead have an
 `inferred_from` technology ID, and an empty `signals` array. An indirect rule
 can have state `inferred` while retaining its own `rule_id` and observed signals.
@@ -74,6 +74,10 @@ signals belong to that one captured asset. Different matching assets retain
 separate evidence entries on a single technology finding; repeated markers in
 the same asset do not duplicate evidence. Inference relationships still point
 to the source technology, whose evidence carries any asset provenance.
+Inline CSS rules instead include positive `style_block` and omit `asset_url`.
+The block number is one-based among eligible CSS style elements in parsed final
+HTML, including empty/skipped slots; it is not a line number or selector. Multiple
+matching blocks retain separate evidence. Other evidence omits `style_block`.
 
 Language relationships currently use Laravel → PHP, Django → Python, and
 Rails → Ruby. Python and Ruby have no direct rules and remain `inferred`;
@@ -126,6 +130,7 @@ all selected assets must check the collection status and individual items.
 | `mode` | Currently `fingerprint_inspection`; supported rules inspect captured content without execution |
 | `budget` | Configured profile and four payload limits, including for skipped/empty collection scopes |
 | `allowed_origins` | Normalized explicitly configured origins, in input order after deduplication; always an array |
+| `inline_css` | Separate bounded local CSS inspection status/counts/limits/items; no bodies |
 | `status` | `complete` within bounded eligible scope, `incomplete`, or whole-pass `skipped` |
 | `reason` | Optional safe summary code |
 | `truncated` | More eligible distinct references existed than the five retained |
@@ -165,6 +170,24 @@ origins no longer contribute to the skipped-origin summary. Report construction
 and query redaction copy this slice; terminal output sanitizes each origin and
 shows configured scope separately from skipped-origin declarations and asset items.
 Empty configuration is `[]`; page-only reports still omit the entire assets object.
+
+`inline_css` contains `status`, optional `reason`, `max_blocks` (20),
+`max_block_bytes` (524288), `max_total_bytes` (1048576), `seen`, `collected`,
+`skipped`, `bytes`, `truncated`, and non-null `items`. `bytes` counts retained
+parsed CSS text, never network usage. `seen` includes all eligible style elements;
+empty/rejected blocks consume slots, and `skipped` includes those beyond slot 20.
+Items cover the first 20 slots with `index`, `status` (`collected`/`skipped`),
+optional `reason`, and whole parsed `bytes`. Rejected bodies never reach detection.
+Truncation refers only to extra eligible style elements beyond the 20 slots;
+byte limits skip whole blocks without setting it. The first cap reason is
+`block_limit`, `block_byte_limit` or `total_byte_limit`. Whole-pass skips reuse the
+asset selection reason and have empty items/counts. Successful empty inspection
+is complete. Inline state is independent of network asset status/counters.
+
+Report construction and redaction copy inline item metadata; evidence keeps its
+block number and `inline_css` signals. Terminal output shows a separate inline
+summary and matched block numbers, sanitizing all displayed strings. No CSS text
+or fabricated URL enters reports. These are additive schema-1 fields.
 
 `budget` contains `profile` (`standard`/`expanded`), `max_asset_decoded_bytes`,
 `max_asset_encoded_bytes`, `max_total_decoded_bytes`, and

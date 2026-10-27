@@ -35,7 +35,7 @@ Options:
   --json                    Print a JSON scan report or technology catalog
   --redact-query            Redact URL queries in scan reports (default false)
   --prefer-html             Prefer HTML responses for pages, not assets (default false)
-  --assets                  Inspect bounded same-origin JS/CSS; list skipped external origins
+  --assets                  Inspect bounded JS/CSS assets and inline CSS; list skipped origins
   --asset-budget profile    Asset budget: standard or expanded (default standard; requires --assets)
   --asset-origin origin     Allow an additional asset origin (repeatable; requires --assets)
   --color mode              Color: auto, always, never (default auto)
@@ -57,7 +57,7 @@ func Run(args []string, stdout, stderr io.Writer, version string) int {
 	flags.SetOutput(io.Discard)
 	showVersion := flags.Bool("version", false, "Show version")
 	showTechs := flags.Bool("techs", false, "List supported technologies")
-	collectAssets := flags.Bool("assets", false, "Inspect bounded same-origin JS/CSS and list skipped external origins")
+	collectAssets := flags.Bool("assets", false, "Inspect bounded JS/CSS assets and inline CSS; list skipped origins")
 	assetBudgetProfile := flags.String("asset-budget", "standard", "Asset budget profile: standard or expanded")
 	var originInputs []string
 	flags.Func("asset-origin", "Allow an additional asset origin (repeatable; requires --assets)", func(value string) error {
@@ -220,6 +220,9 @@ func fetchPage(target string, options fetch.Options, presentation outputOptions,
 				source = detect.AssetCSS
 			}
 			input.Assets = append(input.Assets, detect.Asset{URL: capture.URL, Source: source, Body: capture.Body})
+		}
+		for _, block := range collection.InlineCSS.Blocks {
+			input.InlineStyles = append(input.InlineStyles, detect.InlineStyle{Index: block.Index, Body: block.Body})
 		}
 		assetReport = output.NewAssetReport(collection)
 	}

@@ -60,7 +60,7 @@ This illustrates the format, not a real detection rule:
 - Page rules may additionally set `"http_status": {"min": 400, "max": 599}`.
   Both integer bounds are required and inclusive: `100 <= min <= max <= 599`.
   Omit the field for unconstrained rules. Null, empty, malformed and unknown-field
-  ranges are rejected; status-gated asset rules are rejected. A missing input
+  ranges are rejected; status-gated asset/inline rules are rejected. A missing input
   status (zero) cannot satisfy a range. Existing ungated rules are unchanged.
   The condition uses only the final page response, never redirect/asset statuses;
   it cannot identify a technology without the rule's required signal matchers.
@@ -73,6 +73,10 @@ This illustrates the format, not a real detection rule:
   an asset rule must use the same asset source and succeed in the **same body**.
   Mixed page/asset or JS/CSS rules and asset matcher names are rejected. No
   filename/URL matching, asset headers, content concatenation or execution.
+- `inline_css` uses only accepted parsed style blocks supplied under `--assets`.
+  All matchers must share that source and succeed in the same block. Mixed
+  page/asset/inline rules, matcher names and `http_status` are rejected. No HTML
+  parsing in the engine, synthetic asset URL or joins between blocks/files.
 - Patterns use Go regular expressions and are case sensitive unless they
   include `(?i)`. Use anchors and explicit boundaries where appropriate.
   Invalid patterns and patterns matching empty input are rejected.
@@ -91,6 +95,10 @@ This illustrates the format, not a real detection rule:
 Descriptions explain why a rule supports a finding. Evidence includes the rule
 ID and signal locations, not captured response values. Asset evidence additionally
 includes `asset_url`, with the existing report redaction/display policies applied.
+Inline CSS evidence instead includes positive `style_block`, a one-based ordinal
+among eligible style elements (including skipped/empty slots). Signals retain
+`inline_css`; matching blocks produce separate evidence in input order per rule,
+deduplicated by block index, without duplicating the technology finding.
 There are no confidence
 percentages or automatic version extraction in this format.
 Status ranges are rule eligibility conditions, not a new signal source. Evidence

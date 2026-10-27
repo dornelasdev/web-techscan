@@ -42,7 +42,7 @@ func TestCLIBootstrapCSS(t *testing.T) {
 						switch r.URL.Path {
 						case "/":
 							w.Header().Set("Content-Type", "text/html")
-							fmt.Fprintf(w, `<style>%s</style><link rel="stylesheet" href="/renamed?asset=1">`, body)
+							fmt.Fprintf(w, `<template><style>%s</style></template><link rel="stylesheet" href="/renamed?asset=1">`, body)
 						case "/renamed":
 							w.Header().Set("Content-Type", "text/css; charset=utf-8")
 							fmt.Fprint(w, string(body))
@@ -113,7 +113,7 @@ func TestCLIBootstrapCSS(t *testing.T) {
 							t.Errorf("terminal=%s", &stdout)
 						}
 					} else if strings.Contains(stdout.String(), "Bootstrap") {
-						t.Errorf("inline CSS produced finding: %s", &stdout)
+						t.Errorf("inert CSS produced finding: %s", &stdout)
 					}
 					if strings.Contains(stdout.String(), "--bs-btn-") || strings.Contains(stdout.String(), "getbootstrap.com") {
 						t.Error("raw CSS leaked into output")

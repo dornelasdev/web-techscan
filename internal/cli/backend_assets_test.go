@@ -65,9 +65,8 @@ func TestCLIBackendAndNegotiatedAssetEvidence(t *testing.T) {
 						htmlBody = strings.ReplaceAll(htmlBody, marker, "")
 					}
 				}
-				// Inline JS/CSS text is insufficient for asset-only rules, even
-				// on an HTML page selected by content negotiation.
-				htmlBody += "<script>" + js + "</script><style>" + css + "</style>"
+				// Inline JS and CSS inside a template cannot supply body evidence.
+				htmlBody += "<script>" + js + "</script><template><style>" + css + "</style></template>"
 				htmlBody += `<script src="/app.js?token=private-query"></script><link rel="stylesheet" href="/app.css?token=private-query">`
 				jsBody, cssBody := js+assetDecoys, css+assetDecoys
 				if tc.wrongKind {

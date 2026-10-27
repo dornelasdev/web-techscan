@@ -56,7 +56,7 @@ help. URLs containing credentials are rejected; fragments are removed.
 | `--techs` | false | List bundled technologies without network access. |
 | `--json` | false | Render a scan report or catalog as JSON. |
 | `--prefer-html` | false | Prefer HTML for page requests, not assets. |
-| `--assets` | false | Inspect eligible same-origin JS/CSS and list skipped external origins. |
+| `--assets` | false | Inspect eligible JS/CSS assets and inline CSS; list skipped external origins. |
 | `--asset-budget standard\|expanded` | standard | Select asset payload limits; requires `--assets`. |
 | `--asset-origin origin` | — | Allow an additional exact asset origin; repeatable, requires `--assets`. |
 | `--redact-query` | false | Replace queries in report URLs. |
@@ -121,6 +121,27 @@ HTTP assets from HTTPS pages remain excluded, including with
 Reports include configured `assets.allowed_origins`; `external_origins` lists only
 origins still excluded. Configured HTTP origins can appear in both lists when the
 final page is HTTPS. See [policies](policies.md#asset-inspection).
+
+### Inline CSS
+
+`--assets` also inspects CSS `<style>` elements in the final HTML. Initial rules
+cover Bootstrap and Tailwind with the same marker requirements as downloaded CSS.
+Evidence shows an inline style-block number instead of an asset URL.
+
+| Limit | Value |
+| --- | ---: |
+| Eligible style-element slots | 20 |
+| Parsed CSS bytes per block | 512 KiB |
+| Combined retained CSS | 1 MiB |
+
+Blocks stay separate. Oversized or over-budget blocks are skipped whole; smaller
+later blocks within the first 20 slots can still qualify. Empty blocks count as
+slots. No extra requests or asset attempt slots are used. `--asset-budget expanded`
+does not change inline limits. Imports and `style=""` attributes are not inspected.
+
+JSON includes `assets.inline_css` status, limits, counts and per-block metadata;
+matching evidence uses `inline_css` signals and `style_block`. Inline and downloaded
+collection statuses are separate. See [policies](policies.md#inline-css).
 
 ### Catalog mode
 

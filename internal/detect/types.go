@@ -36,16 +36,25 @@ const (
 	HTML            Source = "html"
 	AssetJavaScript Source = "asset_javascript"
 	AssetCSS        Source = "asset_css"
+	InlineCSS       Source = "inline_css"
 )
 
-// Input keeps final-page signals separate from successfully collected assets.
-// HTML is populated only for HTML documents, never asset or redirect bodies.
+// Input keeps final-page signals, accepted assets and parsed inline blocks
+// separate. HTML is never populated from asset or redirect bodies.
 type Input struct {
-	HTTPStatus  int // Final response status; zero means unavailable.
-	Headers     http.Header
-	CookieNames []string
-	HTML        []byte
-	Assets      []Asset
+	HTTPStatus   int // Final response status; zero means unavailable.
+	Headers      http.Header
+	CookieNames  []string
+	HTML         []byte
+	Assets       []Asset
+	InlineStyles []InlineStyle
+}
+
+// InlineStyle is one complete parsed style block. Index is its positive,
+// one-based ordinal among eligible CSS style elements in the final document.
+type InlineStyle struct {
+	Index int
+	Body  []byte
 }
 
 // Asset is one complete, MIME-validated captured body, not an executed script.
@@ -79,6 +88,7 @@ type Evidence struct {
 	Signals      []Signal
 	InferredFrom string
 	AssetURL     string // Present only for a rule matched within this one asset.
+	StyleBlock   int    // Present only for inline CSS; never a synthetic asset URL.
 }
 
 type Signal struct {

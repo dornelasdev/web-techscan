@@ -114,7 +114,7 @@ func TestCLICombinedFrontendAssets(t *testing.T) {
 							if scenario.nuxtHeader {
 								w.Header().Add("X-Powered-By", "Nuxt")
 							}
-							fmt.Fprintf(w, `<script id="__NEXT_DATA__" type="application/json">{}</script><script id="__NUXT_DATA__" type="application/json">[]</script><script>%s%s%s%s</script><style>%s</style>`, react, vue, dom, angular, css)
+							fmt.Fprintf(w, `<script id="__NEXT_DATA__" type="application/json">{}</script><script id="__NUXT_DATA__" type="application/json">[]</script><script>%s%s%s%s</script><template><style>%s</style></template>`, react, vue, dom, angular, css)
 							if !scenario.noAngularHTML {
 								fmt.Fprint(w, `<app-shell ng-version="20.3.0" ng-server-context="ssg"></app-shell>`)
 							}

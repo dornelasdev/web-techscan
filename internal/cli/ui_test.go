@@ -66,9 +66,9 @@ func TestCLICombinedUIFrameworks(t *testing.T) {
 				if tc.partial {
 					page = `<div data-slot="sidebar-inner" data-sidebar="sidebar"><ul data-slot="sidebar-menu" data-sidebar="menu">`
 				}
-				// Inline JS/CSS may not supply asset evidence. Complete shadcn HTML
+				// Inline JS/inert CSS may not supply body evidence. Complete shadcn HTML
 				// appears only in the asset decoys when the final page is partial.
-				page += "<style>" + b + tw3 + tw4 + "</style><script>" + r + "</script>"
+				page += "<template><style>" + b + tw3 + tw4 + "</style></template><script>" + r + "</script>"
 				for _, path := range paths {
 					if strings.HasPrefix(path, "/styles") || strings.HasPrefix(path, "/tailwind") {
 						page += `<link rel="stylesheet" href="` + path + `">`

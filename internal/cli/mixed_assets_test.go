@@ -64,7 +64,7 @@ func TestCLIMixedAssetFailuresIsolationAndRedaction(t *testing.T) {
 							w.Header().Set("Server", "nginx")
 							w.Header().Set("X-Powered-By", "Next.js")
 							w.Header().Set("Set-Cookie", "unrelated=private-cookie; Path=/")
-							fmt.Fprintf(w, `<style>%s</style><script>%s</script><script src="/script?private-js=1"></script><link rel="stylesheet" href="/style?private-css=1"><link rel="stylesheet" href="/style?private-css=1#duplicate">`, css, buildManifestFixture)
+							fmt.Fprintf(w, `<template><style>%s</style></template><script>%s</script><script src="/script?private-js=1"></script><link rel="stylesheet" href="/style?private-css=1"><link rel="stylesheet" href="/style?private-css=1#duplicate">`, css, buildManifestFixture)
 							if scenario.lateFailure {
 								fmt.Fprint(w, `<script src="/late?private-late=1"></script>`)
 							}
