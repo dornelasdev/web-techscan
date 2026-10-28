@@ -3,7 +3,7 @@
 [README](../README.md) · [Usage](usage.md) · [Policies](policies.md)
 
 Rules are embedded in the binary. Use `webscan --techs` to list its catalog.
-The development catalog contains 41 technologies across ten categories.
+The development catalog contains 42 technologies across ten categories.
 The v0.3.0 release baseline contains 23.
 
 ## Evidence
@@ -830,6 +830,47 @@ Reviewed 2026-10-28. Pinned upstream sources:
 [4.1.8 source](https://github.com/aFarkas/lazysizes/blob/bc7d258bdef330beba7d8cde8b732b87ab080650/lazysizes.js),
 [4.1.8 minified](https://github.com/aFarkas/lazysizes/blob/bc7d258bdef330beba7d8cde8b732b87ab080650/lazysizes.min.js),
 [5.3.1 minified](https://github.com/aFarkas/lazysizes/blob/81cf774c6a7f4d8f7f3909e225a65d8acb10cb20/lazysizes.min.js).
+
+### Modernizr
+
+Category: `javascript_library`. Rule: `asset-v2-core-runtime`. State: `inferred`.
+Require both indicators in one accepted JavaScript capture with `--assets`:
+
+- A dot-property `Modernizr` assignment to an anonymous function with three
+  ASCII identifier parameters and an opening body brace. Allow an opening
+  parenthesis before `function`, as in the reviewed 2.x source wrapper.
+- Adjacent dot-property assignments to `_domPrefixes` and `_cssomPrefixes`, in
+  that order, with ASCII identifier receivers/values and a semicolon or comma
+  between assignments. Both assignments must be complete; no intervening code.
+
+Product/property names are case-sensitive. Allow whitespace and renamed ASCII
+identifiers. The engine does not establish identifier equality, common scope,
+global ownership, valid JavaScript, closure completion or execution. Copied,
+commented or modified code retaining both shapes can match.
+
+Filenames, banners, `no-js`/feature classes, feature checks and ordinary API calls
+do not match by themselves. Either indicator alone, split-file pairs, HTML/inline
+JavaScript, CSS, cookies, headers and redirect-hop evidence do not complete this
+rule. Quoted/bracket properties, named/arrow factories, other parameter counts,
+comments between required tokens, reordered/separated prefix assignments,
+property mangling and custom/split builds can miss.
+
+Initial coverage targets the reviewed 2.x-shaped implementation. Modernizr 3's
+prototype/module layout needs separate fingerprint work. Version literals are
+not required, extracted or reported; no backend or other technology implications.
+Existing complete-capture, origin, MIME and budget policies apply.
+
+Reviewed readable upstream 2.6.2 and 2.8.3 sources and the served ESPN head script,
+which contains both proposed structures; no version is attributed to that site
+asset. These are provenance baselines, not exhaustive release/build coverage.
+Fixtures are authored readable/compact scaffolds, not imported site or library
+bundles. No JavaScript execution is performed.
+
+Reviewed 2026-10-28. Pinned sources:
+[2.6.2 source](https://github.com/Modernizr/Modernizr/blob/87c723720a48254ae37ffd56829e32a96f5c5496/modernizr.js),
+[2.8.3 source](https://github.com/Modernizr/Modernizr/blob/d6bb30c0f12ebb3ddd01e90b0bf435e1c34e6f11/modernizr.js),
+[3.13.1 prototype comparison](https://github.com/Modernizr/Modernizr/blob/6e0ab8316ba2aa885e3f53bf109c42f41544d163/src/ModernizrProto.js),
+[3.13.1 construction comparison](https://github.com/Modernizr/Modernizr/blob/6e0ab8316ba2aa885e3f53bf109c42f41544d163/src/Modernizr.js).
 
 ## UI frameworks
 

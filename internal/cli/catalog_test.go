@@ -70,7 +70,7 @@ func TestTechsCatalogOffline(t *testing.T) {
 				if !strings.Contains(stdout.String(), "    Nuxt\n    Ruby on Rails\n    Spring Boot\n  JavaScript frameworks\n") {
 					t.Error("Spring Boot must end the alphabetically ordered web-framework category")
 				}
-				if !strings.Contains(stdout.String(), "JavaScript frameworks\n    Angular\n    React\n    Vue\n  JavaScript libraries\n    jQuery\n    lazySizes\n  UI frameworks\n") {
+				if !strings.Contains(stdout.String(), "JavaScript frameworks\n    Angular\n    React\n    Vue\n  JavaScript libraries\n    jQuery\n    lazySizes\n    Modernizr\n  UI frameworks\n") {
 					t.Error("JavaScript frameworks and libraries must retain category/name order")
 				}
 				if !strings.Contains(stdout.String(), "\n  UI frameworks\n    Bootstrap\n    Radix UI\n    shadcn/ui\n    Tailwind CSS\n") {
@@ -167,6 +167,9 @@ func TestTechsCatalogOffline(t *testing.T) {
 			}
 			if got := byID["lazysizes"]; got.Name != "lazySizes" || got.Category != "javascript_library" {
 				t.Errorf("missing or incorrect lazySizes metadata: %+v", got)
+			}
+			if got := byID["modernizr"]; got.Name != "Modernizr" || got.Category != "javascript_library" {
+				t.Errorf("missing or incorrect Modernizr metadata: %+v", got)
 			}
 			for _, tech := range engine.Technologies() {
 				if got := byID[tech.ID]; got.Name != tech.Name || got.Category != string(tech.Category) {

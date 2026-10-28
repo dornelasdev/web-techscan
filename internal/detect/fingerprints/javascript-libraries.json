@@ -44,6 +44,28 @@
           ]
         }
       ]
+    },
+    {
+      "id": "modernizr",
+      "name": "Modernizr",
+      "category": "javascript_library",
+      "rules": [
+        {
+          "id": "asset-v2-core-runtime",
+          "state": "inferred",
+          "description": "Paired factory initialization and prefix metadata assignments in captured JavaScript suggest Modernizr",
+          "all": [
+            {
+              "source": "asset_javascript",
+              "pattern": "(?:^|[^A-Za-z0-9_$.\\\\])[A-Za-z_$][A-Za-z0-9_$]*\\s*\\.\\s*Modernizr\\s*=\\s*\\(?\\s*function\\s*\\(\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*,\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*,\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*\\)\\s*\\{"
+            },
+            {
+              "source": "asset_javascript",
+              "pattern": "(?:^|[^A-Za-z0-9_$.\\\\])[A-Za-z_$][A-Za-z0-9_$]*\\s*\\.\\s*_domPrefixes\\s*=\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*[;,]\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*\\.\\s*_cssomPrefixes\\s*=\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*(?:[;,}]|$)"
+            }
+          ]
+        }
+      ]
     }
   ]
 }

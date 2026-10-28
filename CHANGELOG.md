@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Added initial Modernizr inference from paired 2.x-shaped factory and prefix
+  metadata in one accepted JavaScript asset. Requires `--assets`; no generic
+  API/class-name fallback, version reporting, implications or extra requests.
 - Added initial lazySizes inference from paired configuration initialization and
   core API mappings in one accepted JavaScript asset. Requires `--assets`; no
   filename/class-name fallback, version reporting, implications or extra requests.
@@ -71,7 +74,7 @@
   page findings preserved through asset failures and redirect/asset isolation.
 - Added combined Bootstrap/Tailwind/Radix/shadcn regressions for shared/separate
   assets, partial evidence, optional failures and copy-safe report provenance.
-- The development catalog contains 41 technologies across ten categories.
+- The development catalog contains 42 technologies across ten categories.
 
 ## v0.3.0 — 2026-10-16
 
