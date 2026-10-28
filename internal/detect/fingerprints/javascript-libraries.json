@@ -22,6 +22,28 @@
           ]
         }
       ]
+    },
+    {
+      "id": "lazysizes",
+      "name": "lazySizes",
+      "category": "javascript_library",
+      "rules": [
+        {
+          "id": "asset-core-runtime",
+          "state": "inferred",
+          "description": "Paired configuration initialization and core API mappings in captured JavaScript suggest lazySizes",
+          "all": [
+            {
+              "source": "asset_javascript",
+              "pattern": "(?:^|[^A-Za-z0-9_$.\\\\])[A-Za-z_$][A-Za-z0-9_$]*\\s*=\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*\\.\\s*lazySizesConfig\\s*\\|\\|\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*\\.\\s*lazysizesConfig\\s*\\|\\|\\s*\\{\\s*\\}\\s*(?:[;,)}]|$)"
+            },
+            {
+              "source": "asset_javascript",
+              "pattern": "\\{\\s*cfg\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*,\\s*autoSizer\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*,\\s*loader\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*,\\s*init\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*,\\s*uP\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*,\\s*aC\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*,\\s*rC\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*,\\s*hC\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*,\\s*fire\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*,\\s*gW\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*(?:\\s*,\\s*rAF\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*)?\\s*,?\\s*\\}"
+            }
+          ]
+        }
+      ]
     }
   ]
 }

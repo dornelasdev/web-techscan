@@ -157,7 +157,7 @@ case-insensitively within each category:
 Angular, React, and Vue use `javascript_framework`. ASP.NET Core, Django, Express,
 FastAPI, Fiber, Laravel, Next.js, Nuxt, Rails, and Spring Boot use `framework` (web frameworks,
 including full-stack frameworks). Groups are static organization, not additional detections.
-jQuery uses `javascript_library`; its content rule requires `--assets`.
+jQuery and lazySizes use `javascript_library`; their content rules require `--assets`.
 Catalog JSON remains a flat array with `id`, `name`, and `category`; no `group`
 field is added. Use technology IDs for automation, not category assignments.
 
@@ -232,6 +232,8 @@ contracts. Combined frontend checks include Angular HTML/JS and React
 client/ReactDOM evidence, split indicators and oversized captures.
 jQuery checks include core-indicator pairs, plugin-style decoys, source isolation,
 gzip, incomplete/oversized captures and evidence URL redaction.
+lazySizes checks include paired configuration/core mappings, short/full API
+objects, source isolation, explicit origins, optional failures and URL redaction.
 Tailwind CSS checks cover v3.4/v4.1-shaped marker combinations, near misses,
 same-file/source isolation, failed captures, redirects and evidence provenance.
 Radix UI checks cover Popover/Tooltip mapping trios, same-object/file/source

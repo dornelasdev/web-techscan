@@ -134,7 +134,7 @@ func TestPythonHTTPServerPageAndAssetIsolationThroughCLI(t *testing.T) {
 							t.Fatal(err)
 						}
 						pageURL := server.URL + "/page?[redacted]"
-						if report.SchemaVersion != 1 || report.CatalogSize != 40 || !report.QueryRedacted || report.URL != pageURL || report.FinalURL != pageURL || report.HTTPStatus != 403 || report.ResponseScope != "http_error_response" || report.BodyBytes != len(body) || report.Redirects == nil || len(report.Redirects) != 0 || len(report.Findings) != len(ids) {
+						if report.SchemaVersion != 1 || report.CatalogSize != 41 || !report.QueryRedacted || report.URL != pageURL || report.FinalURL != pageURL || report.HTTPStatus != 403 || report.ResponseScope != "http_error_response" || report.BodyBytes != len(body) || report.Redirects == nil || len(report.Redirects) != 0 || len(report.Findings) != len(ids) {
 							t.Fatalf("unexpected metadata: %+v", report)
 						}
 						for i, id := range ids {

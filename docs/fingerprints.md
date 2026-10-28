@@ -3,7 +3,7 @@
 [README](../README.md) · [Usage](usage.md) · [Policies](policies.md)
 
 Rules are embedded in the binary. Use `webscan --techs` to list its catalog.
-The development catalog contains 40 technologies across ten categories.
+The development catalog contains 41 technologies across ten categories.
 The v0.3.0 release baseline contains 23.
 
 ## Evidence
@@ -792,6 +792,44 @@ Reviewed 2026-10-14. Sources:
 [4.0.0 full production build](https://code.jquery.com/jquery-4.0.0.min.js),
 [4.0.0 slim production build](https://code.jquery.com/jquery-4.0.0.slim.min.js),
 [MIT license](https://jquery.com/license/).
+
+### lazySizes
+
+Category: `javascript_library`. Rule: `asset-core-runtime`. State: `inferred`.
+Require both indicators in one accepted JavaScript capture with `--assets`:
+
+- An ASCII identifier assignment selecting dot properties `lazySizesConfig`,
+  then `lazysizesConfig`, then an empty object using `||`. Both property names
+  are case-sensitive. Declaration and expression assignments are supported,
+  including the reviewed `for ... in` initializer shape.
+- One closed flat object containing unquoted `cfg`, `autoSizer`, `loader`, `init`,
+  `uP`, `aC`, `rC`, `hC`, `fire` and `gW` keys in that order, with ASCII identifier
+  values. An additional final `rAF` mapping and a trailing comma are optional.
+
+Allow whitespace and renamed ASCII identifiers. The engine does not establish
+identifier equality, common scope, JavaScript validity or execution. Copied,
+commented or modified code retaining both shapes can match.
+
+Filenames, banners, `lazyload` classes, configuration or API usage alone do not
+match. Neither do split files, HTML/inline JavaScript, CSS, cookies, headers or
+redirect-hop evidence. Quoted/bracket keys, comments between required tokens,
+reordered/additional fields, property mangling, alternate configuration shapes
+and split/tree-shaken builds can miss. No version, backend or other library
+implications. Existing complete-capture, origin, MIME and budget policies apply.
+
+Reviewed readable and minified 2.0.7/4.1.8 and minified 5.3.1 distributions. These
+are provenance baselines, not exhaustive release/build coverage. The readable
+5.3.1 API object has an intervening documentation comment and is outside the
+initial rule shape. ESPN's reviewed served variant retains the shorter API
+object without `rAF`; no version is attributed to that modified body. Fixtures
+are locally authored scaffolds, not imported upstream or site bundles.
+
+Reviewed 2026-10-28. Pinned upstream sources:
+[2.0.7 source](https://github.com/aFarkas/lazysizes/blob/83fe800b9fa81f924f2dcc11b6d8cc4e075044b6/lazysizes.js),
+[2.0.7 minified](https://github.com/aFarkas/lazysizes/blob/83fe800b9fa81f924f2dcc11b6d8cc4e075044b6/lazysizes.min.js),
+[4.1.8 source](https://github.com/aFarkas/lazysizes/blob/bc7d258bdef330beba7d8cde8b732b87ab080650/lazysizes.js),
+[4.1.8 minified](https://github.com/aFarkas/lazysizes/blob/bc7d258bdef330beba7d8cde8b732b87ab080650/lazysizes.min.js),
+[5.3.1 minified](https://github.com/aFarkas/lazysizes/blob/81cf774c6a7f4d8f7f3909e225a65d8acb10cb20/lazysizes.min.js).
 
 ## UI frameworks
 

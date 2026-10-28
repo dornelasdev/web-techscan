@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Added initial lazySizes inference from paired configuration initialization and
+  core API mappings in one accepted JavaScript asset. Requires `--assets`; no
+  filename/class-name fallback, version reporting, implications or extra requests.
 - Added bounded inline CSS inspection with `--assets` for existing Bootstrap and
   Tailwind fingerprints, with separate `inline_css`/block-number evidence and
   status metadata. Limits: 20 eligible blocks, 512 KiB each, 1 MiB retained total.
@@ -68,7 +71,7 @@
   page findings preserved through asset failures and redirect/asset isolation.
 - Added combined Bootstrap/Tailwind/Radix/shadcn regressions for shared/separate
   assets, partial evidence, optional failures and copy-safe report provenance.
-- The development catalog contains 40 technologies across ten categories.
+- The development catalog contains 41 technologies across ten categories.
 
 ## v0.3.0 — 2026-10-16
 

@@ -62,7 +62,7 @@ func TestBundledTaxonomy(t *testing.T) {
 		switch tech.ID {
 		case "angular", "react", "vue":
 			want = detect.JSFramework
-		case "jquery":
+		case "jquery", "lazysizes":
 			want = detect.JSLibrary
 		case "bootstrap", "radix-ui", "shadcn-ui", "tailwindcss":
 			want = detect.UIFramework
@@ -82,7 +82,7 @@ func TestBundledTaxonomy(t *testing.T) {
 		}
 		counts[tech.Category]++
 	}
-	if engine.Len() != 40 || len(counts) != 10 || counts[detect.Framework] != 10 || counts[detect.JSFramework] != 3 || counts[detect.JSLibrary] != 1 || counts[detect.UIFramework] != 4 || counts[detect.Language] != 3 || counts[detect.WebServer] != 11 {
+	if engine.Len() != 41 || len(counts) != 10 || counts[detect.Framework] != 10 || counts[detect.JSFramework] != 3 || counts[detect.JSLibrary] != 2 || counts[detect.UIFramework] != 4 || counts[detect.Language] != 3 || counts[detect.WebServer] != 11 {
 		t.Fatalf("unexpected catalog taxonomy: size=%d counts=%v", engine.Len(), counts)
 	}
 }
