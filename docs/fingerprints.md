@@ -804,7 +804,9 @@ Require both indicators in one accepted JavaScript capture with `--assets`:
   including the reviewed `for ... in` initializer shape.
 - One closed flat object containing unquoted `cfg`, `autoSizer`, `loader`, `init`,
   `uP`, `aC`, `rC`, `hC`, `fire` and `gW` keys in that order, with ASCII identifier
-  values. An additional final `rAF` mapping and a trailing comma are optional.
+  values. One closed block comment is allowed between the opening brace and
+  `cfg`, covering the reviewed readable JSDoc form. An additional final `rAF`
+  mapping and a trailing comma are optional.
 
 Allow whitespace and renamed ASCII identifiers. The engine does not establish
 identifier equality, common scope, JavaScript validity or execution. Copied,
@@ -812,24 +814,31 @@ commented or modified code retaining both shapes can match.
 
 Filenames, banners, `lazyload` classes, configuration or API usage alone do not
 match. Neither do split files, HTML/inline JavaScript, CSS, cookies, headers or
-redirect-hop evidence. Quoted/bracket keys, comments between required tokens,
+redirect-hop evidence. Quoted/bracket keys, comments elsewhere between required tokens,
 reordered/additional fields, property mangling, alternate configuration shapes
 and split/tree-shaken builds can miss. No version, backend or other library
 implications. Existing complete-capture, origin, MIME and budget policies apply.
 
-Reviewed readable and minified 2.0.7/4.1.8 and minified 5.3.1 distributions. These
-are provenance baselines, not exhaustive release/build coverage. The readable
-5.3.1 API object has an intervening documentation comment and is outside the
-initial rule shape. ESPN's reviewed served variant retains the shorter API
-object without `rAF`; no version is attributed to that modified body. Fixtures
-are locally authored scaffolds, not imported upstream or site bundles.
+Reviewed readable and minified 2.0.7/4.1.8/5.3.1 standard files and the pinned
+5.3.2 standard/UMD readable and minified files. These are provenance baselines,
+not exhaustive release/build coverage. The readable 5.3.1/5.3.2 API objects have
+a JSDoc block before `cfg`; all API fields remain required after it. Unterminated
+or multiple leading comments, line comments and intervening code are unsupported.
+ESPN's reviewed served variant retains the shorter API object without `rAF`; no
+version is attributed to that modified body. Fixtures are locally authored
+scaffolds, not imported upstream or site bundles.
 
-Reviewed 2026-10-28. Pinned upstream sources:
+Reviewed 2026-11-01. Pinned upstream sources:
 [2.0.7 source](https://github.com/aFarkas/lazysizes/blob/83fe800b9fa81f924f2dcc11b6d8cc4e075044b6/lazysizes.js),
 [2.0.7 minified](https://github.com/aFarkas/lazysizes/blob/83fe800b9fa81f924f2dcc11b6d8cc4e075044b6/lazysizes.min.js),
 [4.1.8 source](https://github.com/aFarkas/lazysizes/blob/bc7d258bdef330beba7d8cde8b732b87ab080650/lazysizes.js),
 [4.1.8 minified](https://github.com/aFarkas/lazysizes/blob/bc7d258bdef330beba7d8cde8b732b87ab080650/lazysizes.min.js),
-[5.3.1 minified](https://github.com/aFarkas/lazysizes/blob/81cf774c6a7f4d8f7f3909e225a65d8acb10cb20/lazysizes.min.js).
+[5.3.1 source](https://github.com/aFarkas/lazysizes/blob/81cf774c6a7f4d8f7f3909e225a65d8acb10cb20/lazysizes.js),
+[5.3.1 minified](https://github.com/aFarkas/lazysizes/blob/81cf774c6a7f4d8f7f3909e225a65d8acb10cb20/lazysizes.min.js),
+[5.3.2 standard source](https://github.com/aFarkas/lazysizes/blob/1523a4ff4579e170355c7607f445689b43229caf/lazysizes.js),
+[5.3.2 standard minified](https://github.com/aFarkas/lazysizes/blob/1523a4ff4579e170355c7607f445689b43229caf/lazysizes.min.js),
+[5.3.2 UMD source](https://github.com/aFarkas/lazysizes/blob/1523a4ff4579e170355c7607f445689b43229caf/lazysizes-umd.js),
+[5.3.2 UMD minified](https://github.com/aFarkas/lazysizes/blob/1523a4ff4579e170355c7607f445689b43229caf/lazysizes-umd.min.js).
 
 ### Modernizr
 

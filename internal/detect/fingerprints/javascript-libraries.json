@@ -39,7 +39,7 @@
             },
             {
               "source": "asset_javascript",
-              "pattern": "\\{\\s*cfg\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*,\\s*autoSizer\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*,\\s*loader\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*,\\s*init\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*,\\s*uP\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*,\\s*aC\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*,\\s*rC\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*,\\s*hC\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*,\\s*fire\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*,\\s*gW\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*(?:\\s*,\\s*rAF\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*)?\\s*,?\\s*\\}"
+              "pattern": "\\{\\s*(?:/\\*[^*]*\\*+(?:[^/*][^*]*\\*+)*/\\s*)?cfg\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*,\\s*autoSizer\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*,\\s*loader\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*,\\s*init\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*,\\s*uP\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*,\\s*aC\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*,\\s*rC\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*,\\s*hC\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*,\\s*fire\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*,\\s*gW\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*(?:\\s*,\\s*rAF\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*)?\\s*,?\\s*\\}"
             }
           ]
         }

@@ -234,7 +234,8 @@ client/ReactDOM evidence, split indicators and oversized captures.
 jQuery checks include core-indicator pairs, plugin-style decoys, source isolation,
 gzip, incomplete/oversized captures and evidence URL redaction.
 lazySizes checks include paired configuration/core mappings, short/full API
-objects, source isolation, explicit origins, optional failures and URL redaction.
+objects, the readable leading-comment form, malformed comments, source isolation,
+explicit origins, optional failures and URL redaction.
 Modernizr checks cover independent 2.x factory/prefix and 3.x config/registration
 rules, partial/consumer-code decoys, source isolation, optional failures, explicit
 origins, URL redaction and both rules contributing to one finding.

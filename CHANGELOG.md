@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Expanded lazySizes matching to readable core API objects with one leading block
+  comment. Both configuration and complete ordered API markers remain required.
 - Expanded Modernizr inference with paired 3.x-shaped core configuration and
   test-registration structures in one accepted JS asset. Retains the same finding
   and 2.x rule; no version reporting, implications or collection changes.
