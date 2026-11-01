@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Expanded Modernizr inference with paired 3.x-shaped core configuration and
+  test-registration structures in one accepted JS asset. Retains the same finding
+  and 2.x rule; no version reporting, implications or collection changes.
 - Expanded combined regressions for jQuery, lazySizes and Modernizr alongside
   downloaded/inline Bootstrap and Tailwind CSS, including source isolation,
   optional failures, shared request limits and independent inline CSS limits.

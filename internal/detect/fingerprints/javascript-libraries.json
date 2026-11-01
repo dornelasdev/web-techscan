@@ -64,6 +64,21 @@
               "pattern": "(?:^|[^A-Za-z0-9_$.\\\\])[A-Za-z_$][A-Za-z0-9_$]*\\s*\\.\\s*_domPrefixes\\s*=\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*[;,]\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*\\.\\s*_cssomPrefixes\\s*=\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*(?:[;,}]|$)"
             }
           ]
+        },
+        {
+          "id": "asset-v3-core-registration",
+          "state": "inferred",
+          "description": "Paired core configuration and test-registration structures in captured JavaScript suggest Modernizr",
+          "all": [
+            {
+              "source": "asset_javascript",
+              "pattern": "(?:^|[^A-Za-z0-9_$.\\\\])(?:_config|\"_config\"|'_config')\\s*:\\s*\\{\\s*(?:classPrefix|\"classPrefix\"|'classPrefix')\\s*:\\s*(?:\"(?:[^\"\\\\\\r\\n]|\\\\[^\\r\\n])*\"|'(?:[^'\\\\\\r\\n]|\\\\[^\\r\\n])*')\\s*,\\s*(?:enableClasses|\"enableClasses\"|'enableClasses')\\s*:\\s*(?:true|false|!\\s*[01])\\s*,\\s*(?:enableJSClass|\"enableJSClass\"|'enableJSClass')\\s*:\\s*(?:true|false|!\\s*[01])\\s*,\\s*(?:usePrefixes|\"usePrefixes\"|'usePrefixes')\\s*:\\s*(?:true|false|!\\s*[01])\\s*,?\\s*\\}"
+            },
+            {
+              "source": "asset_javascript",
+              "pattern": "(?:^|[^A-Za-z0-9_$.\\\\])(?:addTest|\"addTest\"|'addTest')\\s*:\\s*function\\s*\\(\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*,\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*,\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*\\)\\s*\\{\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*\\.\\s*push\\s*\\(\\s*\\{\\s*(?:name|\"name\"|'name')\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*,\\s*(?:fn|\"fn\"|'fn')\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*,\\s*(?:options|\"options\"|'options')\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*,?\\s*\\}\\s*\\)\\s*;?\\s*\\}\\s*,\\s*(?:addAsyncTest|\"addAsyncTest\"|'addAsyncTest')\\s*:\\s*function\\s*\\(\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*\\)\\s*\\{\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*\\.\\s*push\\s*\\(\\s*\\{\\s*(?:name|\"name\"|'name')\\s*:\\s*null\\s*,\\s*(?:fn|\"fn\"|'fn')\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*,?\\s*\\}\\s*\\)\\s*;?\\s*\\}\\s*(?:[,}]|$)"
+            }
+          ]
         }
       ]
     }

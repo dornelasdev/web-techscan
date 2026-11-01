@@ -235,8 +235,9 @@ jQuery checks include core-indicator pairs, plugin-style decoys, source isolatio
 gzip, incomplete/oversized captures and evidence URL redaction.
 lazySizes checks include paired configuration/core mappings, short/full API
 objects, source isolation, explicit origins, optional failures and URL redaction.
-Modernizr checks cover 2.x-shaped factory/prefix pairs, partial/consumer-code
-decoys, source isolation, optional failures, explicit origins and URL redaction.
+Modernizr checks cover independent 2.x factory/prefix and 3.x config/registration
+rules, partial/consumer-code decoys, source isolation, optional failures, explicit
+origins, URL redaction and both rules contributing to one finding.
 Combined library/CSS checks cover shared/separate scripts, downloaded and inline
 styles, partial evidence, optional failures, request/inline limits and mixed
 asset-URL/style-block provenance. Large inline-limit cases run once in JSON.

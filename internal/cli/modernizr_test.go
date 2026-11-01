@@ -20,6 +20,15 @@ import (
 )
 
 func TestCLIModernizrV2Assets(t *testing.T) {
+	testCLIModernizrAssets(t, false)
+}
+
+func TestCLIModernizrV3Assets(t *testing.T) {
+	testCLIModernizrAssets(t, true)
+}
+
+func testCLIModernizrAssets(t *testing.T, v3 bool) {
+	t.Helper()
 	engine, err := detect.LoadBundled()
 	if err != nil {
 		t.Fatal(err)
@@ -29,6 +38,7 @@ func TestCLIModernizrV2Assets(t *testing.T) {
 	for _, tc := range []struct {
 		name, kind, fixture, mime, reason string
 		enabled, want, external, allowed  bool
+		withV2                            bool
 	}{
 		{name: "default-off"},
 		{name: "compact", enabled: true, want: true},
@@ -38,8 +48,8 @@ func TestCLIModernizrV2Assets(t *testing.T) {
 		{name: "inline-only", kind: "inline", enabled: true},
 		{name: "redirect-hop-only", kind: "hop", enabled: true},
 		{name: "filename-only", kind: "filename", enabled: true},
-		{name: "factory-only", kind: "factory", enabled: true},
-		{name: "prefixes-only", kind: "prefixes", enabled: true},
+		{name: "first-marker-only", kind: "factory", enabled: true},
+		{name: "second-marker-only", kind: "prefixes", enabled: true},
 		{name: "excluded-origin", enabled: true, external: true},
 		{name: "allowed-origin", enabled: true, external: true, allowed: true, want: true},
 		{name: "failed-status", kind: "status", reason: "unsuccessful_status", enabled: true},
@@ -48,9 +58,15 @@ func TestCLIModernizrV2Assets(t *testing.T) {
 		{name: "oversized-prefix", kind: "oversized", reason: "decoded_body_limit", enabled: true},
 		{name: "incomplete-prefix", kind: "incomplete", reason: "request_or_body_error", enabled: true},
 		{name: "later-failure", kind: "late", enabled: true, want: true},
+		{name: "both-versions-one-asset", kind: "both", enabled: true, want: true},
+		{name: "both-versions-separate-assets", enabled: true, want: true, withV2: true},
+		{name: "v3-failure-keeps-v2", kind: "status", reason: "unsuccessful_status", enabled: true, want: true, withV2: true},
 	} {
+		if !v3 && (tc.kind == "both" || tc.withV2) {
+			continue
+		}
 		formats := []string{"json"}
-		if tc.name == "compact" || tc.name == "default-off" || tc.kind == "late" {
+		if tc.name == "compact" || tc.name == "default-off" || tc.kind == "late" || tc.kind == "both" {
 			formats = append(formats, "plain", "color")
 		}
 		for _, format := range formats {
@@ -59,11 +75,25 @@ func TestCLIModernizrV2Assets(t *testing.T) {
 				if fixture == "" {
 					fixture = "modernizr-v2-core.min.js"
 				}
+				if v3 {
+					fixture = strings.Replace(fixture, "modernizr-v2-", "modernizr-v3-", 1)
+				}
 				data, err := os.ReadFile("../detect/testdata/coverage/" + fixture)
 				if err != nil {
 					t.Fatal(err)
 				}
 				body := string(data) + "\n/* private-modernizr-body */"
+				first, second := factory, prefixes
+				if v3 {
+					cut := strings.Index(body, "addTest:")
+					if cut < 0 {
+						t.Fatal("fixture lacks registration boundary")
+					}
+					first, second = body[:cut], body[cut:]
+				}
+				if tc.kind == "both" {
+					body += factory + prefixes
+				}
 				mime := tc.mime
 				if mime == "" {
 					mime = "application/javascript"
@@ -113,15 +143,18 @@ func TestCLIModernizrV2Assets(t *testing.T) {
 						if tc.kind == "late" {
 							fmt.Fprint(w, `<script src="/fail"></script>`)
 						}
+						if tc.withV2 {
+							fmt.Fprint(w, `<script src="/v2"></script>`)
+						}
 					case "/renamed", "/modernizr.min.js":
 						w.Header().Set("Content-Type", mime)
 						w.Header().Set("X-Powered-By", "Express") // Never a page signal.
 						content := body
 						switch tc.kind {
 						case "factory", "split":
-							content = factory
+							content = first
 						case "prefixes":
-							content = prefixes
+							content = second
 						case "filename":
 							content = "console.log('generic');"
 						case "oversized":
@@ -152,7 +185,10 @@ func TestCLIModernizrV2Assets(t *testing.T) {
 						}
 					case "/part":
 						w.Header().Set("Content-Type", "application/javascript")
-						fmt.Fprint(w, prefixes)
+						fmt.Fprint(w, second)
+					case "/v2":
+						w.Header().Set("Content-Type", "application/javascript")
+						fmt.Fprint(w, factory+prefixes)
 					case "/fail":
 						w.Header().Set("Content-Type", "application/javascript")
 						w.WriteHeader(http.StatusForbidden)
@@ -199,6 +235,9 @@ func TestCLIModernizrV2Assets(t *testing.T) {
 					} else if tc.kind == "late" {
 						wantRequests = append(wantRequests, "/fail")
 					}
+					if tc.withV2 {
+						wantRequests = append(wantRequests, "/v2")
+					}
 				}
 				mu.Lock()
 				gotRequests := append([]string(nil), requests...)
@@ -210,7 +249,7 @@ func TestCLIModernizrV2Assets(t *testing.T) {
 				if !reflect.DeepEqual(gotRequests, wantRequests) || externalRequests.Load() != wantExternal {
 					t.Errorf("requests=%v want=%v external=%d", gotRequests, wantRequests, externalRequests.Load())
 				}
-				for _, raw := range []string{"private-", "_domPrefixes", "_cssomPrefixes", "2.6.2", "2.8.3", "Express"} {
+				for _, raw := range []string{"private-", "_domPrefixes", "_cssomPrefixes", "classPrefix", "addAsyncTest", "2.6.2", "2.8.3", "3.6.0", "3.11.2", "Express"} {
 					if strings.Contains(stdout.String(), raw) {
 						t.Errorf("raw response/query/version leaked: %q", raw)
 					}
@@ -220,13 +259,38 @@ func TestCLIModernizrV2Assets(t *testing.T) {
 					origin = server.URL
 				}
 				assetURL := origin + strings.SplitN(path, "?", 2)[0] + "?[redacted]"
+				type expectedEvidence struct{ rule, url string }
+				wantEvidence := []expectedEvidence{}
+				if tc.want {
+					rule := "asset-v2-core-runtime"
+					if v3 {
+						rule = "asset-v3-core-registration"
+					}
+					if v3 && tc.kind == "both" {
+						wantEvidence = append(wantEvidence, expectedEvidence{"asset-v2-core-runtime", assetURL})
+					} else if v3 && tc.withV2 {
+						wantEvidence = append(wantEvidence, expectedEvidence{"asset-v2-core-runtime", server.URL + "/v2"})
+					}
+					if tc.reason == "" {
+						wantEvidence = append(wantEvidence, expectedEvidence{rule, assetURL})
+					}
+				}
 				if format != "json" {
 					marker := "?"
+					wantCount := 0
+					if tc.want {
+						wantCount = 1
+					}
 					if format == "color" {
 						marker = "\x1b[33m?\x1b[0m"
 					}
-					if strings.Contains(stdout.String(), marker+" Modernizr [JavaScript library]") != tc.want || !strings.Contains(stdout.String(), "nginx [web server]") || (tc.want && !strings.Contains(stdout.String(), "Asset: "+assetURL)) {
+					if strings.Contains(stdout.String(), marker+" Modernizr [JavaScript library]") != tc.want || !strings.Contains(stdout.String(), "nginx [web server]") || strings.Count(stdout.String(), " Modernizr [JavaScript library]") != wantCount {
 						t.Errorf("terminal=%s", &stdout)
+					}
+					for _, e := range wantEvidence {
+						if !strings.Contains(stdout.String(), "Asset: "+e.url) {
+							t.Errorf("missing evidence URL: %s", e.url)
+						}
 					}
 					return
 				}
@@ -247,12 +311,13 @@ func TestCLIModernizrV2Assets(t *testing.T) {
 				}
 				if tc.want {
 					finding := report.Findings[0]
-					if finding.Name != "Modernizr" || finding.Category != "javascript_library" || finding.State != "inferred" || len(finding.Evidence) != 1 {
+					if finding.Name != "Modernizr" || finding.Category != "javascript_library" || finding.State != "inferred" || len(finding.Evidence) != len(wantEvidence) {
 						t.Fatalf("finding=%+v", finding)
 					}
-					e := finding.Evidence[0]
-					if e.RuleID != "asset-v2-core-runtime" || e.AssetURL != assetURL || e.StyleBlock != 0 || e.InferredFrom != "" || !reflect.DeepEqual(e.Signals, []output.Signal{{Source: "asset_javascript"}, {Source: "asset_javascript"}}) {
-						t.Errorf("evidence=%+v", e)
+					for i, e := range finding.Evidence {
+						if e.RuleID != wantEvidence[i].rule || e.AssetURL != wantEvidence[i].url || e.StyleBlock != 0 || e.InferredFrom != "" || !reflect.DeepEqual(e.Signals, []output.Signal{{Source: "asset_javascript"}, {Source: "asset_javascript"}}) {
+							t.Errorf("evidence=%+v want=%+v", e, wantEvidence[i])
+						}
 					}
 				}
 				if !tc.enabled {

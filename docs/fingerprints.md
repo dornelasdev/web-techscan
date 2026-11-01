@@ -833,7 +833,12 @@ Reviewed 2026-10-28. Pinned upstream sources:
 
 ### Modernizr
 
-Category: `javascript_library`. Rule: `asset-v2-core-runtime`. State: `inferred`.
+Category: `javascript_library`. Rules: `asset-v2-core-runtime` and
+`asset-v3-core-registration`. State: `inferred`. Either rule identifies the same
+technology; both can contribute evidence without duplicating the finding.
+
+#### 2.x factory and prefix metadata
+
 Require both indicators in one accepted JavaScript capture with `--assets`:
 
 - A dot-property `Modernizr` assignment to an anonymous function with three
@@ -855,8 +860,7 @@ rule. Quoted/bracket properties, named/arrow factories, other parameter counts,
 comments between required tokens, reordered/separated prefix assignments,
 property mangling and custom/split builds can miss.
 
-Initial coverage targets the reviewed 2.x-shaped implementation. Modernizr 3's
-prototype/module layout needs separate fingerprint work. Version literals are
+This rule targets the reviewed 2.x-shaped implementation. Version literals are
 not required, extracted or reported; no backend or other technology implications.
 Existing complete-capture, origin, MIME and budget policies apply.
 
@@ -868,9 +872,45 @@ bundles. No JavaScript execution is performed.
 
 Reviewed 2026-10-28. Pinned sources:
 [2.6.2 source](https://github.com/Modernizr/Modernizr/blob/87c723720a48254ae37ffd56829e32a96f5c5496/modernizr.js),
-[2.8.3 source](https://github.com/Modernizr/Modernizr/blob/d6bb30c0f12ebb3ddd01e90b0bf435e1c34e6f11/modernizr.js),
-[3.13.1 prototype comparison](https://github.com/Modernizr/Modernizr/blob/6e0ab8316ba2aa885e3f53bf109c42f41544d163/src/ModernizrProto.js),
-[3.13.1 construction comparison](https://github.com/Modernizr/Modernizr/blob/6e0ab8316ba2aa885e3f53bf109c42f41544d163/src/Modernizr.js).
+[2.8.3 source](https://github.com/Modernizr/Modernizr/blob/d6bb30c0f12ebb3ddd01e90b0bf435e1c34e6f11/modernizr.js).
+
+#### 3.x configuration and registration
+
+Require both structures in one accepted JavaScript capture with `--assets`:
+
+- A closed `_config` object with `classPrefix`, `enableClasses`, `enableJSClass`,
+  and `usePrefixes` fields, in that order. Require a quoted literal class prefix
+  and boolean literals `true`, `false`, `!0` or `!1` (whitespace is allowed).
+- Adjacent `addTest` and `addAsyncTest` function fields. The three-parameter
+  synchronous stub pushes a closed `{name, fn, options}` record; the one-parameter
+  asynchronous stub pushes a closed `{name: null, fn}` record. Require identifier
+  values, a direct identifier receiver's `push` call and no other body statements.
+
+Allow single/double quoted or unquoted keys, renamed ASCII identifiers, whitespace,
+literal string escapes, optional push-call semicolons and trailing record/config
+commas. Required tokens are case-sensitive. Comments between required tokens,
+reordered/additional config fields, computed values, alternative queue operations,
+rewritten/named/arrow methods and mangled properties are outside the initial shape.
+
+The two structures need not share a prototype, scope or receiver; matching does
+not validate identifier equality, string escapes or JavaScript execution. Copied,
+commented, forked or unexecuted code can match. Ordinary API calls, configuration
+alone, registration alone, banners, filenames, feature classes, version literals,
+split-file evidence, page/inline JS, CSS and redirect evidence are insufficient.
+No version, feature-support, backend, global-name or other technology implications.
+
+Reviewed published HTML5 Boilerplate custom minified builds labeled 3.6.0 and
+3.11.2, the upstream readable build labeled 3.12.0, and upstream 3.13.1 core/build
+sources. These are specific provenance baselines, not exhaustive release/build
+coverage. Flags and class prefixes can be customized by the builder. Fixtures
+are authored readable/compact scaffolds; no library/site bundles are imported.
+
+Reviewed 2026-11-01. Pinned sources:
+[3.6.0 custom build](https://github.com/h5bp/html5-boilerplate/blob/61a8e30d7431db860c02cbdfecd0b3152ce8101f/dist/js/vendor/modernizr-3.6.0.min.js),
+[3.11.2 custom build](https://github.com/h5bp/html5-boilerplate/blob/5dfd2c3110d8bf63259c462421b6820bbda3920f/dist/js/vendor/modernizr-3.11.2.min.js),
+[3.12.0 readable build](https://github.com/Modernizr/Modernizr/blob/9548da8abfe072c336b2d5fdcf1d942b6cb92a20/dist/modernizr-build.js),
+[3.13.1 prototype](https://github.com/Modernizr/Modernizr/blob/6e0ab8316ba2aa885e3f53bf109c42f41544d163/src/ModernizrProto.js),
+[3.13.1 builder](https://github.com/Modernizr/Modernizr/blob/6e0ab8316ba2aa885e3f53bf109c42f41544d163/lib/build.js).
 
 ## UI frameworks
 
