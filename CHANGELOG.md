@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Expanded combined regressions for jQuery, lazySizes and Modernizr alongside
+  downloaded/inline Bootstrap and Tailwind CSS, including source isolation,
+  optional failures, shared request limits and independent inline CSS limits.
 - Added initial Modernizr inference from paired 2.x-shaped factory and prefix
   metadata in one accepted JavaScript asset. Requires `--assets`; no generic
   API/class-name fallback, version reporting, implications or extra requests.

@@ -237,6 +237,9 @@ lazySizes checks include paired configuration/core mappings, short/full API
 objects, source isolation, explicit origins, optional failures and URL redaction.
 Modernizr checks cover 2.x-shaped factory/prefix pairs, partial/consumer-code
 decoys, source isolation, optional failures, explicit origins and URL redaction.
+Combined library/CSS checks cover shared/separate scripts, downloaded and inline
+styles, partial evidence, optional failures, request/inline limits and mixed
+asset-URL/style-block provenance. Large inline-limit cases run once in JSON.
 Tailwind CSS checks cover v3.4/v4.1-shaped marker combinations, near misses,
 same-file/source isolation, failed captures, redirects and evidence provenance.
 Radix UI checks cover Popover/Tooltip mapping trios, same-object/file/source
