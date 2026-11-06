@@ -70,7 +70,7 @@ func TestTechsCatalogOffline(t *testing.T) {
 				if !strings.Contains(stdout.String(), "    Nuxt\n    Ruby on Rails\n    Spring Boot\n  JavaScript frameworks\n") {
 					t.Error("Spring Boot must end the alphabetically ordered web-framework category")
 				}
-				if !strings.Contains(stdout.String(), "JavaScript frameworks\n    Angular\n    React\n    Vue\n  JavaScript libraries\n    jQuery\n    lazySizes\n    Modernizr\n  UI frameworks\n") {
+				if !strings.Contains(stdout.String(), "JavaScript frameworks\n    Alpine.js\n    Angular\n    React\n    Vue\n  JavaScript libraries\n    jQuery\n    lazySizes\n    Modernizr\n  UI frameworks\n") {
 					t.Error("JavaScript frameworks and libraries must retain category/name order")
 				}
 				if !strings.Contains(stdout.String(), "\n  UI frameworks\n    Bootstrap\n    Radix UI\n    shadcn/ui\n    Tailwind CSS\n") {
@@ -100,6 +100,9 @@ func TestTechsCatalogOffline(t *testing.T) {
 			}
 			if got := byID["astro"]; got.Name != "Astro" || got.Category != "framework" {
 				t.Errorf("missing or incorrect Astro metadata: %+v", got)
+			}
+			if got := byID["alpinejs"]; got.Name != "Alpine.js" || got.Category != "javascript_framework" {
+				t.Errorf("missing or incorrect Alpine.js metadata: %+v", got)
 			}
 			if got := byID["fastapi"]; got.Name != "FastAPI" || got.Category != "framework" {
 				t.Errorf("missing or incorrect FastAPI metadata: %+v", got)

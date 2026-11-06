@@ -2,6 +2,28 @@
   "schema_version": 1,
   "technologies": [
     {
+      "id": "alpinejs",
+      "name": "Alpine.js",
+      "category": "javascript_framework",
+      "rules": [
+        {
+          "id": "asset-core-runtime",
+          "state": "inferred",
+          "description": "Paired initialization dispatches and core API members in captured JavaScript suggest Alpine.js",
+          "all": [
+            {
+              "source": "asset_javascript",
+              "pattern": "(?:^|[^A-Za-z0-9_$.\\\\])[A-Za-z_$][A-Za-z0-9_$]*\\s*\\(\\s*document\\s*,\\s*(?:\"alpine:init\"|'alpine:init')\\s*\\)\\s*[;,]\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*\\(\\s*document\\s*,\\s*(?:\"alpine:initializing\"|'alpine:initializing')\\s*\\)\\s*(?:[;,}]|$)"
+            },
+            {
+              "source": "asset_javascript",
+              "pattern": "(?:\\{|,)\\s*flushAndStopDeferringMutations(?:\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*)?\\s*,\\s*dontAutoEvaluateFunctions(?:\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*)?\\s*,\\s*disableEffectScheduling(?:\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*)?\\s*,\\s*startObservingMutations(?:\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*)?\\s*,\\s*stopObservingMutations(?:\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*)?\\s*,\\s*setReactivityEngine(?:\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*)?\\s*[,}]"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "id": "angular",
       "name": "Angular",
       "category": "javascript_framework",

@@ -3,7 +3,7 @@
 [README](../README.md) · [Usage](usage.md) · [Policies](policies.md)
 
 Rules are embedded in the binary. Use `webscan --techs` to list its catalog.
-The development catalog contains 43 technologies across ten categories.
+The development catalog contains 44 technologies across ten categories.
 The v0.3.0 release baseline contains 23.
 
 ## Evidence
@@ -617,6 +617,55 @@ Renderer tags are provenance baselines, not an exhaustive supported-version rang
 
 Category: `javascript_framework`. Groups Angular, React, and Vue for catalog
 organization; it does not establish execution or client-side use.
+
+### Alpine.js
+
+Category: `javascript_framework`. Rule: `asset-core-runtime`. State: `inferred`.
+Requires `--assets` and both structures in one accepted JavaScript capture:
+
+- Adjacent two-argument calls of identifier-shaped functions on literal `document`,
+  first with the exact string `alpine:init`, then `alpine:initializing`. Calls are
+  separated by a semicolon or comma; the second call must end at a statement or
+  expression boundary.
+- An object-entry fragment containing these unquoted members consecutively, in
+  order: `flushAndStopDeferringMutations`, `dontAutoEvaluateFunctions`,
+  `disableEffectScheduling`, `startObservingMutations`, `stopObservingMutations`,
+  `setReactivityEngine`. Each member is shorthand or maps to an ASCII
+  identifier-shaped value. Require entry boundaries before/after the fragment.
+
+Allow whitespace, single/double event-string quotes and renamed ASCII function
+identifiers. The API fragment can occur within a larger object. Function names
+need not be equal; matching does not establish common scope, valid JavaScript,
+object ownership, initialization success or execution. Copied/commented code can
+match. Banners, versions, filenames, `window.Alpine`, ordinary API calls and event
+listeners alone are insufficient. There is no HTML-directive detection: `x-data`,
+`x-init`, `x-show` and custom-prefix markup do not produce findings by themselves.
+
+Do not combine files, page/inline JS, HTML, CSS, headers/cookies or redirect bodies.
+Quoted/reordered/mangled API keys, inter-token comments, additional intervening
+members/calls, aliased `document`, ASI-only call separation, tree-shaken or rewritten
+builds can miss. Existing complete-capture, origin, MIME and resource limits apply.
+No version extraction, plugins/features, Vue, language, runtime or backend
+implications. Alpine's reactivity dependency does not establish Vue renderer use.
+
+Reviewed readable/minified CDN and ESM distributions for 3.14.9 and 3.17.5. Both
+structures appear by source inspection in all six files; this is not an executed
+detector result or exhaustive 3.x coverage. A 2.8.2 minified comparison lacks these
+structures; 2.x and CSP distributions are outside the reviewed baselines. Fixtures
+are authored marker scaffolds, not imported library/site bundles.
+
+Reviewed 2026-11-06. Pinned sources:
+[3.14.9 lifecycle](https://github.com/alpinejs/alpine/blob/e363181057b3e71e5c03d2b88db576d5094be1c8/packages/alpinejs/src/lifecycle.js),
+[3.14.9 API](https://github.com/alpinejs/alpine/blob/e363181057b3e71e5c03d2b88db576d5094be1c8/packages/alpinejs/src/alpine.js),
+[3.17.5 lifecycle](https://github.com/alpinejs/alpine/blob/8d3d9a2f98385d4c879f4b5be080a0221279ed4d/packages/alpinejs/src/lifecycle.js),
+[3.17.5 API](https://github.com/alpinejs/alpine/blob/8d3d9a2f98385d4c879f4b5be080a0221279ed4d/packages/alpinejs/src/alpine.js),
+[3.14.9 readable](https://cdn.jsdelivr.net/npm/alpinejs@3.14.9/dist/cdn.js),
+[3.14.9 minified](https://cdn.jsdelivr.net/npm/alpinejs@3.14.9/dist/cdn.min.js),
+[3.14.9 ESM](https://cdn.jsdelivr.net/npm/alpinejs@3.14.9/dist/module.esm.js),
+[3.17.5 readable](https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.js),
+[3.17.5 minified](https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js),
+[3.17.5 ESM](https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/module.esm.js),
+[MIT license](https://github.com/alpinejs/alpine/blob/8d3d9a2f98385d4c879f4b5be080a0221279ed4d/LICENSE.md).
 
 ### Angular
 

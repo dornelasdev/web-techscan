@@ -154,9 +154,11 @@ case-insensitively within each category:
 | Web development | Web frameworks, JavaScript frameworks, JavaScript libraries, UI frameworks, CMS, languages. |
 | Infrastructure | Web servers, CDN/edge, load balancers, WAFs. |
 
-Angular, React, and Vue use `javascript_framework`. ASP.NET Core, Django, Express,
-FastAPI, Fiber, Laravel, Next.js, Nuxt, Rails, and Spring Boot use `framework` (web frameworks,
-including full-stack frameworks). Groups are static organization, not additional detections.
+Alpine.js, Angular, React, and Vue use `javascript_framework`.
+ASP.NET Core, Astro, Django, Express, FastAPI, Fiber, Laravel, Next.js, Nuxt, Rails,
+and Spring Boot use `framework` (web frameworks, including full-stack frameworks).
+Alpine.js runtime inspection requires `--assets`.
+Groups are static organization, not additional detections.
 jQuery, lazySizes, and Modernizr use `javascript_library`; their content rules
 require `--assets`.
 Catalog JSON remains a flat array with `id`, `name`, and `category`; no `group`
@@ -234,6 +236,9 @@ client/ReactDOM evidence, split indicators and oversized captures.
 Astro checks cover independent generator/island HTML rules, empty-valued/bare
 `ssr`, same-tag boundaries, partial/reordered markup, source/redirect isolation,
 one finding with both evidence records, optional failures and independent assets.
+Alpine.js checks cover paired initialization/core API structures in one JS asset,
+shorthand/mapped members, consumer-event and directive decoys, split evidence,
+default-off behavior, explicit origins, optional failures and evidence URL redaction.
 jQuery checks include core-indicator pairs, plugin-style decoys, source isolation,
 gzip, incomplete/oversized captures and evidence URL redaction.
 lazySizes checks include paired configuration/core mappings, short/full API
