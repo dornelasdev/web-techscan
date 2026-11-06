@@ -3,7 +3,7 @@
 [README](../README.md) · [Usage](usage.md) · [Policies](policies.md)
 
 Rules are embedded in the binary. Use `webscan --techs` to list its catalog.
-The development catalog contains 42 technologies across ten categories.
+The development catalog contains 43 technologies across ten categories.
 The v0.3.0 release baseline contains 23.
 
 ## Evidence
@@ -293,6 +293,50 @@ Branch links are review baselines, not exhaustive version coverage.
 
 Category: `framework`. Includes web/full-stack frameworks; category names do
 not establish rendering mode or backend language.
+
+### Astro
+
+Category: `framework` (Web frameworks). Both HTML rules use state `inferred`.
+Either rule identifies Astro; both retain evidence under one finding. Inspect
+final-page HTML by default; `--assets` is not required.
+
+| Rule | Required structure |
+| --- | --- |
+| `generator-meta` | One complete meta tag with quoted `name="generator"` and quoted `content="Astro v<major>.<minor>.<patch>"`, in either attribute order. Exactly three ASCII numeric version components; no prerelease/custom suffix. |
+| `hydration-island-html` | One complete `astro-island` opening tag with quoted nonempty `uid`, `component-url`, `renderer-url`, then `ssr`, then quoted `client` in that order. Accept `load`, `idle`, `visible`, `media`, or `only`; `ssr` may be bare or have an empty quoted value. |
+
+Allow HTML whitespace, single/double quotes, tag/attribute name case variations
+and intervening unrelated attributes. Product spelling `Astro` and client values
+are case-sensitive. Island identifiers and URL values must contain no whitespace;
+they are textual values, not validated hashes, resolved resources or fetched URLs.
+No fixed `/_astro/` path, component export, props or renderer framework is required.
+
+Each rule uses one compound matcher to keep attributes on one complete tag.
+Partial tags, fields split across elements, generic mentions, asset paths alone,
+headers/cookies, downloaded JS/CSS and redirect-hop HTML cannot complete a rule.
+Island attribute reordering, unquoted required values and customized output can
+miss. Generator metadata is optional; pages without either structure can miss.
+
+Matching is textual, without DOM context or execution checks. Copied/commented,
+template-contained or otherwise inactive markup can match. No version extraction,
+static/SSR deployment classification, hydration-success, backend language/runtime
+or React/Vue/other technology implications. The `ssr` attribute alone does not
+establish how the page was served.
+
+Reviewed runtime generation/serialization at 4.16.18, 5.0.0 and 7.4.5. Older output
+uses `ssr=""`; reviewed newer serializers can emit bare `ssr`. These are specific
+source baselines, not exhaustive release coverage. Fixtures are authored marker
+scaffolds, not generated sites or imported runtime distributions.
+
+Reviewed 2026-11-04. Sources:
+[generator API](https://docs.astro.build/en/reference/api-reference/#generator),
+[4.16.18 generator](https://github.com/withastro/astro/blob/84190aa42f54db98ebd1e8a43080028aeaae35ac/packages/astro/src/runtime/server/astro-global.ts),
+[4.16.18 island attributes](https://github.com/withastro/astro/blob/84190aa42f54db98ebd1e8a43080028aeaae35ac/packages/astro/src/runtime/server/hydration.ts),
+[4.16.18 serialization](https://github.com/withastro/astro/blob/84190aa42f54db98ebd1e8a43080028aeaae35ac/packages/astro/src/runtime/server/render/util.ts),
+[5.0.0 island attributes](https://github.com/withastro/astro/blob/fcdd37f684833eeb00dcecad21d9f4308cd6caa4/packages/astro/src/runtime/server/hydration.ts),
+[5.0.0 serialization](https://github.com/withastro/astro/blob/fcdd37f684833eeb00dcecad21d9f4308cd6caa4/packages/astro/src/runtime/server/render/util.ts),
+[7.4.5 island attributes](https://github.com/withastro/astro/blob/d354ffba8df77ab9d89480bb5d0ca6efe249573e/packages/astro/src/runtime/server/hydration.ts),
+[7.4.5 island rendering](https://github.com/withastro/astro/blob/d354ffba8df77ab9d89480bb5d0ca6efe249573e/packages/astro/src/runtime/server/render/component.ts).
 
 ### ASP.NET Core
 

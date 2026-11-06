@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Added initial Astro inference from final-page generator metadata or structured
+  hydration-island markup. No `--assets` requirement, version/rendering-mode or
+  other-technology implications. Catalog: 43 technologies across ten categories.
 - Expanded lazySizes matching to readable core API objects with one leading block
   comment. Both configuration and complete ordered API markers remain required.
 - Expanded Modernizr inference with paired 3.x-shaped core configuration and

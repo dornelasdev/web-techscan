@@ -231,6 +231,9 @@ rule validation, positive/near-miss detections, inference, redirects, mixed
 frontend/network stacks, JS/CSS isolation, optional failures, privacy, and output
 contracts. Combined frontend checks include Angular HTML/JS and React
 client/ReactDOM evidence, split indicators and oversized captures.
+Astro checks cover independent generator/island HTML rules, empty-valued/bare
+`ssr`, same-tag boundaries, partial/reordered markup, source/redirect isolation,
+one finding with both evidence records, optional failures and independent assets.
 jQuery checks include core-indicator pairs, plugin-style decoys, source isolation,
 gzip, incomplete/oversized captures and evidence URL redaction.
 lazySizes checks include paired configuration/core mappings, short/full API
@@ -285,6 +288,7 @@ After building, run in another terminal:
 | `drupal.html` | Inferred Drupal; the server supplies no X-Generator header. |
 | `joomla.html` | Inferred Joomla, without PHP. |
 | `nuxt-payload.html` | Inferred Nuxt. |
+| `astro-generator.html`, `astro-island.html`, `astro-island-legacy.html` | Inferred Astro; no rendering-mode, version or other framework inference. |
 | `rails-csrf.html` | Inferred Ruby on Rails and Ruby. |
 | `django-csrf.html` | No Django or Python finding; the server supplies no csrftoken cookie. |
 | `aspnet-core-antiforgery.html` | No ASP.NET Core finding; the server supplies no antiforgery cookie. |

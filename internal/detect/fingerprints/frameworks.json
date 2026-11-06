@@ -53,6 +53,35 @@
       }]
     },
     {
+      "id": "astro",
+      "name": "Astro",
+      "category": "framework",
+      "rules": [
+        {
+          "id": "generator-meta",
+          "state": "inferred",
+          "description": "HTML contains a generator meta tag naming Astro; markup may be copied or static",
+          "all": [
+            {
+              "source": "html",
+              "pattern": "(?i:<meta)[ \\t\\r\\n\\f]+(?:[A-Za-z_:][A-Za-z0-9_.:-]*(?:[ \\t\\r\\n\\f]*=[ \\t\\r\\n\\f]*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>`]+))?[ \\t\\r\\n\\f]+)*(?:(?i:name)[ \\t\\r\\n\\f]*=[ \\t\\r\\n\\f]*(?:\"(?i:generator)\"|'(?i:generator)')[ \\t\\r\\n\\f]+(?:[A-Za-z_:][A-Za-z0-9_.:-]*(?:[ \\t\\r\\n\\f]*=[ \\t\\r\\n\\f]*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>`]+))?[ \\t\\r\\n\\f]+)*(?i:content)[ \\t\\r\\n\\f]*=[ \\t\\r\\n\\f]*(?:\"Astro v[0-9]+\\.[0-9]+\\.[0-9]+\"|'Astro v[0-9]+\\.[0-9]+\\.[0-9]+')|(?i:content)[ \\t\\r\\n\\f]*=[ \\t\\r\\n\\f]*(?:\"Astro v[0-9]+\\.[0-9]+\\.[0-9]+\"|'Astro v[0-9]+\\.[0-9]+\\.[0-9]+')[ \\t\\r\\n\\f]+(?:[A-Za-z_:][A-Za-z0-9_.:-]*(?:[ \\t\\r\\n\\f]*=[ \\t\\r\\n\\f]*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>`]+))?[ \\t\\r\\n\\f]+)*(?i:name)[ \\t\\r\\n\\f]*=[ \\t\\r\\n\\f]*(?:\"(?i:generator)\"|'(?i:generator)'))(?:[ \\t\\r\\n\\f]+[A-Za-z_:][A-Za-z0-9_.:-]*(?:[ \\t\\r\\n\\f]*=[ \\t\\r\\n\\f]*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>`]+))?)*[ \\t\\r\\n\\f]*/?>"
+            }
+          ]
+        },
+        {
+          "id": "hydration-island-html",
+          "state": "inferred",
+          "description": "HTML contains a structured Astro hydration island; markup does not establish JavaScript execution or rendering mode",
+          "all": [
+            {
+              "source": "html",
+              "pattern": "(?i:<astro-island)[ \\t\\r\\n\\f]+(?:[A-Za-z_:][A-Za-z0-9_.:-]*(?:[ \\t\\r\\n\\f]*=[ \\t\\r\\n\\f]*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>`]+))?[ \\t\\r\\n\\f]+)*(?i:uid)[ \\t\\r\\n\\f]*=[ \\t\\r\\n\\f]*(?:\"[^\\s\"<>]+\"|'[^\\s'<>]+')[ \\t\\r\\n\\f]+(?:[A-Za-z_:][A-Za-z0-9_.:-]*(?:[ \\t\\r\\n\\f]*=[ \\t\\r\\n\\f]*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>`]+))?[ \\t\\r\\n\\f]+)*(?i:component-url)[ \\t\\r\\n\\f]*=[ \\t\\r\\n\\f]*(?:\"[^\\s\"<>]+\"|'[^\\s'<>]+')[ \\t\\r\\n\\f]+(?:[A-Za-z_:][A-Za-z0-9_.:-]*(?:[ \\t\\r\\n\\f]*=[ \\t\\r\\n\\f]*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>`]+))?[ \\t\\r\\n\\f]+)*(?i:renderer-url)[ \\t\\r\\n\\f]*=[ \\t\\r\\n\\f]*(?:\"[^\\s\"<>]+\"|'[^\\s'<>]+')[ \\t\\r\\n\\f]+(?:[A-Za-z_:][A-Za-z0-9_.:-]*(?:[ \\t\\r\\n\\f]*=[ \\t\\r\\n\\f]*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>`]+))?[ \\t\\r\\n\\f]+)*(?i:ssr)(?:[ \\t\\r\\n\\f]*=[ \\t\\r\\n\\f]*(?:\"\"|''))?[ \\t\\r\\n\\f]+(?:[A-Za-z_:][A-Za-z0-9_.:-]*(?:[ \\t\\r\\n\\f]*=[ \\t\\r\\n\\f]*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>`]+))?[ \\t\\r\\n\\f]+)*(?i:client)[ \\t\\r\\n\\f]*=[ \\t\\r\\n\\f]*(?:\"(?:load|idle|visible|media|only)\"|'(?:load|idle|visible|media|only)')(?:[ \\t\\r\\n\\f]+[A-Za-z_:][A-Za-z0-9_.:-]*(?:[ \\t\\r\\n\\f]*=[ \\t\\r\\n\\f]*(?:\"[^\"<>]*\"|'[^'<>]*'|[^\\s\"'=<>`]+))?)*[ \\t\\r\\n\\f]*/?>"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "id": "django",
       "name": "Django",
       "category": "framework",

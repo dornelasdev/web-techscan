@@ -61,8 +61,8 @@ func TestTechsCatalogOffline(t *testing.T) {
 				if !strings.Contains(stdout.String(), "    Next.js\n    Nuxt\n") {
 					t.Error("Nuxt must appear in the alphabetically ordered framework group")
 				}
-				if !strings.Contains(stdout.String(), "Web frameworks\n    ASP.NET Core\n    Django\n    Express\n") {
-					t.Error("ASP.NET Core, Django and Express must be alphabetically ordered under web frameworks")
+				if !strings.Contains(stdout.String(), "Web frameworks\n    ASP.NET Core\n    Astro\n    Django\n    Express\n") {
+					t.Error("ASP.NET Core, Astro, Django and Express must be alphabetically ordered under web frameworks")
 				}
 				if !strings.Contains(stdout.String(), "    Express\n    FastAPI\n    Fiber\n    Laravel\n") {
 					t.Error("FastAPI and Fiber must be alphabetically ordered under web frameworks")
@@ -97,6 +97,9 @@ func TestTechsCatalogOffline(t *testing.T) {
 			byID := make(map[string]output.Technology)
 			for _, tech := range report.Technologies {
 				byID[tech.ID] = tech
+			}
+			if got := byID["astro"]; got.Name != "Astro" || got.Category != "framework" {
+				t.Errorf("missing or incorrect Astro metadata: %+v", got)
 			}
 			if got := byID["fastapi"]; got.Name != "FastAPI" || got.Category != "framework" {
 				t.Errorf("missing or incorrect FastAPI metadata: %+v", got)
