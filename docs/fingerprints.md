@@ -3,7 +3,7 @@
 [README](../README.md) · [Usage](usage.md) · [Policies](policies.md)
 
 Rules are embedded in the binary. Use `webscan --techs` to list its catalog.
-The development catalog contains 44 technologies across ten categories.
+The development catalog contains 45 technologies across ten categories.
 The v0.3.0 release baseline contains 23.
 
 ## Evidence
@@ -848,6 +848,55 @@ Reviewed 2026-10-10. Sources:
 [MIT license](https://github.com/vuejs/core/blob/v3.5.13/LICENSE).
 
 ## JavaScript libraries
+
+### htmx
+
+Category: `javascript_library`. Both rules use state `inferred` and require
+`--assets`. Either identifies htmx; both retain evidence under one finding.
+
+Each rule requires its complete ordered header object and configuration lookup
+in one accepted JavaScript capture:
+
+| Rule | Header construction | Configuration lookup |
+| --- | --- | --- |
+| `asset-v1-v2-core-runtime` | Exactly `HX-Request`, `HX-Trigger`, `HX-Trigger-Name`, `HX-Target`, `HX-Current-URL`. Request value is string `true`; trigger/name/target values are two-argument identifier-function calls with identifier targets and literal `id`/`name`/`id`. URL is `location.href` or `<identifier>().location.href`. | A zero-argument identifier-function result calling `querySelector` for the exact `meta[name="htmx-config"]` selector. |
+| `asset-v4-core-runtime` | Exactly `HX-Request`, `HX-Source`, `HX-Current-URL`, `Accept`. Values are string `true`, `this.#<identifier>(<identifier>)`, `location.href`, and string `text/html`. | Literal `document.querySelector` with the same selector. |
+
+Header keys are quoted; `Accept` may also be unquoted. Allow whitespace,
+single/double string quotes, renamed ASCII identifiers and an optional trailing
+object comma. The selector accepts single-quoted JS with double-quoted CSS value,
+or double-quoted JS with single-quoted CSS value. Required strings/property names
+are case-sensitive. The closed object may occur inside a larger source structure;
+no variable name, global export, filename, banner or software version is required.
+
+Do not join objects, files, source kinds or rule-family partials. Header-name
+strings alone, real response headers, event listeners, API usage, `<meta>` markup,
+`hx-*`/`data-hx-*` attributes, HTML/inline JS, CSS and redirect bodies cannot complete
+these rules. No requests to `hx-get`/`hx-post` targets, execution or additional
+collection are introduced. Header objects are captured source text, not headers
+sent by webscan.
+
+Matching does not validate identifier equality, scope, object ownership, full JS
+syntax, initialization or execution. Copied/commented code can match. Extra or
+reordered header entries, inter-token comments, changed selectors, escaped strings,
+aliased receivers, public rather than private 4.x source methods, computed values,
+property mangling and rewritten/custom builds can miss. No version, extensions,
+server/framework/language or other-technology implications.
+
+Reviewed pinned readable/minified distributions for 1.9.12, 2.0.11 and 4.0.1, plus
+the published 2.0.11 ESM file. These are specific source baselines, not exhaustive
+version-family coverage or an executed detector result. All fixtures are authored
+marker scaffolds; upstream bundles are not imported or required by tests.
+
+Reviewed 2026-11-07. Sources:
+[1.9.12 readable](https://github.com/bigskysoftware/htmx/blob/f38e07d4be8145a39e2bb477ec9fcc56bdd2d16d/dist/htmx.js),
+[1.9.12 minified](https://github.com/bigskysoftware/htmx/blob/f38e07d4be8145a39e2bb477ec9fcc56bdd2d16d/dist/htmx.min.js),
+[2.0.11 readable](https://github.com/bigskysoftware/htmx/blob/fa978b24e75fb03c137bf2cdae4fef0e711cf8a1/dist/htmx.js),
+[2.0.11 minified](https://github.com/bigskysoftware/htmx/blob/fa978b24e75fb03c137bf2cdae4fef0e711cf8a1/dist/htmx.min.js),
+[2.0.11 ESM](https://cdn.jsdelivr.net/npm/htmx.org@2.0.11/dist/htmx.esm.js),
+[4.0.1 readable](https://github.com/bigskysoftware/htmx/blob/8d112c71624f2e48e741d740b4531d5010f057ae/dist/htmx.js),
+[4.0.1 minified](https://github.com/bigskysoftware/htmx/blob/8d112c71624f2e48e741d740b4531d5010f057ae/dist/htmx.min.js),
+[HTML attribute reference](https://htmx.org/reference/).
 
 ### jQuery
 

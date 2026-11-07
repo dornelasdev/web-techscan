@@ -2,6 +2,43 @@
   "schema_version": 1,
   "technologies": [
     {
+      "id": "htmx",
+      "name": "htmx",
+      "category": "javascript_library",
+      "rules": [
+        {
+          "id": "asset-v1-v2-core-runtime",
+          "state": "inferred",
+          "description": "Paired request-header construction and configuration lookup in captured JavaScript suggest htmx",
+          "all": [
+            {
+              "source": "asset_javascript",
+              "pattern": "\\{\\s*(?:\"HX-Request\"|'HX-Request')\\s*:\\s*(?:\"true\"|'true')\\s*,\\s*(?:\"HX-Trigger\"|'HX-Trigger')\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*\\(\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*,\\s*(?:\"id\"|'id')\\s*\\)\\s*,\\s*(?:\"HX-Trigger-Name\"|'HX-Trigger-Name')\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*\\(\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*,\\s*(?:\"name\"|'name')\\s*\\)\\s*,\\s*(?:\"HX-Target\"|'HX-Target')\\s*:\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*\\(\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*,\\s*(?:\"id\"|'id')\\s*\\)\\s*,\\s*(?:\"HX-Current-URL\"|'HX-Current-URL')\\s*:\\s*(?:[A-Za-z_$][A-Za-z0-9_$]*\\s*\\(\\s*\\)\\s*\\.\\s*)?location\\s*\\.\\s*href\\s*,?\\s*\\}"
+            },
+            {
+              "source": "asset_javascript",
+              "pattern": "(?:^|[^A-Za-z0-9_$.\\\\])[A-Za-z_$][A-Za-z0-9_$]*\\s*\\(\\s*\\)\\s*\\.\\s*querySelector\\s*\\(\\s*(?:'meta\\[name=\"htmx-config\"\\]'|\"meta\\[name='htmx-config'\\]\")\\s*\\)"
+            }
+          ]
+        },
+        {
+          "id": "asset-v4-core-runtime",
+          "state": "inferred",
+          "description": "Paired source-header construction and document configuration lookup in captured JavaScript suggest htmx",
+          "all": [
+            {
+              "source": "asset_javascript",
+              "pattern": "\\{\\s*(?:\"HX-Request\"|'HX-Request')\\s*:\\s*(?:\"true\"|'true')\\s*,\\s*(?:\"HX-Source\"|'HX-Source')\\s*:\\s*this\\s*\\.\\s*#[A-Za-z_$][A-Za-z0-9_$]*\\s*\\(\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*\\)\\s*,\\s*(?:\"HX-Current-URL\"|'HX-Current-URL')\\s*:\\s*location\\s*\\.\\s*href\\s*,\\s*(?:Accept|\"Accept\"|'Accept')\\s*:\\s*(?:\"text/html\"|'text/html')\\s*,?\\s*\\}"
+            },
+            {
+              "source": "asset_javascript",
+              "pattern": "(?:^|[^A-Za-z0-9_$.\\\\])document\\s*\\.\\s*querySelector\\s*\\(\\s*(?:'meta\\[name=\"htmx-config\"\\]'|\"meta\\[name='htmx-config'\\]\")\\s*\\)"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "id": "jquery",
       "name": "jQuery",
       "category": "javascript_library",
