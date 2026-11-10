@@ -159,7 +159,7 @@ ASP.NET Core, Astro, Django, Express, FastAPI, Fiber, Laravel, Next.js, Nuxt, Ra
 and Spring Boot use `framework` (web frameworks, including full-stack frameworks).
 Alpine.js runtime inspection requires `--assets`.
 Groups are static organization, not additional detections.
-htmx, jQuery, lazySizes, and Modernizr use `javascript_library`; their content rules
+htmx, jQuery, lazySizes, Modernizr, and Swiper use `javascript_library`; their content rules
 require `--assets`.
 Catalog JSON remains a flat array with `id`, `name`, and `category`; no `group`
 field is added. Use technology IDs for automation, not category assignments.
@@ -250,6 +250,9 @@ origins, URL redaction and both rules contributing to one finding.
 htmx checks cover 1.x/2.x and 4.x header-object/config-lookup pairs, partial and
 cross-family evidence, source isolation, optional failures, explicit origins,
 URL redaction and both rules contributing to one finding.
+Swiper checks cover paired slide-default/event-module structures, readable and
+compact module fallbacks, partial/consumer-code decoys, source isolation, explicit
+origins, optional failures, URL redaction and JSON/plain/color output.
 Combined library/CSS checks cover shared/separate scripts, downloaded and inline
 styles, partial evidence, optional failures, request/inline limits and mixed
 asset-URL/style-block provenance. Large inline-limit cases run once in JSON.

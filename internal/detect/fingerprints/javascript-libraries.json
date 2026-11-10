@@ -2,6 +2,28 @@
   "schema_version": 1,
   "technologies": [
     {
+      "id": "swiper",
+      "name": "Swiper",
+      "category": "javascript_library",
+      "rules": [
+        {
+          "id": "asset-core-runtime",
+          "state": "inferred",
+          "description": "Paired slide defaults and event/module initialization in captured JavaScript suggest Swiper",
+          "all": [
+            {
+              "source": "asset_javascript",
+              "pattern": "(?:\\{|,)\\s*slideBlankClass\\s*:\\s*(?:\"swiper-slide-blank\"|'swiper-slide-blank')\\s*,\\s*slideActiveClass\\s*:\\s*(?:\"swiper-slide-active\"|'swiper-slide-active')\\s*,\\s*slideVisibleClass\\s*:\\s*(?:\"swiper-slide-visible\"|'swiper-slide-visible')\\s*,\\s*slideFullyVisibleClass\\s*:\\s*(?:\"swiper-slide-fully-visible\"|'swiper-slide-fully-visible')\\s*,\\s*slideNextClass\\s*:\\s*(?:\"swiper-slide-next\"|'swiper-slide-next')\\s*,\\s*slidePrevClass\\s*:\\s*(?:\"swiper-slide-prev\"|'swiper-slide-prev')\\s*,\\s*wrapperClass\\s*:\\s*(?:\"swiper-wrapper\"|'swiper-wrapper')\\s*[,}]"
+            },
+            {
+              "source": "asset_javascript",
+              "pattern": "(?:^|[^A-Za-z0-9_$.\\\\])[A-Za-z_$][A-Za-z0-9_$]*\\s*\\.\\s*eventsListeners\\s*=\\s*\\{\\s*\\}\\s*[;,]\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*\\.\\s*eventsAnyListeners\\s*=\\s*\\[\\s*\\]\\s*[;,]\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*\\.\\s*modules\\s*=\\s*\\[\\s*\\.\\.\\.\\s*(?:[A-Za-z_$][A-Za-z0-9_$]*\\s*\\.\\s*__modules__(?:\\s*\\|\\|\\s*\\[\\s*\\])?|\\(\\s*[A-Za-z_$][A-Za-z0-9_$]*\\s*\\.\\s*__modules__\\s*\\|\\|\\s*\\[\\s*\\]\\s*\\))\\s*\\]\\s*(?:[;,}]|$)"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "id": "htmx",
       "name": "htmx",
       "category": "javascript_library",

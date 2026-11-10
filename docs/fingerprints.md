@@ -3,7 +3,7 @@
 [README](../README.md) · [Usage](usage.md) · [Policies](policies.md)
 
 Rules are embedded in the binary. Use `webscan --techs` to list its catalog.
-The development catalog contains 45 technologies across ten categories.
+The development catalog contains 46 technologies across ten categories.
 The v0.3.0 release baseline contains 23.
 
 ## Evidence
@@ -848,6 +848,55 @@ Reviewed 2026-10-10. Sources:
 [MIT license](https://github.com/vuejs/core/blob/v3.5.13/LICENSE).
 
 ## JavaScript libraries
+
+### Swiper
+
+Category: `javascript_library`. Rule: `asset-core-runtime`. State: `inferred`.
+Requires `--assets` and both structures in one accepted JavaScript capture:
+
+- Consecutive unquoted defaults: `slideBlankClass`, `slideActiveClass`,
+  `slideVisibleClass`, `slideFullyVisibleClass`, `slideNextClass`, `slidePrevClass`,
+  `wrapperClass`, mapped to their exact `swiper-slide-*`/`swiper-wrapper` strings.
+  The fragment has object-entry boundaries; other entries may surround it.
+- Adjacent assignments initializing `<identifier>.eventsListeners` to `{}`,
+  `<identifier>.eventsAnyListeners` to `[]`, then `<identifier>.modules` to an
+  array spreading `<identifier>.__modules__`. The spread may include an empty-array
+  `|| []` fallback, with or without parentheses around the complete fallback.
+
+Allow whitespace, single/double string quotes, renamed ASCII identifiers and
+comma/semicolon assignment separators. Required keys and strings are case-sensitive.
+Each compound fragment must remain intact; files and source types cannot be joined.
+HTML slider markup, class names,
+filenames, banners, API use, identity properties and CSS alone are insufficient.
+CSS and inline JS do not satisfy the runtime rule.
+
+Matching is textual; it does not validate identifier equality, scope, object
+ownership, full JS syntax, initialization or execution. Copied/commented code may
+match. Reordered/customized/mangled defaults, inserted comments or statements,
+different initialization shapes and modules split across uncollected files may
+miss. No version, enabled-module, React/Vue, UI-framework or backend implications.
+Collection policies and budgets are unchanged; module imports are not followed.
+
+Reviewed published core ESM, minified core and minified full bundles for 11.2.10,
+12.0.3 and 14.4.0. These are source baselines, not complete version-family or wrapper
+coverage. The selected structures are in the shared core, independent of optional
+navigation/pagination modules. CSS was inspected but has no initial rule.
+Fixtures are authored marker scaffolds; no upstream bundles are included.
+
+Reviewed 2026-11-10. Sources:
+[installation/build forms](https://swiperjs.com/get-started),
+[11.2.10 core ESM](https://cdn.jsdelivr.net/npm/swiper@11.2.10/shared/swiper-core.mjs),
+[11.2.10 core minified](https://cdn.jsdelivr.net/npm/swiper@11.2.10/swiper.min.js),
+[11.2.10 bundle minified](https://cdn.jsdelivr.net/npm/swiper@11.2.10/swiper-bundle.min.js),
+[12.0.3 core ESM](https://cdn.jsdelivr.net/npm/swiper@12.0.3/shared/swiper-core.mjs),
+[12.0.3 core minified](https://cdn.jsdelivr.net/npm/swiper@12.0.3/swiper.min.js),
+[12.0.3 bundle minified](https://cdn.jsdelivr.net/npm/swiper@12.0.3/swiper-bundle.min.js),
+[14.4.0 core ESM](https://cdn.jsdelivr.net/npm/swiper@14.4.0/shared/swiper-core.mjs),
+[14.4.0 core minified](https://cdn.jsdelivr.net/npm/swiper@14.4.0/swiper.min.js),
+[14.4.0 bundle minified](https://cdn.jsdelivr.net/npm/swiper@14.4.0/swiper-bundle.min.js),
+[14.4.0 defaults](https://github.com/nolimits4web/swiper/blob/82cb393aaf3793c92bd31ae23006215c813ab984/src/core/defaults.ts),
+[14.4.0 initialization](https://github.com/nolimits4web/swiper/blob/82cb393aaf3793c92bd31ae23006215c813ab984/src/core/core.ts),
+[MIT license](https://github.com/nolimits4web/swiper/blob/82cb393aaf3793c92bd31ae23006215c813ab984/LICENSE).
 
 ### htmx
 

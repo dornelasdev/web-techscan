@@ -2,10 +2,14 @@
 
 ## Unreleased
 
+- Added initial Swiper inference from paired slide defaults and event/module
+  initialization in one collected JS asset. Requires `--assets`; no class-only,
+  CSS-only, version or other-technology implications.
+  Catalog: 46 technologies across ten categories.
+
 - Added initial htmx inference through independent 1.x/2.x and 4.x runtime rules.
   Each requires paired header-construction/config-lookup structures in one JS
   asset with `--assets`. No directive-only, version or backend implication.
-  Catalog: 45 technologies across ten categories.
 - Added initial Alpine.js inference from paired initialization dispatches and core
   API members in one collected JS asset. Requires `--assets`; no directive-only,
   version, Vue or backend implication.
